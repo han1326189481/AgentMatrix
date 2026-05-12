@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentmatrix-backend"
+version = "0.1.0"
+description = "多智能体动态协同与国产算力优化平台 - 后端服务"
+readme = "../README.md"
+authors = [
+    { name = "AgentMatrix Team", email = "team@agentmatrix.dev" }
+]
+license = "MIT"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
+requires-python = ">=3.12"
+
+[project.scripts]
+agentmatrix = "app.main:main"
+
+[tool.uv]
+python = "3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "N", "Q", "RUF"]
+ignore = ["E501", "F401"]
+target-version = "py312"
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+
+[project.dependencies]
+fastapi = "^0.110.0"
+uvicorn = "^0.29.0"
+pydantic = "^2.6.0"
+python-dotenv = "^1.0.0"
+requests = "^2.31.0"
+aiohttp = "^3.9.0"
+sqlalchemy = "^2.0.0"
+sqlite3 = "*"
+python-pptx = "^0.6.23"
+python-docx = "^1.1.0"
+pymdown-extensions = "^10.0.0"
+ollama = "^0.1.0"
+google-generativeai = "^0.5.0"
+numpy = "^1.26.0"
+scipy = "^1.12.0"
+loguru = "^0.7.0"
+asyncio = "*"
+websockets = "^12.0"
+
+[project.group.dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "httpx",
+    "ruff",
+    "black",
+    "pre-commit",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["*"]
+exclude = ["tests*"]

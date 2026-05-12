@@ -1,0 +1,20 @@
+agent_id: knowledge
+name: Knowledge Agent
+description: 知识检索与增强
+enabled: true
+priority: 1
+
+retrieval:
+  top_k: 5
+  similarity_threshold: 0.7
+  max_context_length: 2000
+
+knowledge_sources:
+  - type: json
+    path: knowledge/json/domain_knowledge.json
+  - type: json
+    path: knowledge/json/system_knowledge.json
+
+cache:
+  enabled: true
+  ttl_seconds: 3600

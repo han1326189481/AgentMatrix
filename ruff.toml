@@ -1,0 +1,52 @@
+line-length = 100
+
+select = [
+    "E",
+    "F",
+    "W",
+    "I",
+    "N",
+    "Q",
+    "RUF",
+    "S",
+    "UP",
+    "B",
+    "A",
+    "ARG",
+    "BLE",
+    "DTZ",
+    "EM",
+    "ERA",
+    "EXE",
+    "G",
+    "ICN",
+    "INP",
+    "ISC",
+    "NPY",
+    "PTH",
+    "PYI",
+    "RET",
+    "RSE",
+    "SIM",
+    "TID",
+    "TRY",
+    "YTT",
+]
+
+ignore = [
+    "E501",
+    "F401",
+    "RUF100",
+]
+
+per-file-ignores = {
+    "**/__init__.py" = ["F401"],
+    "**/tests/**" = ["S101", "B101"],
+}
+
+target-version = "py312"
+
+[format]
+quote-style = "double"
+indent-width = 4
+line-ending = "lf"
