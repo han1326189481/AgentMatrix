@@ -1,0 +1,46 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Install Backend Dependencies",
+      "type": "shell",
+      "command": "pip install pydantic pydantic-settings fastapi uvicorn httpx python-dotenv",
+      "args": [],
+      "cwd": "${workspaceFolder}/backend",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    },
+    {
+      "label": "Install Frontend Dependencies",
+      "type": "shell",
+      "command": "npm install",
+      "args": [],
+      "cwd": "${workspaceFolder}/frontend",
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "Install Dependencies",
+      "dependsOn": [
+        "Install Backend Dependencies",
+        "Install Frontend Dependencies"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Test Workflow",
+      "type": "shell",
+      "command": "python test_workflow.py",
+      "args": [],
+      "cwd": "${workspaceFolder}/backend",
+      "problemMatcher": [],
+      "group": "test"
+    }
+  ]
+}

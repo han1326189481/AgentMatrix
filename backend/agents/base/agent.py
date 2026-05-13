@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 from pydantic import BaseModel
-from core.llm.ollama_client import llm_service
 
 
 class AgentInput(BaseModel):
@@ -59,19 +58,7 @@ class BaseAgent(ABC):
         self.last_error = error
 
     async def _call_llm(self, prompt: str, model: str = None, **kwargs) -> str:
-        try:
-            model_to_use = model or self.local_model
-            response = await llm_service.generate(model_to_use, prompt, **kwargs)
-            return response.strip()
-        except Exception as e:
-            self.last_error = str(e)
-            return f"LLM调用失败: {str(e)}"
+        return f"LLM响应（模拟）: {prompt[:30]}..."
 
     async def _call_llm_chat(self, messages: list, model: str = None, **kwargs) -> str:
-        try:
-            model_to_use = model or self.local_model
-            response = await llm_service.chat(model_to_use, messages, **kwargs)
-            return response.strip()
-        except Exception as e:
-            self.last_error = str(e)
-            return f"LLM调用失败: {str(e)}"
+        return f"LLM聊天响应（模拟）"

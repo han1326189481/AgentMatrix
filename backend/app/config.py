@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 
 class ModelConfig(BaseSettings):
@@ -43,9 +43,15 @@ class Settings(BaseSettings):
     max_concurrent_tasks: int = 10
     max_retry_attempts: int = 3
 
-    allowed_origins: List[str] = ["http://localhost:3000", "http://localhost:8000"]
+    allowed_origins_list: Optional[str] = "http://localhost:3000,http://localhost:8000"
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    @property
+    def allowed_origins(self) -> List[str]:
+        if self.allowed_origins_list:
+            return [origin.strip() for origin in self.allowed_origins_list.split(",")]
+        return ["http://localhost:3000", "http://localhost:8000"]
 
 
 settings = Settings()
