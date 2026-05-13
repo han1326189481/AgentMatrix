@@ -23,60 +23,214 @@ async def execute_workflow(
     input_data: WorkflowInput,
     registry=Depends(get_agent_registry)
 ):
-    steps = []
+    cache_key = f"workflow_{hash(input_data.user_input)}_{hash(str(input_data.context))}"
+    
+    if cache_key in workflow_cache:
+        cached_result = workflow_cache[cache_key]
+        return cached_result
+    
+    steps: List[WorkflowStep] = []
     current_context = input_data.context or {}
     executed_locally = True
+    complexity_score = 0.0
+    start_time = time.time()
+    workflow_start = datetime.now()
+    
+    metrics = get_metrics_store()
+    metrics["total_requests"] += 1
     
     try:
-        knowledge_output = await registry.execute_agent(
-            "knowledge",
-            AgentInput(content=input_data.user_input, context=current_context)
-        )
-        steps.append({"agent": "knowledge", "output": knowledge_output.dict()})
-        current_context["knowledge"] = knowledge_output.content
+        agent_order = ["knowledge", "summary", "writer", "review", "judge", "result"]
+        agent_names = {
+            "knowledge": "Knowledge Agent",
+            "summary": "Summary Agent",
+            "writer": "Writer Agent",
+            "review": "Review Agent",
+            "judge": "Judge Agent",
+            "result": "Result Agent"
+        }
         
-        summary_output = await registry.execute_agent(
-            "summary",
-            AgentInput(content=knowledge_output.content, context=current_context)
-        )
-        steps.append({"agent": "summary", "output": summary_output.dict()})
-        current_context["summary"] = summary_output.content
+        current_input = input_data.user_input
         
-        writer_output = await registry.execute_agent(
-            "writer",
-            AgentInput(content=summary_output.content, context=current_context)
-        )
-        steps.append({"agent": "writer", "output": writer_output.dict()})
-        current_context["writer"] = writer_output.content
+        for agent_id in agent_order:
+            step, output_content = await execute_agent_with_timing(
+                registry, agent_id, agent_names.get(agent_id, agent_id),
+                current_input, current_context
+            )
+            steps.append(step)
+            
+            if not step.success:
+                raise HTTPException(status_code=500, detail=f"Agent {agent_id} failed: {step.metadata.get('error', 'unknown')}")
+            
+            current_context[agent_id] = output_content
+            current_input = output_content
+            
+            if agent_id == "judge":
+                executed_locally = step.metadata.get("executed_locally", True)
+                complexity_score = step.metadata.get("complexity_score", 0.0)
+                
+                if executed_locally:
+                    metrics["local_executions"] += 1
+                    metrics["cost_saved"] += 0.01
+                else:
+                    metrics["cloud_executions"] += 1
+                    metrics["api_calls"] += 1
         
-        review_output = await registry.execute_agent(
-            "review",
-            AgentInput(content=writer_output.content, context=current_context)
-        )
-        steps.append({"agent": "review", "output": review_output.dict()})
-        current_context["review"] = review_output.content
+        final_result = steps[-1].output if steps else ""
+        total_duration = time.time() - start_time
+        workflow_end = datetime.now()
         
-        judge_output = await registry.execute_agent(
-            "judge",
-            AgentInput(content=review_output.content, context=current_context)
-        )
-        steps.append({"agent": "judge", "output": judge_output.dict()})
-        current_context["judge"] = judge_output.content
-        
-        executed_locally = judge_output.metadata.get("executed_locally", True)
-        
-        result_output = await registry.execute_agent(
-            "result",
-            AgentInput(content=judge_output.content, context=current_context)
-        )
-        steps.append({"agent": "result", "output": result_output.dict()})
-        
-        return WorkflowOutput(
-            final_result=result_output.content,
+        result = WorkflowOutput(
+            final_result=final_result,
             steps=steps,
             executed_locally=executed_locally,
-            total_time=0.0
+            total_duration_seconds=total_duration,
+            start_time=workflow_start,
+            end_time=workflow_end,
+            complexity_score=complexity_score
         )
+        
+        if executed_locally and len(final_result) < 5000:
+            workflow_cache[cache_key] = result
+        
+        return result
     
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/execute/parallel", response_model=WorkflowOutput)
+async def execute_workflow_parallel(
+    input_data: WorkflowInput,
+    registry=Depends(get_agent_registry)
+):
+    cache_key = f"workflow_parallel_{hash(input_data.user_input)}_{hash(str(input_data.context))}"
+    
+    if cache_key in workflow_cache:
+        return workflow_cache[cache_key]
+    
+    steps: List[WorkflowStep] = []
+    current_context = input_data.context or {}
+    executed_locally = True
+    complexity_score = 0.0
+    start_time = time.time()
+    workflow_start = datetime.now()
+    
+    metrics = get_metrics_store()
+    metrics["total_requests"] += 1
+    
+    try:
+        current_input = input_data.user_input
+        
+        step_knowledge, knowledge_output = await execute_agent_with_timing(
+            registry, "knowledge", "Knowledge Agent", current_input, current_context
+        )
+        steps.append(step_knowledge)
+        
+        if not step_knowledge.success:
+            raise HTTPException(status_code=500, detail=f"Knowledge Agent failed")
+        
+        current_context["knowledge"] = knowledge_output
+        
+        step_summary, summary_output = await execute_agent_with_timing(
+            registry, "summary", "Summary Agent", knowledge_output, current_context
+        )
+        steps.append(step_summary)
+        
+        if not step_summary.success:
+            raise HTTPException(status_code=500, detail=f"Summary Agent failed")
+        
+        current_context["summary"] = summary_output
+        
+        writer_input = f"{knowledge_output}\n\n任务摘要: {summary_output}"
+        step_writer, writer_output = await execute_agent_with_timing(
+            registry, "writer", "Writer Agent", writer_input, current_context
+        )
+        steps.append(step_writer)
+        
+        if not step_writer.success:
+            raise HTTPException(status_code=500, detail=f"Writer Agent failed")
+        
+        current_context["writer"] = writer_output
+        
+        review_input = f"待评审内容: {writer_output}\n任务摘要: {summary_output}"
+        step_review, review_output = await execute_agent_with_timing(
+            registry, "review", "Review Agent", review_input, current_context
+        )
+        steps.append(step_review)
+        
+        if not step_review.success:
+            raise HTTPException(status_code=500, detail=f"Review Agent failed")
+        
+        current_context["review"] = review_output
+        
+        judge_input = f"内容: {writer_output}\n评审结果: {review_output}"
+        step_judge, judge_output = await execute_agent_with_timing(
+            registry, "judge", "Judge Agent", judge_input, current_context
+        )
+        steps.append(step_judge)
+        
+        if not step_judge.success:
+            raise HTTPException(status_code=500, detail=f"Judge Agent failed")
+        
+        executed_locally = step_judge.metadata.get("executed_locally", True)
+        complexity_score = step_judge.metadata.get("complexity_score", 0.0)
+        
+        if executed_locally:
+            metrics["local_executions"] += 1
+            metrics["cost_saved"] += 0.01
+        else:
+            metrics["cloud_executions"] += 1
+            metrics["api_calls"] += 1
+        
+        current_context["judge"] = judge_output
+        
+        result_input = f"执行结果: {writer_output}\n评审: {review_output}\n复杂度: {complexity_score}"
+        step_result, result_output = await execute_agent_with_timing(
+            registry, "result", "Result Agent", result_input, current_context
+        )
+        steps.append(step_result)
+        
+        if not step_result.success:
+            raise HTTPException(status_code=500, detail=f"Result Agent failed")
+        
+        final_result = result_output
+        total_duration = time.time() - start_time
+        workflow_end = datetime.now()
+        
+        result = WorkflowOutput(
+            final_result=final_result,
+            steps=steps,
+            executed_locally=executed_locally,
+            total_duration_seconds=total_duration,
+            start_time=workflow_start,
+            end_time=workflow_end,
+            complexity_score=complexity_score
+        )
+        
+        if executed_locally and len(final_result) < 5000:
+            workflow_cache[cache_key] = result
+        
+        return result
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/cache/stats")
+async def get_cache_stats():
+    return {
+        "cache_size": len(workflow_cache),
+        "max_size": workflow_cache.maxsize,
+        "ttl": workflow_cache.ttl
+    }
+
+
+@router.post("/cache/clear")
+async def clear_cache():
+    workflow_cache.clear()
+    return {"status": "success", "message": "Cache cleared"}

@@ -1,0 +1,156 @@
+{
+  "timestamp": "2026-05-13T09:30:08.945350",
+  "total_tests": 16,
+  "successes": 16,
+  "failures": 0,
+  "success_rate": 100.0,
+  "avg_duration_ms": 3.328125,
+  "min_duration_ms": 1.03,
+  "max_duration_ms": 28.93,
+  "results": [
+    {
+      "endpoint": "/metrics/",
+      "method": "GET",
+      "description": "",
+      "status": 200,
+      "duration_ms": 28.93,
+      "success": true,
+      "response_size": 1057
+    },
+    {
+      "endpoint": "/chat/health",
+      "method": "GET",
+      "description": "",
+      "status": 200,
+      "duration_ms": 2.19,
+      "success": true,
+      "response_size": 52
+    },
+    {
+      "endpoint": "/knowledge/",
+      "method": "GET",
+      "description": "",
+      "status": 200,
+      "duration_ms": 2.09,
+      "success": true,
+      "response_size": 770
+    },
+    {
+      "endpoint": "/workflow/execute",
+      "method": "POST",
+      "description": "Workflow Cold Start",
+      "status": 200,
+      "duration_ms": 3.43,
+      "success": true,
+      "response_size": 4164
+    },
+    {
+      "endpoint": "/workflow/execute",
+      "method": "POST",
+      "description": "Workflow Cache Test #1",
+      "status": 200,
+      "duration_ms": 1.31,
+      "success": true,
+      "response_size": 4164
+    },
+    {
+      "endpoint": "/workflow/execute",
+      "method": "POST",
+      "description": "Workflow Cache Test #2",
+      "status": 200,
+      "duration_ms": 1.23,
+      "success": true,
+      "response_size": 4164
+    },
+    {
+      "endpoint": "/workflow/execute",
+      "method": "POST",
+      "description": "Workflow Cache Test #3",
+      "status": 200,
+      "duration_ms": 1.2,
+      "success": true,
+      "response_size": 4164
+    },
+    {
+      "endpoint": "/chat/send",
+      "method": "POST",
+      "description": "Chat Cold Start",
+      "status": 200,
+      "duration_ms": 1.71,
+      "success": true,
+      "response_size": 561
+    },
+    {
+      "endpoint": "/chat/send",
+      "method": "POST",
+      "description": "Chat Cache Test #1",
+      "status": 200,
+      "duration_ms": 1.46,
+      "success": true,
+      "response_size": 561
+    },
+    {
+      "endpoint": "/chat/send",
+      "method": "POST",
+      "description": "Chat Cache Test #2",
+      "status": 200,
+      "duration_ms": 1.33,
+      "success": true,
+      "response_size": 561
+    },
+    {
+      "endpoint": "/chat/send",
+      "method": "POST",
+      "description": "Chat Cache Test #3",
+      "status": 200,
+      "duration_ms": 1.36,
+      "success": true,
+      "response_size": 561
+    },
+    {
+      "endpoint": "/knowledge/search?query=AI",
+      "method": "GET",
+      "description": "",
+      "status": 200,
+      "duration_ms": 1.25,
+      "success": true,
+      "response_size": 158
+    },
+    {
+      "endpoint": "/knowledge/keyword/AI",
+      "method": "GET",
+      "description": "",
+      "status": 200,
+      "duration_ms": 1.03,
+      "success": true,
+      "response_size": 116
+    },
+    {
+      "endpoint": "/agents/",
+      "method": "GET",
+      "description": "",
+      "status": 200,
+      "duration_ms": 1.67,
+      "success": true,
+      "response_size": 741
+    },
+    {
+      "endpoint": "/agents/knowledge/status",
+      "method": "GET",
+      "description": "",
+      "status": 200,
+      "duration_ms": 1.09,
+      "success": true,
+      "response_size": 112
+    },
+    {
+      "endpoint": "/chat/send/batch",
+      "method": "POST",
+      "description": "Batch Messages",
+      "status": 200,
+      "duration_ms": 1.97,
+      "success": true,
+      "response_size": 1726
+    }
+  ]
+}

@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
 from app.dependencies import get_agent_registry
+from app.database import init_db
 from api.v1.router import router as v1_router
 from api.websocket.manager import WebSocketManager
 
@@ -25,6 +26,9 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting AgentMatrix backend...")
+    
+    init_db()
+    logger.info("Database initialized successfully")
     
     agent_registry = get_agent_registry()
     await agent_registry.initialize_all_agents()
