@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 from pydantic import BaseModel
+from core.llm.ollama_client import llm_service
 
 
 class AgentInput(BaseModel):
     content: str
     context: Optional[Dict[str, Any]] = None
+    use_llm: bool = False
 
 
 class AgentOutput(BaseModel):
@@ -13,6 +15,7 @@ class AgentOutput(BaseModel):
     success: bool = True
     message: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
+    model_used: Optional[str] = None
 
 
 class BaseAgent(ABC):
@@ -22,6 +25,8 @@ class BaseAgent(ABC):
         self.status = "idle"
         self.current_task = None
         self.last_error = None
+        self.local_model = "qwen2.5:1.5b"
+        self.cloud_model = "deepseek-r1-distill"
 
     @abstractmethod
     async def execute(self, input_data: AgentInput) -> AgentOutput:
@@ -40,6 +45,8 @@ class BaseAgent(ABC):
             "status": self.status,
             "current_task": self.current_task,
             "last_error": self.last_error,
+            "local_model": self.local_model,
+            "cloud_model": self.cloud_model,
         }
 
     async def _set_status(self, status: str) -> None:
@@ -50,3 +57,21 @@ class BaseAgent(ABC):
 
     async def _set_error(self, error: Optional[str]) -> None:
         self.last_error = error
+
+    async def _call_llm(self, prompt: str, model: str = None, **kwargs) -> str:
+        try:
+            model_to_use = model or self.local_model
+            response = await llm_service.generate(model_to_use, prompt, **kwargs)
+            return response.strip()
+        except Exception as e:
+            self.last_error = str(e)
+            return f"LLM调用失败: {str(e)}"
+
+    async def _call_llm_chat(self, messages: list, model: str = None, **kwargs) -> str:
+        try:
+            model_to_use = model or self.local_model
+            response = await llm_service.chat(model_to_use, messages, **kwargs)
+            return response.strip()
+        except Exception as e:
+            self.last_error = str(e)
+            return f"LLM调用失败: {str(e)}"

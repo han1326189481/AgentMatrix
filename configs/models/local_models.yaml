@@ -1,18 +1,69 @@
-default_model: qwen2.5:3b
+default_model: qwen2.5:1.5b
 
 models:
-  - name: qwen2.5:3b
+  - name: qwen2.5:1.5b
     provider: ollama
     host: http://localhost:11434
     parameters:
       temperature: 0.7
       max_tokens: 2048
       top_p: 0.9
+    capabilities:
+      - summarization
+      - classification
+      - reasoning
+      - knowledge_retrieval
 
-  - name: deepseek-r1-distill
+  - name: phi4-mini:3.8b
+    provider: ollama
+    host: http://localhost:11434
+    parameters:
+      temperature: 0.2
+      max_tokens: 4096
+      top_p: 0.95
+    capabilities:
+      - review
+      - reasoning
+      - quality_assessment
+
+  - name: internlm2:1.8b
     provider: ollama
     host: http://localhost:11434
     parameters:
       temperature: 0.7
-      max_tokens: 4096
+      max_tokens: 2048
       top_p: 0.9
+    capabilities:
+      - summarization
+      - general_purpose
+
+agent_mappings:
+  - agent_id: knowledge
+    local_model: qwen2.5:1.5b
+    cloud_model: deepseek-r1-distill
+    description: 知识检索与增强
+
+  - agent_id: summary
+    local_model: qwen2.5:1.5b
+    cloud_model: deepseek-r1-distill
+    description: 需求摘要提取
+
+  - agent_id: writer
+    local_model: qwen2.5:1.5b
+    cloud_model: deepseek-r1-distill
+    description: 内容生成与文档撰写
+
+  - agent_id: review
+    local_model: phi4-mini:3.8b
+    cloud_model: deepseek-r1-distill
+    description: 质量评审与检查
+
+  - agent_id: judge
+    local_model: qwen2.5:1.5b
+    cloud_model: deepseek-r1-distill
+    description: 复杂度判断与路由决策
+
+  - agent_id: result
+    local_model: qwen2.5:1.5b
+    cloud_model: deepseek-r1-distill
+    description: 结果导出与格式转换

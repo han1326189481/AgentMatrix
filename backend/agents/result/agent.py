@@ -1,11 +1,13 @@
 from agents.base.agent import BaseAgent, AgentInput, AgentOutput
 from typing import Dict, Any
 import json
+from datetime import datetime
 
 
 class ResultAgent(BaseAgent):
     def __init__(self):
         super().__init__("result", "Result Agent")
+        self.local_model = "qwen2.5:1.5b"
     
     async def execute(self, input_data: AgentInput) -> AgentOutput:
         await self._set_status("processing")
@@ -22,7 +24,8 @@ class ResultAgent(BaseAgent):
                 content=final_result,
                 success=True,
                 message="结果生成完成",
-                metadata={"format": "markdown", "length": len(final_result)}
+                metadata={"format": "markdown", "length": len(final_result), "model_used": self.local_model},
+                model_used=self.local_model
             )
         
         except Exception as e:
@@ -61,6 +64,6 @@ class ResultAgent(BaseAgent):
         
         result += "\n---\n\n"
         result += "**导出格式**: Markdown\n"
-        result += "**生成时间**: 2024-01-01 12:00:00\n"
+        result += f"**生成时间**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
         
         return result

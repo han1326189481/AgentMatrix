@@ -1,5 +1,19 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List
+from typing import List, Dict
+
+
+class ModelConfig(BaseSettings):
+    name: str
+    provider: str
+    host: str = ""
+    api_key: str = ""
+    parameters: Dict[str, float] = {}
+
+
+class AgentModelMapping(BaseSettings):
+    agent_id: str
+    local_model: str
+    cloud_model: str
 
 
 class Settings(BaseSettings):
@@ -17,10 +31,12 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./agentmatrix.db"
 
     ollama_host: str = "http://localhost:11434"
-    ollama_model: str = "qwen2.5:3b"
+    ollama_model: str = "qwen2.5:1.5b"
+    ollama_review_model: str = "phi4-mini:3.8b"
 
-    gemini_api_key: str = ""
-    gemini_model: str = "gemini-pro"
+    deepseek_api_key: str = ""
+    deepseek_api_base: str = "https://api.deepseek.com/v1"
+    deepseek_model: str = "deepseek-r1-distill"
 
     complexity_threshold: float = 0.65
 

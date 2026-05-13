@@ -7,6 +7,7 @@ from app.config import settings
 class JudgeAgent(BaseAgent):
     def __init__(self):
         super().__init__("judge", "Judge Agent")
+        self.local_model = "qwen2.5:1.5b"
         self.threshold = settings.complexity_threshold
     
     async def execute(self, input_data: AgentInput) -> AgentOutput:
@@ -14,7 +15,10 @@ class JudgeAgent(BaseAgent):
         await self._set_current_task(f"复杂度判断: {input_data.content[:50]}...")
         
         try:
-            judge_result = self._judge_complexity(input_data.content)
+            if input_data.use_llm:
+                judge_result = await self._judge_complexity_with_llm(input_data.content)
+            else:
+                judge_result = self._judge_complexity(input_data.content)
             
             await self._set_status("idle")
             await self._set_current_task(None)
@@ -26,8 +30,10 @@ class JudgeAgent(BaseAgent):
                 metadata={
                     "complexity_score": judge_result["complexity_score"],
                     "threshold": self.threshold,
-                    "executed_locally": judge_result["execute_locally"]
-                }
+                    "executed_locally": judge_result["execute_locally"],
+                    "model_used": self.local_model
+                },
+                model_used=self.local_model
             )
         
         except Exception as e:
@@ -41,6 +47,44 @@ class JudgeAgent(BaseAgent):
     
     def _judge_complexity(self, content: str) -> Dict[str, Any]:
         score = self._calculate_complexity(content)
+        execute_locally = score <= self.threshold
+        
+        return {
+            "complexity_score": score,
+            "threshold": self.threshold,
+            "execute_locally": execute_locally,
+            "decision": "本地执行" if execute_locally else "调用云端API",
+            "reasons": self._get_decision_reasons(score, execute_locally),
+            "confidence": self._calculate_confidence(score)
+        }
+    
+    async def _judge_complexity_with_llm(self, content: str) -> Dict[str, Any]:
+        prompt = f"""
+请分析以下任务的复杂度：
+
+任务内容：{content}
+
+请从以下维度评估：
+1. 任务长度（短/中/长）
+2. 涉及领域（通用/专业/复杂专业）
+3. 需要的推理深度（简单/中等/深度）
+4. 是否需要外部知识（否/少量/大量）
+
+请输出JSON格式：
+{{
+  "complexity_score": 0.0-1.0,
+  "reasoning": "判断理由",
+  "factors": ["因素1", "因素2"]
+}}
+"""
+        response = await self._call_llm(prompt, model=self.local_model, temperature=0.2)
+        
+        try:
+            llm_result = json.loads(response)
+            score = max(0.0, min(1.0, llm_result.get("complexity_score", 0.5)))
+        except:
+            score = self._calculate_complexity(content)
+        
         execute_locally = score <= self.threshold
         
         return {
