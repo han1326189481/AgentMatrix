@@ -1,21 +1,60 @@
 from fastapi import APIRouter, Depends, HTTPException
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List, Tuple
 from app.dependencies import get_agent_registry
 from agents.base.agent import AgentInput, AgentOutput
+from models.workflow import WorkflowInput, WorkflowOutput, WorkflowStep
+from api.v1.metrics.router import get_metrics_store
+from cachetools import TTLCache
+import asyncio
+import time
+from datetime import datetime
 
 router = APIRouter()
 
-
-class WorkflowInput(BaseModel):
-    user_input: str
-    context: Optional[Dict[str, Any]] = None
+workflow_cache = TTLCache(maxsize=100, ttl=300)
 
 
-class WorkflowOutput(BaseModel):
-    final_result: str
-    steps: List[Dict[str, Any]]
-    executed_locally: bool
-    total_time: float
+async def execute_agent_with_timing(
+    registry,
+    agent_id: str,
+    agent_name: str,
+    current_input: str,
+    current_context: Dict[str, Any]
+) -> Tuple[WorkflowStep, str]:
+    """Execute a single agent with timing and error handling"""
+    agent_start = time.time()
+    
+    try:
+        output = await registry.execute_agent(
+            agent_id,
+            AgentInput(content=current_input, context=current_context)
+        )
+        agent_duration = time.time() - agent_start
+        
+        step = WorkflowStep(
+            agent_id=agent_id,
+            agent_name=agent_name,
+            input=current_input,
+            output=output.content,
+            success=output.success,
+            duration_seconds=agent_duration,
+            metadata=output.metadata or {}
+        )
+        
+        return step, output.content
+    
+    except Exception as e:
+        agent_duration = time.time() - agent_start
+        step = WorkflowStep(
+            agent_id=agent_id,
+            agent_name=agent_name,
+            input=current_input,
+            output="",
+            success=False,
+            duration_seconds=agent_duration,
+            metadata={"error": str(e)}
+        )
+        return step, ""
 
 
 @router.post("/execute", response_model=WorkflowOutput)
