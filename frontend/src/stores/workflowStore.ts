@@ -1,93 +1,143 @@
 import { create } from 'zustand';
-import { agentService } from '@/services/api/agentService';
-
-interface LogEntry {
-  id: string;
-  timestamp: Date;
-  agent: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  message: string;
-}
+import type { AgentId, LogEntry, LogType, WorkflowOutput, WorkflowStep } from '@/types';
+import { AGENT_ORDER, AGENT_NAMES } from '@/types';
 
 interface WorkflowStore {
   isRunning: boolean;
+  currentStep: AgentId | null;
+  completedSteps: AgentId[];
+  workflowSteps: WorkflowStep[];
+  result: WorkflowOutput | null;
+  judgeDecision: 'local' | 'cloud' | null;
+  complexityScore: number | null;
   logs: LogEntry[];
-  result: string | null;
-  executedLocally: boolean;
-  executeWorkflow: (input: string) => Promise<void>;
-  addLog: (agent: string, type: LogEntry['type'], message: string) => void;
-  clearLogs: () => void;
+  currentTask: string | null;
+  elapsedSeconds: number;
+  timerRef: ReturnType<typeof setInterval> | null;
+  useMock: boolean;
+  setIsRunning: (running: boolean) => void;
+  setCurrentStep: (step: AgentId | null) => void;
+  addCompletedStep: (step: AgentId) => void;
+  addWorkflowStep: (step: WorkflowStep) => void;
+  addLog: (agent: AgentId | undefined, type: LogType, message: string) => void;
+  setResult: (result: WorkflowOutput) => void;
+  setJudgeDecision: (decision: 'local' | 'cloud') => void;
+  setComplexityScore: (score: number | null) => void;
+  setCurrentTask: (task: string | null) => void;
+  setUseMock: (useMock: boolean) => void;
+  resetWorkflow: () => void;
+  applyWorkflowOutput: (output: WorkflowOutput) => void;
 }
 
-export const useWorkflowStore = create<WorkflowStore>((set, get) => ({
+const initialState = {
   isRunning: false,
-  logs: [],
-  result: null,
-  executedLocally: true,
+  currentStep: null as AgentId | null,
+  completedSteps: [] as AgentId[],
+  workflowSteps: [] as WorkflowStep[],
+  result: null as WorkflowOutput | null,
+  judgeDecision: null as 'local' | 'cloud' | null,
+  complexityScore: null as number | null,
+  logs: [] as LogEntry[],
+  currentTask: null as string | null,
+  elapsedSeconds: 0,
+  timerRef: null as ReturnType<typeof setInterval> | null,
+  useMock: true,
+};
+
+export const useWorkflowStore = create<WorkflowStore>((set, get) => ({
+  ...initialState,
+
+  setIsRunning: (running) => set((state) => {
+    if (running && !state.isRunning) {
+      const timer = setInterval(() => {
+        set((s) => ({ elapsedSeconds: s.elapsedSeconds + 1 }));
+      }, 1000);
+      return { isRunning: true, timerRef: timer };
+    }
+    if (!running && state.isRunning && state.timerRef) {
+      clearInterval(state.timerRef);
+    }
+    return { isRunning: false, timerRef: null };
+  }),
+
+  setCurrentStep: (step) => set({ currentStep: step }),
+
+  addCompletedStep: (step) =>
+    set((state) => ({
+      completedSteps: [...new Set([...state.completedSteps, step])],
+    })),
+
+  addWorkflowStep: (step) =>
+    set((state) => ({
+      workflowSteps: [...state.workflowSteps, step],
+    })),
 
   addLog: (agent, type, message) =>
     set((state) => ({
       logs: [
         ...state.logs,
         {
-          id: Date.now().toString(),
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
           timestamp: new Date(),
-          agent,
+          agent_id: agent,
           type,
           message,
         },
       ],
     })),
 
-  clearLogs: () => set({ logs: [] }),
+  setResult: (result) => set({ result }),
 
-  executeWorkflow: async (input) => {
-    const { addLog } = get();
-    set({ isRunning: true, result: null, logs: [] });
+  setJudgeDecision: (decision) => set({ judgeDecision: decision }),
 
-    try {
-      addLog('system', 'info', `开始执行工作流: ${input.slice(0, 50)}...`);
+  setComplexityScore: (score) => set({ complexityScore: score }),
 
-      addLog('knowledge', 'info', '知识检索开始');
-      const knowledgeResult = await agentService.executeAgent('knowledge', { content: input });
-      addLog('knowledge', 'success', '知识检索完成');
+  setCurrentTask: (task) => set({ currentTask: task }),
 
-      addLog('summary', 'info', '需求摘要开始');
-      const summaryResult = await agentService.executeAgent('summary', { content: knowledgeResult.content });
-      addLog('summary', 'success', '需求摘要完成');
+  setUseMock: (useMock) => set({ useMock }),
 
-      addLog('writer', 'info', '内容生成开始');
-      const writerResult = await agentService.executeAgent('writer', { content: summaryResult.content });
-      addLog('writer', 'success', '内容生成完成');
-
-      addLog('review', 'info', '质量评审开始');
-      const reviewResult = await agentService.executeAgent('review', { content: writerResult.content });
-      addLog('review', 'success', `质量评审完成，评分: ${reviewResult.metadata?.score || 'N/A'}`);
-
-      addLog('judge', 'info', '复杂度判断开始');
-      const judgeResult = await agentService.executeAgent('judge', { content: reviewResult.content });
-      const executedLocally = judgeResult.metadata?.executed_locally ?? true;
-      addLog('judge', executedLocally ? 'success' : 'warning', 
-             `复杂度判断完成，${executedLocally ? '本地执行' : '调用云端API'}`);
-
-      addLog('result', 'info', '结果生成开始');
-      const resultResult = await agentService.executeAgent('result', { 
-        content: judgeResult.content,
-        context: { writer: writerResult.content }
-      });
-      addLog('result', 'success', '结果生成完成');
-
-      set({ 
-        result: resultResult.content,
-        executedLocally,
-        isRunning: false 
-      });
-
-      addLog('system', 'success', '工作流执行完成');
-
-    } catch (error) {
-      addLog('system', 'error', `工作流执行失败: ${error instanceof Error ? error.message : '未知错误'}`);
-      set({ isRunning: false });
+  resetWorkflow: () => {
+    const state = get();
+    if (state.timerRef) {
+      clearInterval(state.timerRef);
     }
+    set(initialState);
+  },
+
+  applyWorkflowOutput: (output: WorkflowOutput) => {
+    const state = get();
+
+    const completedAgentIds: AgentId[] = [];
+    const workflowSteps: WorkflowStep[] = [];
+
+    for (const step of output.steps) {
+      const agentId = AGENT_ORDER.find(
+        (id) => step.agent_id === id || step.agent_name.includes(AGENT_NAMES[id])
+      );
+      if (agentId) {
+        completedAgentIds.push(agentId);
+      }
+      workflowSteps.push(step);
+    }
+
+    let judgeDecision: 'local' | 'cloud' | null = null;
+    if (output.complexity_score !== undefined) {
+      judgeDecision = output.complexity_score >= 0.65 ? 'cloud' : 'local';
+    }
+
+    if (state.timerRef) {
+      clearInterval(state.timerRef);
+    }
+
+    set({
+      result: output,
+      completedSteps: [...new Set([...state.completedSteps, ...completedAgentIds])],
+      workflowSteps: [...state.workflowSteps, ...workflowSteps],
+      judgeDecision: judgeDecision ?? state.judgeDecision,
+      complexityScore: output.complexity_score ?? state.complexityScore,
+      isRunning: false,
+      currentStep: null,
+      timerRef: null,
+    });
   },
 }));

@@ -1,145 +1,268 @@
 'use client';
 
-import { Brain, FileText, PenTool, Eye, Scale, Cloud, Cpu, HardDrive, Activity, Settings, ChevronDown, ChevronRight, CheckCircle } from 'lucide-react';
+import { FileText, PenTool, Trophy, Scale, Cloud, Download } from 'lucide-react';
+import { useAgentStore, AGENT_CONFIGS } from '@/stores/agentStore';
+import { useWorkflowStore } from '@/stores/workflowStore';
+import { AGENT_ORDER, AGENT_EMOJIS } from '@/types';
+import type { AgentId } from '@/types';
+import { useState } from 'react';
 
-const kpiData = [
-  { label: 'API调用次数', value: '1', unit: '/ 1次', percentage: 100, color: 'text-blue-400', bgColor: 'from-blue-500 to-blue-600' },
-  { label: '预估节省成本', value: '¥0.113', unit: '', percentage: 62, color: 'text-green-400', bgColor: 'from-green-500 to-green-600' },
-  { label: '本地算力负载', value: '34%', unit: '', percentage: 34, color: 'text-purple-400', bgColor: 'from-purple-500 to-purple-600' },
-  { label: '响应时间', value: '2.3s', unit: '', percentage: 56, color: 'text-cyan-400', bgColor: 'from-cyan-500 to-cyan-600' },
-];
+const agentIconMap: Record<AgentId, typeof FileText> = {
+  knowledge: FileText,
+  summary: PenTool,
+  writer: Trophy,
+  review: Scale,
+  judge: Cloud,
+  result: Download,
+};
 
-const agentList = [
-  { id: 'summary', name: '摘要 Agent', model: 'Qwen2.5-3B', status: 'completed', icon: FileText, color: 'from-blue-500 to-blue-600' },
-  { id: 'writer', name: '撰写 Agent', model: 'Qwen2.5-7B', status: 'completed', icon: PenTool, color: 'from-green-500 to-green-600' },
-  { id: 'review', name: '评审 Agent', model: 'Qwen2.5-3B', status: 'completed', icon: Eye, color: 'from-yellow-500 to-yellow-600' },
-  { id: 'judge', name: '评委 Agent', model: 'Qwen2.5-3B', status: 'processing', icon: Scale, color: 'from-purple-500 to-purple-600' },
-  { id: 'api', name: 'API网关', model: 'DeepSeek-V4', status: 'processing', icon: Cloud, color: 'from-orange-500 to-orange-600' },
-];
+function ProgressRing({ percentage, color }: { percentage: number; color: string }) {
+  const radius = 20;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div className="progress-ring">
+      <svg width="48" height="48" viewBox="0 0 48 48">
+        <circle className="progress-ring-bg" cx="24" cy="24" r={radius} />
+        <circle
+          className="progress-ring-fill"
+          cx="24"
+          cy="24"
+          r={radius}
+          stroke={color}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+        />
+      </svg>
+      <span className="progress-ring-text" style={{ color }}>{percentage}%</span>
+    </div>
+  );
+}
+
+function ResourceChart({ color, gradientId, pathD, fillPathD }: {
+  color: string;
+  gradientId: string;
+  pathD: string;
+  fillPathD: string;
+}) {
+  return (
+    <svg width="100%" height="32" viewBox="0 0 240 32" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={fillPathD} fill={`url(#${gradientId})`} />
+      <path d={pathD} fill="none" stroke={color} strokeWidth="1.5" />
+    </svg>
+  );
+}
 
 export default function SidePanel() {
+  const { agents } = useAgentStore();
+  const { completedSteps, isRunning } = useWorkflowStore();
+  const [threshold, setThreshold] = useState(0.65);
+
+  const apiCallCount = completedSteps.includes('judge') ? 1 : 0;
+  const apiCallTotal = 1;
+  const apiCallPercent = apiCallTotal > 0 ? Math.round((apiCallCount / apiCallTotal) * 100) : 0;
+
+  const costSaved = completedSteps.length > 0 ? (completedSteps.length * 0.02).toFixed(3) : '0.000';
+  const costSavedPercent = completedSteps.length > 0 ? Math.min(62, completedSteps.length * 10) : 0;
+
   return (
-    <aside className="w-80 bg-dark-800 border-r border-dark-700 flex flex-col">
-      <div className="p-4 border-b border-dark-700">
-        <div className="grid grid-cols-2 gap-3">
-          {kpiData.map((kpi, index) => (
-            <div key={index} className="bg-dark-700 rounded-lg p-3 border border-dark-600">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-dark-400">{kpi.label}</span>
-                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${kpi.bgColor} flex items-center justify-center relative`}>
-                  <svg className="w-8 h-8 -rotate-90">
-                    <circle cx="16" cy="16" r="14" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
-                    <circle 
-                      cx="16" cy="16" r="14" 
-                      fill="none" 
-                      stroke="white" 
-                      strokeWidth="2" 
-                      strokeDasharray={`${kpi.percentage * 0.88} 88`}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <span className="absolute text-xs font-bold text-white">{kpi.percentage}%</span>
-                </div>
-              </div>
-              <div className="flex items-baseline gap-1">
-                <span className={`text-lg font-bold ${kpi.color}`}>{kpi.value}</span>
-                <span className="text-xs text-dark-500">{kpi.unit}</span>
-              </div>
+    <aside className="sidebar-left">
+      <div className="card animate-in delay-1">
+        <div className="card-title">API调用次数</div>
+        <div className="card-value">{apiCallCount} / {apiCallTotal}次</div>
+        <div className="progress-ring-container">
+          <ProgressRing percentage={apiCallPercent} color="var(--blue)" />
+          <div style={{ flex: 1 }}>
+            <div className="progress-bar">
+              <div className="progress-bar-fill" style={{ width: `${apiCallPercent}%`, background: 'var(--blue)' }} />
             </div>
-          ))}
+          </div>
+        </div>
+        <div className="card-info" style={{ marginTop: 8 }}>
+          <span>纯API模式基准：1次</span>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-4 border-b border-dark-700">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-white">Agent舰队</h3>
-            <div className="flex items-center gap-1">
-              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              <span className="text-xs text-dark-400">全部启用</span>
-            </div>
-          </div>
-          <div className="space-y-2">
-            {agentList.map((agent) => {
-              const Icon = agent.icon;
-              const isProcessing = agent.status === 'processing';
-              const isCompleted = agent.status === 'completed';
-              
-              return (
-                <div 
-                  key={agent.id}
-                  className={`p-3 rounded-lg border transition-all ${
-                    isProcessing 
-                      ? 'bg-purple-500/10 border-purple-500/30' 
-                      : 'bg-dark-700/50 border-dark-600/50'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${agent.color} flex items-center justify-center`}>
-                      <Icon className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-white truncate">{agent.name}</span>
-                        {isCompleted && <CheckCircle className="w-4 h-4 text-green-400" />}
-                        {isProcessing && <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />}
-                      </div>
-                      <span className="text-xs text-dark-400">{agent.model}</span>
-                    </div>
-                    <span className={`text-xs px-2 py-1 rounded ${
-                      isProcessing ? 'bg-purple-500/20 text-purple-400' : 
-                      isCompleted ? 'bg-green-500/20 text-green-400' : 'bg-dark-600 text-dark-400'
-                    }`}>
-                      {isProcessing ? '工作中' : isCompleted ? '已完成' : '待执行'}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="p-4 border-b border-dark-700">
-          <h3 className="text-sm font-semibold text-white mb-3">资源监控</h3>
-          <div className="space-y-3">
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-dark-400">CPU使用率</span>
-                <span className="text-xs text-green-400">34%</span>
-              </div>
-              <div className="h-2 bg-dark-700 rounded-full overflow-hidden">
-                <div className="h-full w-[34%] bg-gradient-to-r from-green-500 to-green-400 rounded-full" />
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-dark-400">内存占用</span>
-                <span className="text-xs text-blue-400">4.2GB/16GB</span>
-              </div>
-              <div className="h-2 bg-dark-700 rounded-full overflow-hidden">
-                <div className="h-full w-[26%] bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" />
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-dark-400">显存占用</span>
-                <span className="text-xs text-purple-400">1.2GB/8GB</span>
-              </div>
-              <div className="h-2 bg-dark-700 rounded-full overflow-hidden">
-                <div className="h-full w-[15%] bg-gradient-to-r from-purple-500 to-purple-400 rounded-full" />
-              </div>
+      <div className="card animate-in delay-2">
+        <div className="card-title">预估节省成本</div>
+        <div className="card-value green">¥{costSaved}</div>
+        <div className="progress-ring-container">
+          <ProgressRing percentage={costSavedPercent} color="var(--green)" />
+          <div style={{ flex: 1 }}>
+            <div className="progress-bar">
+              <div className="progress-bar-fill" style={{ width: `${costSavedPercent}%`, background: 'var(--green)' }} />
             </div>
           </div>
         </div>
+        <div className="card-info" style={{ marginTop: 8 }}>
+          <span>纯API成本：¥0.18</span>
+          <span className="highlight green">节省{costSavedPercent}%</span>
+        </div>
+      </div>
 
-        <div className="p-4">
-          <button className="w-full flex items-center justify-between p-3 bg-dark-700/50 hover:bg-dark-700 rounded-lg border border-dark-600/50 transition-colors">
-            <div className="flex items-center gap-3">
-              <Settings className="w-5 h-5 text-dark-400" />
-              <span className="text-sm text-dark-300">系统设置</span>
+      <div className="card animate-in delay-3">
+        <div className="card-title">本地算力负载</div>
+        <div className="stats-row">
+          <div className="stat-item">
+            <div className="stat-label">CPU</div>
+            <div className="stat-value">34%</div>
+          </div>
+          <div className="stat-item">
+            <div className="stat-label">显存</div>
+            <div className="stat-value">1.2GB</div>
+          </div>
+        </div>
+        <div className="progress-ring-container">
+          <ProgressRing percentage={34} color="var(--green)" />
+          <div style={{ flex: 1 }}>
+            <div className="progress-bar">
+              <div className="progress-bar-fill" style={{ width: '34%', background: 'var(--green)' }} />
             </div>
-            <ChevronRight className="w-4 h-4 text-dark-500" />
-          </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="card animate-in delay-4">
+        <div className="card-title">响应时间</div>
+        <div className="card-value">2.3s</div>
+        <div className="progress-ring-container">
+          <ProgressRing percentage={56} color="var(--blue)" />
+          <div style={{ flex: 1 }}>
+            <div className="progress-bar">
+              <div className="progress-bar-fill" style={{ width: '56%', background: 'var(--blue)' }} />
+            </div>
+          </div>
+        </div>
+        <div className="card-info" style={{ marginTop: 8 }}>
+          <span>纯API模式：4.1s</span>
+          <span className="highlight">更快</span>
+        </div>
+      </div>
+
+      <div className="card animate-in delay-5">
+        <div className="agent-fleet-header">
+          <span className="agent-fleet-title">Agent舰队</span>
+          <span className="agent-fleet-status">全部启用</span>
+        </div>
+
+        {AGENT_ORDER.map((agentId) => {
+          const agent = agents[agentId];
+          const config = AGENT_CONFIGS[agentId];
+          const Icon = agentIconMap[agentId];
+          const isActive = agent.status === 'processing';
+          const isCompleted = agent.status === 'completed';
+
+          return (
+            <div key={agentId} className="agent-item">
+              <div className={`agent-icon ${config.icon_class}`}>
+                <Icon size={16} />
+              </div>
+              <div className="agent-info">
+                <div className="agent-name">{config.name}</div>
+                <div className="agent-model">{config.model}</div>
+                <div className="agent-desc">{config.description}</div>
+              </div>
+              <div className="agent-status">
+                {isCompleted && (
+                  <span className="status-badge completed">已完成</span>
+                )}
+                {isActive && (
+                  <span className="status-badge working">
+                    <span className="spinner" /> 工作中
+                  </span>
+                )}
+                {!isActive && !isCompleted && (
+                  <span className="status-badge idle">空闲</span>
+                )}
+                <div className="toggle-switch" />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="card animate-in delay-5">
+        <div className="card-title">资源监控</div>
+        <div className="resource-item">
+          <div className="resource-header">
+            <span className="resource-label">CPU使用率</span>
+            <span className="resource-value" style={{ color: 'var(--blue)' }}>34%</span>
+          </div>
+          <div className="resource-chart">
+            <ResourceChart
+              color="var(--blue)"
+              gradientId="cpuGrad"
+              pathD="M0,20 Q20,18 40,22 T80,16 T120,20 T160,14 T200,18 T240,22"
+              fillPathD="M0,20 Q20,18 40,22 T80,16 T120,20 T160,14 T200,18 T240,22 V32 H0 Z"
+            />
+          </div>
+        </div>
+        <div className="resource-item">
+          <div className="resource-header">
+            <span className="resource-label">内存占用</span>
+            <span className="resource-value" style={{ color: 'var(--blue)' }}>4.2GB / 16GB</span>
+          </div>
+          <div className="resource-chart">
+            <ResourceChart
+              color="var(--green)"
+              gradientId="memGrad"
+              pathD="M0,16 Q30,14 60,18 T120,12 T180,16 T240,14"
+              fillPathD="M0,16 Q30,14 60,18 T120,12 T180,16 T240,14 V32 H0 Z"
+            />
+          </div>
+        </div>
+        <div className="resource-item">
+          <div className="resource-header">
+            <span className="resource-label">显存占用</span>
+            <span className="resource-value" style={{ color: 'var(--blue)' }}>1.2GB / 8GB</span>
+          </div>
+          <div className="resource-chart">
+            <ResourceChart
+              color="var(--purple)"
+              gradientId="gpuGrad"
+              pathD="M0,24 Q40,20 80,24 T160,18 T240,22"
+              fillPathD="M0,24 Q40,20 80,24 T160,18 T240,22 V32 H0 Z"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="card animate-in delay-5">
+        <div className="card-title">系统设置</div>
+        <div className="setting-item">
+          <div className="setting-label">本地模型路径</div>
+          <select className="setting-input">
+            <option>/models</option>
+          </select>
+        </div>
+        <div className="setting-item">
+          <div className="setting-label">API Key</div>
+          <input type="password" className="setting-input" defaultValue="sk-******-******-******-demo" readOnly />
+        </div>
+        <div className="setting-item">
+          <div className="setting-label">难度阈值 (置信度)</div>
+          <div className="slider-container">
+            <input
+              type="range"
+              className="slider"
+              min={30}
+              max={90}
+              value={threshold * 100}
+              onChange={(e) => setThreshold(Number(e.target.value) / 100)}
+            />
+            <div className="slider-labels">
+              <span className="slider-label">0.3</span>
+              <span className="slider-label">0.9</span>
+            </div>
+            <div className="slider-value">{threshold.toFixed(2)}</div>
+          </div>
         </div>
       </div>
     </aside>

@@ -1,45 +1,29 @@
 import { create } from 'zustand';
-import { agentService } from '@/services/api/agentService';
-
-interface Metrics {
-  api_calls: number;
-  cost_saved: number;
-  avg_response_time: number;
-  cpu_usage: number;
-  gpu_usage: number;
-  local_executions: number;
-  cloud_executions: number;
-}
+import type { Metrics } from '@/types';
 
 interface MetricsStore {
   metrics: Metrics;
-  loading: boolean;
-  fetchMetrics: () => Promise<void>;
+  updateMetrics: (data: Partial<Metrics>) => void;
 }
 
-const initialMetrics: Metrics = {
-  api_calls: 0,
-  cost_saved: 0,
-  avg_response_time: 0,
-  cpu_usage: 0,
-  gpu_usage: 0,
-  local_executions: 0,
-  cloud_executions: 0,
+const mockMetrics: Metrics = {
+  total_requests: 12,
+  api_calls: 12,
+  cost_saved: 28.5,
+  avg_response_time: 1.8,
+  cpu_usage: 35,
+  gpu_usage: 22,
+  local_executions: 8,
+  cloud_executions: 4,
+  total_tasks: 12,
+  uptime_seconds: 3600,
 };
 
 export const useMetricsStore = create<MetricsStore>((set) => ({
-  metrics: initialMetrics,
-  loading: false,
+  metrics: mockMetrics,
 
-  fetchMetrics: async () => {
-    set({ loading: true });
-    try {
-      const data = await agentService.getMetrics();
-      set({ metrics: data });
-    } catch (error) {
-      console.error('Failed to fetch metrics:', error);
-    } finally {
-      set({ loading: false });
-    }
-  },
+  updateMetrics: (data) =>
+    set((state) => ({
+      metrics: { ...state.metrics, ...data },
+    })),
 }));
