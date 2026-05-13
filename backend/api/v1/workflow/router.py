@@ -4,14 +4,45 @@ from app.dependencies import get_agent_registry
 from agents.base.agent import AgentInput, AgentOutput
 from models.workflow import WorkflowInput, WorkflowOutput, WorkflowStep
 from api.v1.metrics.router import get_metrics_store
-from cachetools import TTLCache
 import asyncio
 import time
 from datetime import datetime
 
 router = APIRouter()
 
-workflow_cache = TTLCache(maxsize=100, ttl=300)
+class SimpleCache:
+    def __init__(self, maxsize: int = 100, ttl: int = 300):
+        self.maxsize = maxsize
+        self.ttl = ttl
+        self.cache: Dict[str, Tuple[Any, float]] = {}
+    
+    def __contains__(self, key: str) -> bool:
+        if key in self.cache:
+            _, timestamp = self.cache[key]
+            if time.time() - timestamp < self.ttl:
+                return True
+            del self.cache[key]
+        return False
+    
+    def __getitem__(self, key: str) -> Any:
+        if key in self:
+            return self.cache[key][0]
+        raise KeyError(key)
+    
+    def __setitem__(self, key: str, value: Any) -> None:
+        if len(self.cache) >= self.maxsize:
+            oldest_key = min(self.cache.keys(), key=lambda k: self.cache[k][1])
+            del self.cache[oldest_key]
+        self.cache[key] = (value, time.time())
+    
+    def clear(self) -> None:
+        self.cache.clear()
+    
+    @property
+    def size(self) -> int:
+        return len(self.cache)
+
+workflow_cache = SimpleCache(maxsize=100, ttl=300)
 
 
 async def execute_agent_with_timing(
@@ -21,7 +52,6 @@ async def execute_agent_with_timing(
     current_input: str,
     current_context: Dict[str, Any]
 ) -> Tuple[WorkflowStep, str]:
-    """Execute a single agent with timing and error handling"""
     agent_start = time.time()
     
     try:
@@ -263,7 +293,7 @@ async def execute_workflow_parallel(
 @router.get("/cache/stats")
 async def get_cache_stats():
     return {
-        "cache_size": len(workflow_cache),
+        "cache_size": workflow_cache.size,
         "max_size": workflow_cache.maxsize,
         "ttl": workflow_cache.ttl
     }

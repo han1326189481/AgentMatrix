@@ -1,5 +1,7 @@
+'use client';
+
 import { useEffect, useRef } from 'react';
-import { ScrollText, CheckCircle, AlertCircle, XCircle, Info } from 'lucide-react';
+import { ScrollText, CheckCircle, AlertCircle, XCircle, Info, ChevronDown } from 'lucide-react';
 
 interface LogEntry {
   id: string;
@@ -12,6 +14,16 @@ interface LogEntry {
 interface LogViewerProps {
   logs: LogEntry[];
 }
+
+const agentConfig = {
+  system: { name: '系统', color: 'text-gray-400', bgColor: 'bg-gray-500' },
+  knowledge: { name: 'Knowledge', color: 'text-blue-400', bgColor: 'bg-blue-500' },
+  summary: { name: '摘要 Agent', color: 'text-blue-400', bgColor: 'bg-blue-500' },
+  writer: { name: '撰写 Agent', color: 'text-green-400', bgColor: 'bg-green-500' },
+  review: { name: '评审 Agent', color: 'text-yellow-400', bgColor: 'bg-yellow-500' },
+  judge: { name: '评委 Agent', color: 'text-purple-400', bgColor: 'bg-purple-500' },
+  result: { name: '结果 Agent', color: 'text-cyan-400', bgColor: 'bg-cyan-500' },
+};
 
 export default function LogViewer({ logs }: LogViewerProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -35,17 +47,8 @@ export default function LogViewer({ logs }: LogViewerProps) {
     }
   };
 
-  const getAgentColor = (agent: string) => {
-    const colors: Record<string, string> = {
-      system: 'bg-gray-500',
-      knowledge: 'bg-blue-500',
-      summary: 'bg-green-500',
-      writer: 'bg-purple-500',
-      review: 'bg-yellow-500',
-      judge: 'bg-red-500',
-      result: 'bg-cyan-500',
-    };
-    return colors[agent] || 'bg-gray-500';
+  const getAgentInfo = (agent: string) => {
+    return agentConfig[agent as keyof typeof agentConfig] || { name: agent, color: 'text-gray-400', bgColor: 'bg-gray-500' };
   };
 
   const formatTime = (date: Date) => {
@@ -56,49 +59,64 @@ export default function LogViewer({ logs }: LogViewerProps) {
     });
   };
 
-  return (
-    <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-dark-700">
-        <div className="flex items-center gap-2">
-          <ScrollText className="w-5 h-5 text-dark-400" />
-          <h3 className="text-sm font-semibold text-dark-300 uppercase tracking-wider">执行日志</h3>
-        </div>
-      </div>
+  const groupedLogs = logs.reduce((acc, log) => {
+    const agent = log.agent;
+    if (!acc[agent]) {
+      acc[agent] = [];
+    }
+    acc[agent].push(log);
+    return acc;
+  }, {} as Record<string, LogEntry[]>);
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-2">
-        {logs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-dark-500">
-            <ScrollText className="w-12 h-12 mb-2 opacity-50" />
-            <p className="text-sm">等待执行...</p>
-          </div>
-        ) : (
-          logs.map((log) => (
-            <div
-              key={log.id}
-              className="bg-dark-700/30 rounded-lg p-3 border border-dark-600"
-            >
-              <div className="flex items-start gap-2">
-                {getIcon(log.type)}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`w-2 h-2 rounded-full ${getAgentColor(log.agent)}`}></span>
-                    <span className="text-xs font-medium text-dark-300 capitalize">{log.agent}</span>
-                    <span className="text-xs text-dark-500">{formatTime(log.timestamp)}</span>
+  return (
+    <div className="p-4 space-y-4">
+      {logs.length === 0 ? (
+        <div className="text-center py-8">
+          <ScrollText className="w-12 h-12 text-dark-600 mx-auto mb-3" />
+          <p className="text-sm text-dark-500">等待任务执行...</p>
+        </div>
+      ) : (
+        Object.entries(groupedLogs).map(([agent, agentLogs]) => {
+          const agentInfo = getAgentInfo(agent);
+          const hasSuccess = agentLogs.some(l => l.type === 'success');
+          
+          return (
+            <div key={agent} className="bg-dark-700/50 rounded-lg border border-dark-600 overflow-hidden">
+              <div className={`flex items-center justify-between px-3 py-2 ${hasSuccess ? 'bg-green-500/10 border-b border-green-500/20' : 'bg-dark-600/50 border-b border-dark-600'}`}>
+                <div className="flex items-center gap-2">
+                  <div className={`w-6 h-6 rounded ${agentInfo.bgColor}/30 flex items-center justify-center`}>
+                    {hasSuccess ? <CheckCircle className="w-4 h-4 text-green-400" /> : <Info className="w-4 h-4 text-dark-400" />}
                   </div>
-                  <p className="text-sm text-dark-300 break-words">{log.message}</p>
+                  <span className={`text-sm font-medium ${agentInfo.color}`}>{agentInfo.name}</span>
                 </div>
+                <span className="text-xs text-dark-500">{agentLogs.length} 条</span>
+              </div>
+              
+              <div className="divide-y divide-dark-600">
+                {agentLogs.map((log) => (
+                  <div key={log.id} className="px-3 py-2 hover:bg-dark-600/30 transition-colors">
+                    <div className="flex items-start gap-2">
+                      {getIcon(log.type)}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs text-dark-500 font-mono">{formatTime(log.timestamp)}</span>
+                        </div>
+                        <p className={`text-sm ${
+                          log.type === 'success' ? 'text-green-300' : 
+                          log.type === 'error' ? 'text-red-300' : 
+                          log.type === 'warning' ? 'text-yellow-300' : 'text-dark-300'
+                        }`}>
+                          {log.message}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))
-        )}
-      </div>
-
-      <div className="p-3 border-t border-dark-700">
-        <div className="flex items-center justify-between text-xs text-dark-500">
-          <span>{logs.length} 条日志</span>
-          <span>实时更新</span>
-        </div>
-      </div>
+          );
+        })
+      )}
     </div>
   );
 }

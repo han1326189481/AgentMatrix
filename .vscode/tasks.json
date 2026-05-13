@@ -2,16 +2,49 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "🚀 一键启动",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-File", "start.ps1"],
+      "cwd": "${workspaceFolder}",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "一键启动前端和后端服务"
+    },
+    {
+      "label": "🛑 停止服务",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-File", "stop.ps1"],
+      "cwd": "${workspaceFolder}",
+      "problemMatcher": [],
+      "group": "none",
+      "detail": "停止所有运行中的服务"
+    },
+    {
+      "label": "🧪 测试工作流",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-File", "test.ps1"],
+      "cwd": "${workspaceFolder}",
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "detail": "测试Agent工作流是否正常"
+    },
+    {
       "label": "Install Backend Dependencies",
       "type": "shell",
       "command": "pip install pydantic pydantic-settings fastapi uvicorn httpx python-dotenv",
       "args": [],
       "cwd": "${workspaceFolder}/backend",
       "problemMatcher": [],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
+      "group": "build",
       "runOptions": {
         "runOn": "folderOpen"
       }
@@ -32,15 +65,6 @@
         "Install Frontend Dependencies"
       ],
       "problemMatcher": []
-    },
-    {
-      "label": "Test Workflow",
-      "type": "shell",
-      "command": "python test_workflow.py",
-      "args": [],
-      "cwd": "${workspaceFolder}/backend",
-      "problemMatcher": [],
-      "group": "test"
     }
   ]
 }

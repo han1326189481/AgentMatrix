@@ -2,12 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import Dict, Any, List
 from pydantic import BaseModel
 from app.dependencies import get_agent_registry
-from api.v1.workflow.router import execute_workflow, WorkflowInput, workflow_cache
-from cachetools import TTLCache
+from api.v1.workflow.router import execute_workflow, WorkflowInput, workflow_cache, SimpleCache
 
 router = APIRouter()
 
-chat_cache = TTLCache(maxsize=200, ttl=300)
+chat_cache = SimpleCache(maxsize=200, ttl=300)
 
 
 class ChatMessage(BaseModel):
@@ -100,16 +99,16 @@ async def send_batch_messages(
 
 @router.get("/health")
 async def chat_health():
-    return {"status": "ok", "service": "chat", "cache_size": len(chat_cache)}
+    return {"status": "ok", "service": "chat", "cache_size": chat_cache.size}
 
 
 @router.get("/cache/stats")
 async def get_chat_cache_stats():
     return {
-        "chat_cache_size": len(chat_cache),
+        "chat_cache_size": chat_cache.size,
         "chat_cache_max_size": chat_cache.maxsize,
         "chat_cache_ttl": chat_cache.ttl,
-        "workflow_cache_size": len(workflow_cache),
+        "workflow_cache_size": workflow_cache.size,
         "workflow_cache_max_size": workflow_cache.maxsize,
         "workflow_cache_ttl": workflow_cache.ttl
     }

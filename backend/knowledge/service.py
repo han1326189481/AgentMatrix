@@ -1,17 +1,50 @@
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 import json
 import os
 import logging
-from cachetools import TTLCache
+import time
 
 logger = logging.getLogger(__name__)
+
+
+class SimpleCache:
+    def __init__(self, maxsize: int = 100, ttl: int = 300):
+        self.maxsize = maxsize
+        self.ttl = ttl
+        self.cache: Dict[str, Tuple[Any, float]] = {}
+    
+    def __contains__(self, key: str) -> bool:
+        if key in self.cache:
+            _, timestamp = self.cache[key]
+            if time.time() - timestamp < self.ttl:
+                return True
+            del self.cache[key]
+        return False
+    
+    def __getitem__(self, key: str) -> Any:
+        if key in self:
+            return self.cache[key][0]
+        raise KeyError(key)
+    
+    def __setitem__(self, key: str, value: Any) -> None:
+        if len(self.cache) >= self.maxsize:
+            oldest_key = min(self.cache.keys(), key=lambda k: self.cache[k][1])
+            del self.cache[oldest_key]
+        self.cache[key] = (value, time.time())
+    
+    def clear(self) -> None:
+        self.cache.clear()
+    
+    @property
+    def size(self) -> int:
+        return len(self.cache)
 
 
 class KnowledgeService:
     def __init__(self):
         self.knowledge_base: Dict[str, List[str]] = {}
         self.knowledge_file = "knowledge/knowledge_base.json"
-        self.search_cache = TTLCache(maxsize=500, ttl=300)
+        self.search_cache = SimpleCache(maxsize=500, ttl=300)
         self._load_knowledge_base()
 
     def _load_knowledge_base(self) -> None:
@@ -163,7 +196,7 @@ class KnowledgeService:
             "total_keywords": len(self.knowledge_base),
             "total_items": total_items,
             "average_items_per_keyword": total_items / len(self.knowledge_base) if self.knowledge_base else 0,
-            "cache_size": len(self.search_cache)
+            "cache_size": self.search_cache.size
         }
 
     def enhance_content(self, original_content: str, keywords: List[str]) -> str:

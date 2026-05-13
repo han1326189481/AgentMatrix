@@ -23,14 +23,40 @@ class OllamaClient:
         try:
             response = await self.client.post("/api/generate", json=payload)
             response.raise_for_status()
-            result = response.json()
-            return result.get("response", "")
+            
+            raw_content = response.content
+            
+            try:
+                result = json.loads(raw_content.decode("utf-8"))
+            except UnicodeDecodeError:
+                result = json.loads(raw_content.decode("gbk"))
+            
+            response_text = result.get("response", "")
+            
+            if isinstance(response_text, bytes):
+                response_text = response_text.decode("utf-8")
+            
+            response_text = self._fix_chinese_encoding(response_text)
+            
+            return response_text
         except httpx.HTTPError as e:
             logger.error(f"Ollama API error: {e}")
             raise
         except Exception as e:
             logger.error(f"Ollama client error: {e}")
             raise
+    
+    def _fix_chinese_encoding(self, text: str) -> str:
+        try:
+            return text.encode("gbk").decode("utf-8")
+        except:
+            try:
+                return text.encode("gb18030").decode("utf-8")
+            except:
+                try:
+                    return text.encode("latin-1").decode("utf-8")
+                except:
+                    return text
     
     async def chat(self, model: str, messages: List[Dict[str, str]], **kwargs) -> str:
         payload = {
@@ -43,8 +69,18 @@ class OllamaClient:
         try:
             response = await self.client.post("/api/chat", json=payload)
             response.raise_for_status()
-            result = response.json()
-            return result.get("message", {}).get("content", "")
+            
+            raw_content = response.content
+            
+            try:
+                result = json.loads(raw_content.decode("utf-8"))
+            except UnicodeDecodeError:
+                result = json.loads(raw_content.decode("gbk"))
+            
+            content = result.get("message", {}).get("content", "")
+            content = self._fix_chinese_encoding(content)
+            
+            return content
         except httpx.HTTPError as e:
             logger.error(f"Ollama chat API error: {e}")
             raise
