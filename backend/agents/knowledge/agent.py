@@ -1,22 +1,23 @@
 from agents.base.agent import BaseAgent, AgentInput, AgentOutput
 from typing import Dict, Any
-import json
-
 
 class KnowledgeAgent(BaseAgent):
     def __init__(self):
         super().__init__("knowledge", "Knowledge Agent")
         self.local_model = "qwen2.5:1.5b"
+        self.common_keywords = ["AI", "人工智能", "校园", "教育", "规划", "方案", "系统", "开发", "设计", "报告", "分析"]
     
     async def execute(self, input_data: AgentInput) -> AgentOutput:
         await self._set_status("processing")
         await self._set_current_task(f"检索知识: {input_data.content[:50]}...")
         
         try:
-            if input_data.use_llm:
+            if hasattr(input_data, 'use_llm') and input_data.use_llm:
                 enhanced_content = await self._retrieve_knowledge_with_llm(input_data.content)
             else:
                 enhanced_content = self._retrieve_knowledge(input_data.content)
+            
+            knowledge_items = self._search_knowledge_base(self._extract_keywords(input_data.content))
             
             await self._set_status("idle")
             await self._set_current_task(None)
@@ -25,8 +26,7 @@ class KnowledgeAgent(BaseAgent):
                 content=enhanced_content,
                 success=True,
                 message="知识检索完成",
-                metadata={"knowledge_count": 3, "model_used": self.local_model},
-                model_used=self.local_model
+                metadata={"knowledge_count": len(knowledge_items), "model_used": self.local_model}
             )
         
         except Exception as e:
@@ -67,9 +67,8 @@ class KnowledgeAgent(BaseAgent):
         return response or self._retrieve_knowledge(query)
     
     def _extract_keywords(self, text: str) -> list:
-        common_keywords = ["AI", "校园", "规划", "方案", "系统", "开发", "人工智能", "教育"]
         found = []
-        for kw in common_keywords:
+        for kw in self.common_keywords:
             if kw in text:
                 found.append(kw)
         return found or ["general"]

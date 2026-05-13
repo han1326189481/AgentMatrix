@@ -1,50 +1,81 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Dict, Any, List
 from pydantic import BaseModel
+from knowledge.service import KnowledgeService
 
 router = APIRouter()
 
-
-class KnowledgeQuery(BaseModel):
-    query: str
-    top_k: int = 5
+_knowledge_service = KnowledgeService()
 
 
-class KnowledgeEntry(BaseModel):
-    id: str
-    content: str
-    score: float
-    category: str
+class KnowledgeItem(BaseModel):
+    keyword: str
+    content: List[str]
 
 
-@router.post("/query", response_model=List[KnowledgeEntry])
-async def query_knowledge(query: KnowledgeQuery):
-    return [
-        KnowledgeEntry(
-            id="1",
-            content="示例知识库内容1",
-            score=0.95,
-            category="general"
-        ),
-        KnowledgeEntry(
-            id="2",
-            content="示例知识库内容2",
-            score=0.88,
-            category="general"
-        )
-    ]
+@router.get("/")
+async def get_all_knowledge():
+    stats = _knowledge_service.get_knowledge_stats()
+    return {
+        "knowledge_base": _knowledge_service.knowledge_base,
+        "keywords": _knowledge_service.get_all_keywords(),
+        "stats": stats
+    }
 
 
-@router.get("/categories")
-async def get_categories():
-    return ["general", "technical", "business", "product"]
+@router.get("/stats")
+async def get_knowledge_stats():
+    return _knowledge_service.get_knowledge_stats()
 
 
-@router.post("/add")
-async def add_knowledge(entry: Dict[str, Any]):
-    return {"status": "success", "message": "知识条目已添加"}
+@router.get("/keyword/{keyword}")
+async def get_knowledge_by_keyword(keyword: str):
+    content = _knowledge_service.get_knowledge_by_keyword(keyword)
+    if content is None:
+        raise HTTPException(status_code=404, detail=f"Keyword {keyword} not found")
+    return {
+        "keyword": keyword,
+        "content": content
+    }
 
 
-@router.delete("/{entry_id}")
-async def delete_knowledge(entry_id: str):
-    return {"status": "success", "message": "知识条目已删除"}
+@router.post("/")
+async def add_knowledge(item: KnowledgeItem):
+    _knowledge_service.add_knowledge(item.keyword, item.content)
+    return {"status": "success", "keyword": item.keyword}
+
+
+@router.put("/keyword/{keyword}")
+async def update_knowledge(keyword: str, content: List[str]):
+    success = _knowledge_service.update_knowledge(keyword, content)
+    if not success:
+        raise HTTPException(status_code=404, detail=f"Keyword {keyword} not found")
+    return {"status": "success", "keyword": keyword}
+
+
+@router.delete("/keyword/{keyword}")
+async def delete_knowledge(keyword: str):
+    success = _knowledge_service.delete_knowledge(keyword)
+    if not success:
+        raise HTTPException(status_code=404, detail=f"Keyword {keyword} not found")
+    return {"status": "success", "keyword": keyword}
+
+
+@router.get("/search")
+async def search_knowledge(query: str, limit: int = 5):
+    results = _knowledge_service.search(query, limit)
+    return {
+        "query": query,
+        "results": results,
+        "count": len(results)
+    }
+
+
+@router.post("/enhance")
+async def enhance_content(content: str, keywords: List[str]):
+    enhanced = _knowledge_service.enhance_content(content, keywords)
+    return {
+        "original": content,
+        "enhanced": enhanced,
+        "keywords": keywords
+    }
