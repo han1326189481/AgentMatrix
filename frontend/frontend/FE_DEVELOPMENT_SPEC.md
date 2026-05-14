@@ -1,0 +1,378 @@
+# AgentMatrix 前端开发规范文档
+
+## 一、项目概述
+
+本文档定义了 AgentMatrix 前端项目的开发规范，确保代码质量、可维护性和与后端的正确对接。
+
+---
+
+## 二、技术栈规范
+
+| 分类 | 技术 | 版本 | 说明 |
+|------|------|------|------|
+| 框架 | Next.js | 14.1.0 | App Router 模式 |
+| 语言 | TypeScript | 5.3.3 | 严格类型检查 |
+| 样式 | TailwindCSS | 3.4.1 | 原子化CSS |
+| 状态管理 | Zustand | ^4.5.0 | 轻量级状态管理 |
+| HTTP请求 | Axios | ^1.6.5 | HTTP客户端 |
+| WebSocket | Socket.IO Client | ^4.6.1 | 实时通信 |
+| 图标 | Lucide React | ^0.323.0 | 图标库 |
+| 图表 | Chart.js + react-chartjs-2 | ^4.4.1 | 数据可视化 |
+| 动画 | Framer Motion | ^10.18.0 | 动画库 |
+| 流程图 | React Flow | ^11.10.0 | 工作流可视化 |
+
+---
+
+## 三、API配置规范
+
+### 3.1 基础地址
+
+```typescript
+// REST API基础地址
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+// WebSocket地址
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000';
+
+// API版本前缀
+const API_VERSION = '/api/v1';
+```
+
+### 3.2 完整API端点清单
+
+| API路径 | HTTP方法 | 功能描述 | 请求体 | 响应体 |
+|---------|----------|----------|--------|--------|
+| `/health` | GET | 健康检查 | 无 | `{status, agents, version}` |
+| `/workflow/execute` | POST | 执行工作流（串行） | `WorkflowInput` | `WorkflowOutput` |
+| `/workflow/execute/parallel` | POST | 执行工作流（并行） | `WorkflowInput` | `WorkflowOutput` |
+| `/agents` | GET | 获取所有Agent状态 | 无 | Agent状态列表 |
+| `/agents/{id}` | GET | 获取单个Agent状态 | 无 | Agent状态对象 |
+| `/metrics` | GET | 获取系统指标 | 无 | 指标数据 |
+| `/knowledge` | GET | 查询知识库 | 无 | 知识库列表 |
+| `/knowledge` | POST | 添加知识 | `{content, tags}` | 知识对象 |
+| `/export` | POST | 导出结果 | `{content, format}` | 导出文件 |
+
+---
+
+## 四、数据模型规范
+
+### 4.1 WorkflowInput（工作流输入）
+
+```typescript
+interface WorkflowInput {
+  user_input: string;                    // 用户输入内容（必填）
+  context?: Record<string, unknown>;     // 上下文信息（可选）
+}
+```
+
+### 4.2 WorkflowStep（工作流步骤）
+
+```typescript
+interface WorkflowStep {
+  agent_id: string;                      // Agent ID
+  agent_name: string;                    // Agent名称
+  input: string;                         // 输入内容
+  output: string;                        // 输出内容
+  success: boolean;                      // 是否成功
+  duration_seconds: number;              // 执行耗时（秒）
+  timestamp: string;                     // 时间戳（ISO格式）
+  metadata?: Record<string, unknown>;    // 元数据
+}
+```
+
+### 4.3 WorkflowOutput（工作流输出）
+
+```typescript
+interface WorkflowOutput {
+  final_result: string;                  // 最终结果
+  steps: WorkflowStep[];                 // 执行步骤列表
+  executed_locally: boolean;             // 是否本地执行
+  total_duration_seconds: number;        // 总耗时（秒）
+  start_time: string;                    // 开始时间
+  end_time: string;                      // 结束时间
+  complexity_score?: number;             // 复杂度评分（0-1）
+}
+```
+
+### 4.4 AgentStatus（Agent状态）
+
+```typescript
+interface AgentStatus {
+  agent_id: string;                      // Agent ID
+  name: string;                          // Agent名称
+  status: 'idle' | 'ready' | 'running' | 'shutdown'; // 状态
+  current_task?: string;                 // 当前任务
+  last_error?: string;                   // 最后错误
+}
+```
+
+### 4.5 MetricsData（指标数据）
+
+```typescript
+interface MetricsData {
+  total_requests: number;                // 总请求数
+  local_executions: number;              // 本地执行次数
+  cloud_executions: number;              // 云端执行次数
+  api_calls: number;                     // API调用次数
+  cost_saved: number;                    // 节省成本
+  avg_response_time: number;             // 平均响应时间
+}
+```
+
+### 4.6 ChatMessage（聊天消息）
+
+```typescript
+interface ChatMessage {
+  id?: string;                           // 消息ID
+  role: 'user' | 'assistant' | 'system'; // 角色
+  content: string;                       // 消息内容
+  timestamp?: number;                    // 时间戳
+  metadata?: Record<string, unknown>;    // 元数据
+}
+```
+
+---
+
+## 五、六大Agent定义
+
+```typescript
+const AGENTS: Record<string, string> = {
+  knowledge: 'Knowledge Agent',   // 知识检索 - 从知识库检索相关信息
+  summary: 'Summary Agent',       // 需求摘要 - 提取用户核心需求
+  writer: 'Writer Agent',         // 内容生成 - 根据需求生成内容
+  review: 'Review Agent',         // 质量评审 - 审核内容质量
+  judge: 'Judge Agent',           // 复杂度判断 - 判断任务复杂度
+  result: 'Result Agent'          // 成果导出 - 输出最终结果
+};
+
+// Agent执行顺序
+const AGENT_EXECUTION_ORDER = ['knowledge', 'summary', 'writer', 'review', 'judge', 'result'];
+```
+
+---
+
+## 六、目录结构规范
+
+```
+src/
+├── app/                              # Next.js App Router
+│   ├── layout.tsx                    # 根布局组件
+│   ├── page.tsx                      # 首页
+│   └── globals.css                   # 全局样式
+├── components/                       # UI组件
+│   ├── layout/                       # 布局组件
+│   │   └── DashboardLayout/          # 仪表盘布局
+│   ├── workflow/                     # 工作流组件
+│   │   └── WorkflowCanvas/           # 工作流画布
+│   ├── logs/                         # 日志组件
+│   │   └── LogViewer/                # 日志查看器
+│   ├── result/                       # 结果组件
+│   │   └── ResultPreview/            # 结果预览
+│   └── common/                       # 通用组件
+├── services/                         # 服务层
+│   └── api/                          # API服务封装
+│       ├── agentService.ts           # Agent相关API
+│       ├── workflowService.ts        # 工作流相关API
+│       ├── metricsService.ts         # 指标相关API
+│       └── knowledgeService.ts       # 知识库相关API
+├── stores/                           # Zustand状态管理
+│   ├── agentStore.ts                 # Agent状态
+│   ├── workflowStore.ts              # 工作流状态
+│   └── metricsStore.ts               # 指标数据
+├── types/                            # TypeScript类型定义
+│   └── index.ts                      # 全局类型导出
+└── utils/                            # 工具函数
+    ├── apiClient.ts                  # Axios配置
+    └── formatters.ts                 # 格式化工具
+```
+
+---
+
+## 七、开发规范
+
+### 7.1 代码规范
+
+```bash
+# 代码检查
+npm run lint
+
+# 自动修复
+npm run lint:fix
+
+# 代码格式化
+npm run format
+
+# TypeScript类型检查
+npm run typecheck
+```
+
+### 7.2 API调用规范
+
+**HTTP请求** - 使用封装的Axios客户端：
+
+```typescript
+import apiClient from '@/utils/apiClient';
+
+// POST请求示例
+const response = await apiClient.post('/workflow/execute', {
+  user_input: '用户输入内容',
+  context: {}
+});
+
+// GET请求示例
+const response = await apiClient.get('/agents');
+```
+
+**WebSocket连接** - 使用Socket.IO：
+
+```typescript
+import { io, Socket } from 'socket.io-client';
+
+const socket = io(WS_URL);
+
+socket.on('workflow_update', (data) => {
+  // 处理实时更新
+});
+```
+
+### 7.3 状态管理规范
+
+使用Zustand定义store：
+
+```typescript
+import { create } from 'zustand';
+
+interface WorkflowStore {
+  steps: WorkflowStep[];
+  isRunning: boolean;
+  setSteps: (steps: WorkflowStep[]) => void;
+  setIsRunning: (running: boolean) => void;
+}
+
+const useWorkflowStore = create<WorkflowStore>((set) => ({
+  steps: [],
+  isRunning: false,
+  setSteps: (steps) => set({ steps }),
+  setIsRunning: (running) => set({ isRunning: running })
+}));
+```
+
+### 7.4 错误处理规范
+
+```typescript
+try {
+  const response = await apiClient.post('/workflow/execute', payload);
+  return response.data;
+} catch (error) {
+  if (axios.isAxiosError(error)) {
+    // 处理HTTP错误
+    console.error('API Error:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.detail || '请求失败');
+  }
+  // 处理其他错误
+  console.error('Unexpected error:', error);
+  throw new Error('发生未知错误');
+}
+```
+
+---
+
+## 八、Judge Agent特殊说明
+
+Judge Agent的metadata包含关键决策信息：
+
+```typescript
+// Judge步骤的metadata示例
+{
+  executed_locally: true,   // true=本地执行, false=云端执行
+  complexity_score: 0.72    // 复杂度评分(0-1)
+}
+
+// 复杂度阈值配置
+const COMPLEXITY_THRESHOLD = 0.65;
+
+// 判断逻辑
+const shouldUseCloud = complexity_score >= COMPLEXITY_THRESHOLD;
+```
+
+---
+
+## 九、环境配置规范
+
+### 环境变量
+
+```env
+# .env文件配置
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_WS_URL=ws://localhost:8000
+```
+
+### 开发服务器
+
+```bash
+# 启动开发服务器（端口3000）
+npm run dev
+
+# 指定端口
+npm run dev -- -p 3001
+
+# 生产构建
+npm run build
+
+# 生产运行
+npm run start
+```
+
+---
+
+## 十、对接要点总结
+
+1. **严格遵循数据模型定义**，确保请求和响应格式与后端一致
+2. **使用封装的API服务**，统一错误处理和请求配置
+3. **Agent ID必须为**：`knowledge`, `summary`, `writer`, `review`, `judge`, `result`
+4. **处理长耗时请求**：显示加载状态、实现超时处理
+5. **Judge步骤的metadata**包含执行方式和复杂度评分
+6. **WebSocket用于实时更新**：工作流状态、日志等
+
+---
+
+## 附录：示例API调用
+
+### 执行工作流
+
+```typescript
+import apiClient from '@/utils/apiClient';
+import type { WorkflowInput, WorkflowOutput } from '@/types';
+
+async function executeWorkflow(userInput: string): Promise<WorkflowOutput> {
+  const payload: WorkflowInput = {
+    user_input: userInput,
+    context: {}
+  };
+  
+  const response = await apiClient.post<WorkflowOutput>(
+    '/workflow/execute',
+    payload
+  );
+  
+  return response.data;
+}
+```
+
+### 获取Agent状态
+
+```typescript
+import apiClient from '@/utils/apiClient';
+import type { AgentStatus } from '@/types';
+
+async function getAgentStatuses(): Promise<AgentStatus[]> {
+  const response = await apiClient.get('/agents');
+  return response.data;
+}
+```
+
+---
+
+**文档版本**: v1.0  
+**创建日期**: 2026-05-13  
+**适用项目**: AgentMatrix Frontend
