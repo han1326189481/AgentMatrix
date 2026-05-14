@@ -10,12 +10,12 @@ import type { AgentId, WorkflowOutput } from '@/types';
 const COMPLEXITY_THRESHOLD = 0.65;
 
 const AGENT_DISPLAY_NAMES: Record<AgentId, string> = {
-  knowledge: 'A 摘要 Agent',
-  summary: 'B 撰写 Agent',
-  writer: 'C 评审 Agent',
-  review: '评委 Agent',
-  judge: 'API 网关',
-  result: '导出 Agent',
+  knowledge: 'Knowledge Agent',
+  summary: 'Summary Agent',
+  writer: 'Writer Agent',
+  review: 'Review Agent',
+  judge: 'Judge Agent',
+  result: 'Result Agent',
 };
 
 const AGENT_DISPLAY_COLORS: Record<AgentId, string> = {

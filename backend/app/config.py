@@ -38,6 +38,9 @@ class Settings(BaseSettings):
     deepseek_api_base: str = "https://api.deepseek.com/v1"
     deepseek_model: str = "deepseek-r1-distill"
 
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-pro"
+
     complexity_threshold: float = 0.65
 
     max_concurrent_tasks: int = 10
