@@ -1,0 +1,8 @@
+请格式化以下结果：
+
+执行方式：{execution_type}
+复杂度：{complexity}
+内容：
+{content}
+
+格式化输出：

@@ -38,20 +38,25 @@ class Settings(BaseSettings):
     deepseek_api_base: str = "https://api.deepseek.com/v1"
     deepseek_model: str = "deepseek-r1-distill"
 
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-pro"
+
     complexity_threshold: float = 0.65
 
     max_concurrent_tasks: int = 10
     max_retry_attempts: int = 3
 
-    allowed_origins_list: Optional[str] = "http://localhost:3000,http://localhost:8000"
+    allowed_origins_list: Optional[str] = "*"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     @property
     def allowed_origins(self) -> List[str]:
+        if self.allowed_origins_list == "*":
+            return ["*"]
         if self.allowed_origins_list:
             return [origin.strip() for origin in self.allowed_origins_list.split(",")]
-        return ["http://localhost:3000", "http://localhost:8000"]
+        return ["http://localhost:3000", "http://localhost:8000", "http://localhost:8080"]
 
 
 settings = Settings()

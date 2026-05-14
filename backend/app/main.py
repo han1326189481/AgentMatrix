@@ -74,16 +74,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(v1_router, prefix="/api/v1")
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-
-@app.get("/")
-async def root():
-    return {"message": "AgentMatrix API", "version": settings.app_version}
-
-
 @app.get("/health")
 async def health_check():
     agent_registry = get_agent_registry()
@@ -94,6 +84,24 @@ async def health_check():
         "agents": agent_statuses,
         "version": settings.app_version,
     }
+
+
+@app.get("/api/health")
+async def api_health_check():
+    agent_registry = get_agent_registry()
+    agent_statuses = agent_registry.get_all_agent_statuses()
+    
+    return {
+        "status": "healthy",
+        "agents": agent_statuses,
+        "version": settings.app_version,
+    }
+
+
+app.include_router(v1_router, prefix="/api/v1")
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 
 if __name__ == "__main__":
