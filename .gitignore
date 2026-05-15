@@ -30,3 +30,4 @@ htmlcov/
 backend/logs/*.log
 backend/exports/*
 frontend/public/demos/*
+backend/frontend/index.html
