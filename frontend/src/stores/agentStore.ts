@@ -11,6 +11,7 @@ interface AgentState {
   model: string;
   description: string;
   icon_class: string;
+  enabled: boolean;
 }
 
 interface AgentStore {
@@ -19,6 +20,7 @@ interface AgentStore {
   setSelectedAgent: (agentId: AgentId) => void;
   updateAgentStatus: (agentId: AgentId, status: AgentStatus) => void;
   updateAgentTask: (agentId: AgentId, task: string | null) => void;
+  toggleAgentEnabled: (agentId: AgentId) => void;
   resetAllAgents: () => void;
 }
 
@@ -31,6 +33,7 @@ const createInitialAgent = (id: AgentId): AgentState => ({
   model: AGENT_MODELS[id],
   description: AGENT_DESCRIPTIONS[id],
   icon_class: AGENT_ICON_CLASSES[id],
+  enabled: true,
 });
 
 const createInitialAgents = (): Record<AgentId, AgentState> => {
@@ -63,6 +66,18 @@ export const useAgentStore = create<AgentStore>((set) => ({
       agents: {
         ...state.agents,
         [agentId]: { ...state.agents[agentId], current_task: task },
+      },
+    })),
+
+  toggleAgentEnabled: (agentId) =>
+    set((state) => ({
+      agents: {
+        ...state.agents,
+        [agentId]: {
+          ...state.agents[agentId],
+          enabled: !state.agents[agentId].enabled,
+          status: !state.agents[agentId].enabled ? 'idle' : state.agents[agentId].status,
+        },
       },
     })),
 
