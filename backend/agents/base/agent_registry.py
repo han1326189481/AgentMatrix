@@ -32,6 +32,23 @@ class AgentRegistry:
         for agent in self.agents.values():
             await agent.initialize()
 
+    def initialize_all_agents_sync(self) -> None:
+        import asyncio
+        self.register_agent(KnowledgeAgent())
+        self.register_agent(SummaryAgent())
+        self.register_agent(WriterAgent())
+        self.register_agent(ReviewAgent())
+        self.register_agent(JudgeAgent())
+        self.register_agent(ResultAgent())
+
+        loop = asyncio.new_event_loop()
+        try:
+            asyncio.set_event_loop(loop)
+            for agent in self.agents.values():
+                loop.run_until_complete(agent.initialize())
+        finally:
+            loop.close()
+
     async def shutdown_all_agents(self) -> None:
         for agent in self.agents.values():
             await agent.shutdown()

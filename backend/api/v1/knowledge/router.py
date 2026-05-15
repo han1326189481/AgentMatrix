@@ -1,7 +1,23 @@
+import sys
+import os
+
+backend_dir = os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
+knowledge_service_path = os.path.join(backend_dir, 'knowledge', 'service.py')
+if os.path.exists(knowledge_service_path):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("knowledge.service", knowledge_service_path)
+    knowledge_service = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(knowledge_service)
+    KnowledgeService = knowledge_service.KnowledgeService
+else:
+    from knowledge.service import KnowledgeService
+
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Dict, Any, List
 from pydantic import BaseModel
-from knowledge.service import KnowledgeService
 
 router = APIRouter()
 

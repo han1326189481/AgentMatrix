@@ -1,5 +1,20 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List, Dict, Optional
+import httpx
+
+
+async def detect_ollama_port() -> str:
+    """自动检测 Ollama 服务端口"""
+    ports = ["11434", "11435", "8080"]
+    for port in ports:
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f"http://localhost:{port}/api/tags", timeout=2)
+                if response.status_code == 200:
+                    return f"http://localhost:{port}"
+        except:
+            continue
+    return "http://localhost:11434"
 
 
 class ModelConfig(BaseSettings):

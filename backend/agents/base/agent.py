@@ -8,6 +8,7 @@ class AgentInput(BaseModel):
     content: str
     context: Optional[Dict[str, Any]] = None
     use_llm: bool = False
+    use_cloud: bool = False
 
 
 class AgentOutput(BaseModel):
@@ -63,9 +64,35 @@ class BaseAgent(ABC):
         """调用真实的 LLM 生成内容"""
         try:
             system_prompt = kwargs.get("system_prompt", None)
-            response = await self.llm_client.generate(prompt, use_cloud=use_cloud, system_prompt=system_prompt)
+            
+            # 如果使用云端，确保使用运行时配置的 API Key
+            if use_cloud:
+                try:
+                    from api.v1.config.router import _runtime_config
+                    runtime_api_key = _runtime_config.get("deepseek_api_key")
+                    if runtime_api_key:
+                        self.llm_client.deepseek_api_key = runtime_api_key
+                except:
+                    pass
+            
+            # 根据 use_cloud 参数选择模型
+            if use_cloud:
+                llm_model = self.cloud_model
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.info(f"[Cloud] 正在调用云服务 DeepSeek，模型: {llm_model}")
+            else:
+                llm_model = model or self.local_model
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.info(f"[Local] 正在调用本地模型 Ollama，模型: {llm_model}")
+            
+            response = await self.llm_client.generate(prompt, use_cloud=use_cloud, system_prompt=system_prompt, model=llm_model)
             return response
         except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"LLM调用失败: {str(e)}", exc_info=True)
             return f"LLM调用失败: {str(e)}"
 
     async def _call_llm_chat(self, messages: list, model: str = None, **kwargs) -> str:

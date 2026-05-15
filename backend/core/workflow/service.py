@@ -4,8 +4,10 @@ from agents.base.agent_registry import AgentRegistry
 from models.workflow import WorkflowInput, WorkflowOutput, WorkflowStep
 from core.dynamic_router import get_dynamic_router
 from api.v1.metrics.router import get_metrics_store
+from core.llm.client import get_llm_client
 import time
 from datetime import datetime
+import json
 import logging
 
 logger = logging.getLogger(__name__)
@@ -30,6 +32,9 @@ class WorkflowService:
         current_context = input_data.context or {}
         executed_locally = True
         complexity_score = 0.0
+        review_score = 0.0
+        judge_decision = "local_output"
+        cloud_mode = "none"
         start_time = time.time()
         workflow_start = datetime.now()
 
@@ -38,15 +43,50 @@ class WorkflowService:
 
         try:
             current_input = input_data.user_input
-
-            for agent_id in self.agent_order:
+            original_user_input = input_data.user_input
+            writer_output = ""
+            summary_result = ""
+            review_result = ""
+            
+            for i, agent_id in enumerate(self.agent_order):
                 agent_start = time.time()
                 agent_name = self.agent_names.get(agent_id, agent_id)
+                
+                if agent_id == "review":
+                    # Review Agent 需要的格式
+                    review_input = json.dumps({
+                        "user_task": original_user_input,
+                        "summary": summary_result,
+                        "writer_output": writer_output
+                    })
+                    agent_input = AgentInput(content=review_input, context=current_context, use_llm=True, use_cloud=False)
+                elif agent_id == "judge":
+                    # Judge Agent 需要的格式 - 使用 LLM 模式
+                    judge_input = json.dumps({
+                        "user_task": original_user_input,
+                        "summary_result": summary_result,
+                        "review_result": review_result,
+                        "writer_output": writer_output
+                    })
+                    agent_input = AgentInput(content=judge_input, context=current_context, use_llm=True, use_cloud=False)
+                elif agent_id == "result":
+                    # Result Agent 需要的格式
+                    result_input = json.dumps({
+                        "user_task": original_user_input,
+                        "summary_result": summary_result,
+                        "review_result": review_result,
+                        "judge_result": current_context.get("judge", "{}"),
+                        "writer_output": writer_output,
+                        "executed_locally": executed_locally,
+                        "complexity_score": complexity_score,
+                        "judge_decision": judge_decision,
+                        "cloud_mode": cloud_mode
+                    })
+                    agent_input = AgentInput(content=result_input, context=current_context, use_llm=True, use_cloud=False)
+                else:
+                    agent_input = AgentInput(content=current_input, context=current_context, use_llm=True, use_cloud=False)
 
-                output = await self.agent_registry.execute_agent(
-                    agent_id,
-                    AgentInput(content=current_input, context=current_context)
-                )
+                output = await self.agent_registry.execute_agent(agent_id, agent_input)
                 agent_duration = time.time() - agent_start
 
                 step = WorkflowStep(
@@ -61,24 +101,52 @@ class WorkflowService:
                 steps.append(step)
 
                 current_context[agent_id] = output.content
+                
+                # 保存关键 Agent 的输出
+                if agent_id == "summary":
+                    summary_result = output.content
+                
+                if agent_id == "writer":
+                    writer_output = output.content
+                
+                if agent_id == "review":
+                    review_result = output.content
+                    try:
+                        review_data = json.loads(output.content)
+                        review_score = review_data.get("review_score", 0.0)
+                    except:
+                        review_score = 0.0
+                
+                if agent_id == "judge":
+                    try:
+                        judge_data = json.loads(output.content)
+                        complexity_score = judge_data.get("complexity_score", 0.0)
+                        review_score = judge_data.get("review_score", review_score)
+                        judge_decision = judge_data.get("decision", "local_output")
+                        cloud_mode = judge_data.get("cloud_mode", "none")
+                        executed_locally = judge_decision == "local_output"
+                        
+                        logger.info(f"Judge decision: {judge_decision}, complexity={complexity_score:.2f}, review_score={review_score:.2f}, cloud_mode={cloud_mode}")
+                    except Exception as e:
+                        logger.error(f"Failed to parse judge result: {e}")
+                        executed_locally = True
+                
                 current_input = output.content
 
-                if agent_id == "judge":
-                    executed_locally = output.metadata.get("executed_locally", True)
-                    complexity_score = output.metadata.get("complexity_score", 0.0)
+            # Result Agent 已经在循环中执行，直接获取最终结果
+            final_result = output.content if steps else ""
+            
+            if not executed_locally:
+                metrics["cloud_executions"] += 1
+                metrics["api_calls"] += 1
+            else:
+                metrics["local_executions"] += 1
+                metrics["cost_saved"] += 0.01
 
-                    if executed_locally:
-                        metrics["local_executions"] += 1
-                        metrics["cost_saved"] += 0.01
-                    else:
-                        metrics["cloud_executions"] += 1
-                        metrics["api_calls"] += 1
-
-            final_result = steps[-1].output if steps else ""
             total_duration = time.time() - start_time
             workflow_end = datetime.now()
 
-            logger.info(f"Workflow completed: complexity={complexity_score:.2f}, local={executed_locally}, duration={total_duration:.2f}s")
+            logger.info(f"Workflow completed: complexity={complexity_score:.2f}, review={review_score:.2f}, local={executed_locally}, decision={judge_decision}, duration={total_duration:.2f}s")
 
             return WorkflowOutput(
                 final_result=final_result,
@@ -95,21 +163,7 @@ class WorkflowService:
             raise
 
     async def execute_with_llm_enhancement(self, input_data: WorkflowInput) -> WorkflowOutput:
-        workflow_result = await self.execute(input_data)
-        
-        if not workflow_result.executed_locally and workflow_result.complexity_score:
-            logger.info(f"Enhancing with LLM: complexity={workflow_result.complexity_score}")
-            
-            routing_result = await self.dynamic_router.route(
-                complexity_score=workflow_result.complexity_score,
-                prompt=workflow_result.final_result,
-                system_prompt="请优化以下内容，使其更加专业和完善"
-            )
-            
-            if routing_result.get("success", False):
-                workflow_result.final_result = routing_result.get("result", workflow_result.final_result)
-        
-        return workflow_result
+        return await self.execute(input_data)
 
     async def get_step_by_agent(self, steps: List[WorkflowStep], agent_id: str) -> Optional[WorkflowStep]:
         for step in steps:

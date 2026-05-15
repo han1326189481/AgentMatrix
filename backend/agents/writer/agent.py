@@ -6,7 +6,7 @@ import re
 class WriterAgent(BaseAgent):
     def __init__(self):
         super().__init__("writer", "Writer Agent")
-        self.local_model = "qwen2.5:1.5b"
+        self.local_model = "phi4-mini:3.8b"
         self.templates = self._load_templates()
     
     def _load_templates(self) -> Dict[str, Dict[str, str]]:
@@ -130,11 +130,8 @@ class WriterAgent(BaseAgent):
             # 5. 如果有缺失知识，增加复杂度
             complexity_increased = len(missing_knowledge) > 0
             
-            # 6. 使用模板和知识生成内容
-            if input_data.use_llm:
-                content = await self._generate_content_with_llm(parsed, template)
-            else:
-                content = self._generate_content_with_template(parsed, template)
+            # 6. 使用 LLM 和知识生成内容（根据规范，Writer Agent 应始终使用 LLM）
+            content = await self._generate_content_with_llm(parsed, template, use_cloud=input_data.use_cloud)
             
             await self._set_status("idle")
             await self._set_current_task(None)
@@ -340,7 +337,7 @@ class WriterAgent(BaseAgent):
         
         return content
     
-    async def _generate_content_with_llm(self, parsed: Dict[str, Any], template: Dict[str, Any]) -> str:
+    async def _generate_content_with_llm(self, parsed: Dict[str, Any], template: Dict[str, Any], use_cloud: bool = False) -> str:
         """使用LLM生成内容"""
         task = parsed.get("task", "")
         keywords = parsed.get("keywords", [])
@@ -370,27 +367,39 @@ class WriterAgent(BaseAgent):
                 outline_str += f"- {section}\n"
         
         prompt = f"""
-请根据以下信息生成一份完整的方案文档：
+你是一位专业的内容创作助手。请根据以下信息，为用户生成一份高质量、专业的方案文档。
 
+## 任务要求
 任务：{task}
 关键词：{", ".join(keywords)}
 
-{knowledge_str}
+## 参考知识
+{knowledge_str if knowledge_str else "暂无参考知识"}
 
-{requirements_str}
+## 用户需求
+{requirements_str if requirements_str else "暂无明确需求"}
 
-{outline_str}
+## 建议大纲
+{outline_str if outline_str else "无建议大纲"}
 
-要求：
-1. 请按照专业文档格式输出
-2. 内容要详细、具体、可执行
-3. 使用 Markdown 格式
-4. 结构清晰，层次分明
+## 输出要求
+1. **专业性**：内容必须专业、准确、有深度
+2. **完整性**：覆盖主题的各个关键方面
+3. **实用性**：提供可操作的建议和方案
+4. **结构化**：使用清晰的 Markdown 格式，包含标题、段落、列表等
+5. **逻辑性**：内容要有条理，逻辑清晰
+6. **详细性**：提供足够的细节和具体内容
 
-开始撰写：
+## 格式规范
+- 使用 # 一级标题、## 二级标题、### 三级标题
+- 使用有序列表和无序列表
+- 重要内容可以使用 **粗体** 强调
+- 代码相关内容使用 `反引号` 或代码块
+
+请开始撰写专业的方案文档：
 """
         
-        response = await self._call_llm(prompt, model=self.local_model, temperature=0.7, max_tokens=4096)
+        response = await self._call_llm(prompt, model=self.local_model, use_cloud=use_cloud, temperature=0.3, max_tokens=4096)
         
         if response:
             return response

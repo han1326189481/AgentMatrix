@@ -1,10 +1,16 @@
 import asyncio
 import logging
 import json
+import sys
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+backend_dir = os.path.realpath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import JSONResponse
@@ -75,18 +81,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(v1_router, prefix="/api/v1")
-
-static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
-if os.path.isdir(static_dir):
-    app.mount("/static", StaticFiles(directory=static_dir), name="static")
-
-
-@app.get("/")
-async def root():
-    return {"message": "AgentMatrix API", "version": settings.app_version}
-
-
 @app.get("/health")
 async def health_check():
     agent_registry = get_agent_registry()
@@ -103,7 +97,7 @@ async def health_check():
 async def api_health_check():
     agent_registry = get_agent_registry()
     agent_statuses = agent_registry.get_all_agent_statuses()
-    
+
     return {
         "status": "healthy",
         "agents": agent_statuses,
@@ -111,37 +105,9 @@ async def api_health_check():
     }
 
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    ws_manager: WebSocketManager = app.state.ws_manager
-    connection_id = await ws_manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_json()
-            msg_type = data.get("type", "")
+app.include_router(v1_router, prefix="/api/v1")
 
-            if msg_type == "ping":
-                await ws_manager.send_message({"type": "pong"}, connection_id)
-            elif msg_type == "get_agent_status":
-                agent_registry = get_agent_registry()
-                statuses = agent_registry.get_all_agent_statuses()
-                await ws_manager.send_message(
-                    {"type": "agent_status", "data": statuses}, connection_id
-                )
-            elif msg_type == "get_metrics":
-                from api.v1.metrics.router import get_metrics_store
-
-                metrics = get_metrics_store()
-                await ws_manager.send_message(
-                    {"type": "metrics_update", "data": metrics}, connection_id
-                )
-    except WebSocketDisconnect:
-        ws_manager.disconnect(websocket)
-        logger.info(f"WebSocket disconnected: {connection_id}")
-    except Exception as e:
-        logger.error(f"WebSocket error: {e}")
-        ws_manager.disconnect(websocket)
-
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 if __name__ == "__main__":
     import uvicorn

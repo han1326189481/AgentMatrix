@@ -140,10 +140,107 @@ export interface ExportInput {
   format: 'markdown' | 'json' | 'pdf' | 'docx';
 }
 
+export interface ExportRequest {
+  content: string;
+  format: string;
+  filename?: string;
+}
+
+export interface ExportResponse {
+  status: string;
+  format: string;
+  filename: string;
+  filepath?: string;
+}
+
 export interface HealthResponse {
   status: string;
   agents: number;
   version: string;
+}
+
+// ==================== Chat Types ====================
+export interface ChatRequest {
+  content: string;
+  use_cloud?: boolean;
+  model_name?: string;
+}
+
+export interface ChatResponse {
+  response: string;
+  executed_locally: boolean;
+  complexity_score: number;
+  total_duration: number;
+  steps_count: number;
+  mode: string;
+  model_used?: string;
+}
+
+// ==================== Config Types ====================
+export interface ConfigUpdate {
+  deepseek_api_key?: string;
+  ollama_host?: string;
+}
+
+export interface ConnectionTestResult {
+  success: boolean;
+  message: string;
+  details?: Record<string, string>;
+}
+
+export interface ModelConfig {
+  name: string;
+  provider: string;
+  model: string;
+  api_key?: string;
+  display_name?: string;
+  max_tokens: number;
+  temperature: number;
+}
+
+export interface ValidateKeyRequest {
+  provider: string;
+  api_key: string;
+  model?: string;
+}
+
+export interface ValidateKeyResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ConfigResponse {
+  ollama_host: string;
+  ollama_model: string;
+  deepseek_api_key_set: boolean;
+  deepseek_model: string;
+  models: ModelConfig[];
+}
+
+export interface OllamaDetectResponse {
+  ollama_host: string;
+  message: string;
+}
+
+export interface CacheStats {
+  cache_size: number;
+  max_size: number;
+  ttl: number;
+}
+
+export interface ChatCacheStats {
+  chat_cache_size: number;
+  chat_cache_max_size: number;
+  chat_cache_ttl: number;
+  workflow_cache_size: number;
+  workflow_cache_max_size: number;
+  workflow_cache_ttl: number;
+}
+
+export interface KnowledgeStats {
+  total_entries: number;
+  total_keywords: number;
+  total_size: number;
 }
 
 export interface SocketEvents {

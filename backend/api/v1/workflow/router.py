@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, Optional, List, Tuple, AsyncGenerator
 from app.dependencies import get_agent_registry
 from agents.base.agent import AgentInput, AgentOutput
 from models.workflow import WorkflowInput, WorkflowOutput, WorkflowStep
@@ -7,6 +7,10 @@ from api.v1.metrics.router import get_metrics_store
 import asyncio
 import time
 from datetime import datetime
+import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -102,6 +106,9 @@ async def execute_workflow(
     current_context = input_data.context or {}
     executed_locally = True
     complexity_score = 0.0
+    review_score = 0.0
+    judge_decision = "local_output"
+    cloud_mode = "none"
     start_time = time.time()
     workflow_start = datetime.now()
     
@@ -120,34 +127,116 @@ async def execute_workflow(
         }
         
         current_input = input_data.user_input
+        original_user_input = input_data.user_input
+        writer_output = ""
+        summary_result = ""
+        review_result = ""
         
         for agent_id in agent_order:
-            step, output_content = await execute_agent_with_timing(
-                registry, agent_id, agent_names.get(agent_id, agent_id),
-                current_input, current_context
-            )
-            steps.append(step)
+            agent_start = time.time()
+            agent_name = agent_names.get(agent_id, agent_id)
             
-            if not step.success:
-                raise HTTPException(status_code=500, detail=f"Agent {agent_id} failed: {step.metadata.get('error', 'unknown')}")
+            # 根据 Agent 类型构建正确的输入格式
+            if agent_id == "review":
+                agent_input_content = json.dumps({
+                    "user_task": original_user_input,
+                    "summary": summary_result,
+                    "writer_output": writer_output
+                })
+            elif agent_id == "judge":
+                agent_input_content = json.dumps({
+                    "user_task": original_user_input,
+                    "summary_result": summary_result,
+                    "review_result": review_result,
+                    "writer_output": writer_output
+                })
+            elif agent_id == "result":
+                agent_input_content = json.dumps({
+                    "user_task": original_user_input,
+                    "summary_result": summary_result,
+                    "review_result": review_result,
+                    "judge_result": current_context.get("judge", "{}"),
+                    "writer_output": writer_output,
+                    "executed_locally": executed_locally,
+                    "complexity_score": complexity_score,
+                    "judge_decision": judge_decision,
+                    "cloud_mode": cloud_mode
+                })
+            else:
+                agent_input_content = current_input
             
-            current_context[agent_id] = output_content
-            current_input = output_content
-            
-            if agent_id == "judge":
-                executed_locally = step.metadata.get("executed_locally", True)
-                complexity_score = step.metadata.get("complexity_score", 0.0)
+            try:
+                output = await registry.execute_agent(
+                    agent_id,
+                    AgentInput(content=agent_input_content, context=current_context, use_llm=True, use_cloud=False)
+                )
+                agent_duration = time.time() - agent_start
                 
-                if executed_locally:
-                    metrics["local_executions"] += 1
-                    metrics["cost_saved"] += 0.01
-                else:
-                    metrics["cloud_executions"] += 1
-                    metrics["api_calls"] += 1
+                step = WorkflowStep(
+                    agent_id=agent_id,
+                    agent_name=agent_name,
+                    input=agent_input_content[:100] + "..." if len(agent_input_content) > 100 else agent_input_content,
+                    output=output.content,
+                    success=output.success,
+                    duration_seconds=agent_duration,
+                    metadata=output.metadata or {}
+                )
+                steps.append(step)
+                
+                current_context[agent_id] = output.content
+                
+                # 保存关键 Agent 的输出
+                if agent_id == "summary":
+                    summary_result = output.content
+                elif agent_id == "writer":
+                    writer_output = output.content
+                elif agent_id == "review":
+                    review_result = output.content
+                    try:
+                        review_data = json.loads(output.content)
+                        review_score = review_data.get("review_score", 0.0)
+                    except:
+                        review_score = 0.0
+                elif agent_id == "judge":
+                    try:
+                        judge_data = json.loads(output.content)
+                        complexity_score = judge_data.get("complexity_score", 0.0)
+                        review_score = judge_data.get("review_score", review_score)
+                        judge_decision = judge_data.get("decision", "local_output")
+                        cloud_mode = judge_data.get("cloud_mode", "none")
+                        executed_locally = judge_decision == "local_output"
+                    except Exception as e:
+                        executed_locally = True
+                
+                current_input = output.content
+                
+                if not output.success:
+                    raise HTTPException(status_code=500, detail=f"Agent {agent_id} failed")
+            
+            except Exception as e:
+                agent_duration = time.time() - agent_start
+                step = WorkflowStep(
+                    agent_id=agent_id,
+                    agent_name=agent_name,
+                    input=agent_input_content[:100] if agent_input_content else "",
+                    output="",
+                    success=False,
+                    duration_seconds=agent_duration,
+                    metadata={"error": str(e)}
+                )
+                steps.append(step)
+                raise HTTPException(status_code=500, detail=f"Agent {agent_id} failed: {str(e)}")
         
         final_result = steps[-1].output if steps else ""
         total_duration = time.time() - start_time
         workflow_end = datetime.now()
+        
+        if executed_locally:
+            metrics["local_executions"] += 1
+            metrics["cost_saved"] += 0.01
+        else:
+            metrics["cloud_executions"] += 1
+            metrics["api_calls"] += 1
         
         result = WorkflowOutput(
             final_result=final_result,
@@ -303,3 +392,153 @@ async def get_cache_stats():
 async def clear_cache():
     workflow_cache.clear()
     return {"status": "success", "message": "Cache cleared"}
+
+
+async def execute_workflow_stream(
+    input_data: WorkflowInput,
+    registry
+) -> AsyncGenerator[Dict[str, Any], None]:
+    """流式执行工作流，实时返回每个步骤的结果"""
+    steps: List[WorkflowStep] = []
+    current_context = input_data.context or {}
+    executed_locally = True
+    complexity_score = 0.0
+    start_time = time.time()
+    
+    try:
+        agent_order = ["knowledge", "summary", "writer", "review", "judge", "result"]
+        agent_names = {
+            "knowledge": "Knowledge Agent",
+            "summary": "Summary Agent",
+            "writer": "Writer Agent",
+            "review": "Review Agent",
+            "judge": "Judge Agent",
+            "result": "Result Agent"
+        }
+        
+        current_input = input_data.user_input
+        
+        logger.info(f"[STREAM] Starting workflow for input: {input_data.user_input[:50]}...")
+        
+        yield {
+            "type": "start",
+            "message": "工作流开始执行",
+            "timestamp": time.time()
+        }
+        
+        for agent_id in agent_order:
+            agent_start = time.time()
+            agent_name = agent_names.get(agent_id, agent_id)
+            
+            yield {
+                "type": "agent_start",
+                "agent_id": agent_id,
+                "agent_name": agent_name,
+                "timestamp": time.time()
+            }
+            
+            try:
+                if agent_id == "summary":
+                    agent_input = f"{current_context.get('knowledge', '')}\n\n任务摘要: {current_input}"
+                elif agent_id == "writer":
+                    agent_input = f"{current_context.get('knowledge', '')}\n\n任务摘要: {current_context.get('summary', '')}"
+                elif agent_id == "review":
+                    agent_input = f"待评审内容: {current_input}\n任务摘要: {current_context.get('summary', '')}"
+                elif agent_id == "judge":
+                    agent_input = f"内容: {current_input}\n评审结果: {current_context.get('review', '')}"
+                elif agent_id == "result":
+                    agent_input = json.dumps({
+                        "user_task": input_data.user_input,
+                        "summary_result": current_context.get("summary", ""),
+                        "review_result": current_context.get("review", ""),
+                        "judge_result": current_context.get("judge", ""),
+                        "writer_output": current_context.get("writer", ""),
+                        "executed_locally": executed_locally,
+                        "complexity_score": complexity_score,
+                        "judge_decision": "local_output" if executed_locally else "cloud_enhance",
+                        "cloud_mode": "none"
+                    }, ensure_ascii=False)
+                    logger.info(f"[DEBUG] Result Agent input: user_task={input_data.user_input[:50]}..., writer_output exists: {bool(current_context.get('writer'))}")
+                else:
+                    agent_input = current_input
+                
+                logger.info(f"[DEBUG] Executing {agent_id} with input length: {len(agent_input)}")
+                
+                try:
+                    output = await asyncio.wait_for(
+                        registry.execute_agent(
+                            agent_id,
+                            AgentInput(content=agent_input, context=current_context, use_llm=True, use_cloud=False)
+                        ),
+                        timeout=60  # 60秒超时
+                    )
+                except asyncio.TimeoutError:
+                    logger.error(f"[DEBUG] Agent {agent_id} execution timed out")
+                    output = AgentOutput(
+                        success=False,
+                        content=f"Error: Agent {agent_id} 执行超时",
+                        metadata={}
+                    )
+                agent_duration = time.time() - agent_start
+                
+                step = WorkflowStep(
+                    agent_id=agent_id,
+                    agent_name=agent_name,
+                    input=agent_input[:100] + "..." if len(agent_input) > 100 else agent_input,
+                    output=output.content,
+                    success=output.success,
+                    duration_seconds=agent_duration,
+                    metadata=output.metadata or {}
+                )
+                steps.append(step)
+                
+                current_context[agent_id] = output.content
+                current_input = output.content
+                
+                yield {
+                    "type": "agent_complete",
+                    "agent_id": agent_id,
+                    "agent_name": agent_name,
+                    "duration": round(agent_duration, 2),
+                    "success": output.success,
+                    "output_length": len(output.content),
+                    "timestamp": time.time()
+                }
+                
+                if agent_id == "judge":
+                    executed_locally = step.metadata.get("executed_locally", True)
+                    complexity_score = step.metadata.get("complexity_score", 0.0)
+            
+            except Exception as e:
+                agent_duration = time.time() - agent_start
+                yield {
+                    "type": "agent_error",
+                    "agent_id": agent_id,
+                    "agent_name": agent_name,
+                    "duration": round(agent_duration, 2),
+                    "error": str(e),
+                    "timestamp": time.time()
+                }
+                raise
+        
+        final_result = steps[-1].output if steps else ""
+        total_duration = time.time() - start_time
+        
+        logger.info(f"[DEBUG] Final result length: {len(final_result)}, first 100 chars: {final_result[:100]}")
+        
+        yield {
+            "type": "complete",
+            "final_result": final_result,
+            "executed_locally": executed_locally,
+            "complexity_score": complexity_score,
+            "total_duration": round(total_duration, 2),
+            "steps_count": len(steps),
+            "timestamp": time.time()
+        }
+        
+    except Exception as e:
+        yield {
+            "type": "error",
+            "error": str(e),
+            "timestamp": time.time()
+        }

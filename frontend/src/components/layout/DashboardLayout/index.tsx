@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useWorkflowStore } from '@/stores/workflowStore';
 import { useAgentStore } from '@/stores/agentStore';
-import { workflowService } from '@/services/api/agentService';
+import { workflowService, chatService } from '@/services/api/agentService';
 import { AGENT_ORDER, AGENT_NAMES, AGENT_MODELS, AGENT_EMOJIS, AGENT_DESCRIPTIONS, AGENT_ICON_CLASSES } from '@/types';
 import type { AgentId, WorkflowOutput, LogEntry } from '@/types';
 
@@ -300,46 +300,90 @@ export default function DashboardLayout() {
     setCurrentTask(taskText);
     setIsRunning(true);
     setInputValue('');
+    setResult(null);
 
     try {
-      const apiResult = await workflowService.execute({
-        user_input: taskText,
-        context: {},
-      });
+      await chatService.sendStream(
+        { content: taskText },
+        (data) => {
+          switch (data.type) {
+            case 'start':
+              addLog('system', 'info', '工作流开始执行');
+              break;
 
-      for (const step of apiResult.steps) {
-        const agentId = AGENT_ORDER.find(
-          (id) => step.agent_id === id || step.agent_name.includes(AGENT_NAMES[id])
-        ) as AgentId | undefined;
-        if (agentId) {
-          addCompletedStep(agentId);
-          addWorkflowStep(step);
-          updateAgentStatus(agentId, step.success ? 'completed' : 'error');
-          addLog(agentId, step.success ? 'success' : 'error',
-            `${step.agent_name}: ${step.success ? '完成' : '失败'} (${step.duration_seconds.toFixed(1)}s)`
-          );
+            case 'agent_start':
+              if (data.agent_id) {
+                updateAgentStatus(data.agent_id as AgentId, 'processing');
+                setCurrentStep(data.agent_id as AgentId);
+                addLog(data.agent_id, 'info', `${data.agent_name} 开始处理...`);
+              }
+              break;
+
+            case 'agent_complete':
+              if (data.agent_id) {
+                const agentId = data.agent_id as AgentId;
+                addCompletedStep(agentId);
+                updateAgentStatus(agentId, data.success ? 'completed' : 'error');
+                setCurrentStep(null);
+                addLog(agentId, data.success ? 'success' : 'error',
+                  `${data.agent_name} ${data.success ? '完成' : '失败'} (${data.duration}s)`
+                );
+
+                if (agentId === 'judge' && data.complexity_score !== undefined) {
+                  setComplexityScore(data.complexity_score);
+                  setJudgeDecision(data.executed_locally ? 'local' : 'cloud');
+                  addLog(agentId, 'info', `复杂度评分: ${data.complexity_score.toFixed(2)}`);
+                  addLog(agentId, data.executed_locally ? 'success' : 'warning',
+                    `决策: ${data.executed_locally ? '本地处理' : '云端处理'}`
+                  );
+                }
+              }
+              break;
+
+            case 'agent_error':
+              if (data.agent_id) {
+                const agentId = data.agent_id as AgentId;
+                updateAgentStatus(agentId, 'error');
+                setCurrentStep(null);
+                addLog(agentId, 'error', `${data.agent_name} 执行出错: ${data.error}`);
+              }
+              break;
+
+            case 'complete':
+              console.log('[DEBUG] Received complete event:', data);
+              if (data.final_result) {
+                console.log('[DEBUG] final_result length:', data.final_result.length);
+                console.log('[DEBUG] final_result preview:', data.final_result.substring(0, 100));
+                setResult({
+                  final_result: data.final_result,
+                  steps: [],
+                  executed_locally: data.executed_locally,
+                  total_duration_seconds: data.total_duration,
+                  start_time: new Date().toISOString(),
+                  end_time: new Date().toISOString(),
+                  complexity_score: data.complexity_score,
+                });
+              }
+              addLog('result', 'success', '所有步骤已完成，最终结果已生成');
+              break;
+
+            case 'error':
+              addLog('system', 'error', `工作流执行失败: ${data.error}`);
+              break;
+          }
         }
-      }
-
-      if (apiResult.complexity_score !== undefined) {
-        setComplexityScore(apiResult.complexity_score);
-        setJudgeDecision(apiResult.complexity_score >= COMPLEXITY_THRESHOLD ? 'cloud' : 'local');
-      }
-
-      setResult(apiResult);
-      addLog('result', 'success', '工作流执行完成');
+      );
     } catch (error) {
       console.error('[Workflow API Error]', error);
+      console.error('[DEBUG] Falling back to mock data!');
       addLog(undefined, 'error', '后端API调用失败，切换到本地模拟模式');
-      setIsRunning(false);
-      setCurrentStep(null);
       await executeWithMock(taskText);
       return;
     } finally {
       setIsRunning(false);
       setCurrentStep(null);
     }
-  }, [setCurrentTask, setIsRunning, setCurrentStep, setResult, setJudgeDecision, setComplexityScore, addLog, addCompletedStep, addWorkflowStep, updateAgentStatus, executeWithMock]);
+  }, [setCurrentTask, setIsRunning, setInputValue, setResult, setCurrentStep, setComplexityScore, setJudgeDecision, addLog, addCompletedStep, addWorkflowStep, updateAgentStatus, executeWithMock]);
 
   const handleSubmit = async () => {
     const taskText = inputValue.trim() || currentTask;

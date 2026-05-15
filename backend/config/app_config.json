@@ -1,0 +1,18 @@
+{
+  "models": [
+    {
+      "name": "deepseek-chat",
+      "provider": "deepseek",
+      "model": "deepseek-chat",
+      "api_key": "sk-e507ceffe1334899a9780e5f222b30c0",
+      "display_name": "DeepSeek Chat",
+      "max_tokens": 2048,
+      "temperature": 0.7
+    }
+  ],
+  "default_provider": "deepseek",
+  "api_keys": {
+    "deepseek": "",
+    "openai": ""
+  }
+}
