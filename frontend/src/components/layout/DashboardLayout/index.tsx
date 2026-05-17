@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useWorkflowStore } from '@/stores/workflowStore';
 import { useAgentStore } from '@/stores/agentStore';
-import { workflowService, chatService } from '@/services/api/agentService';
+import { workflowService, chatService, configService } from '@/services/api/agentService';
 import { AGENT_ORDER, AGENT_NAMES, AGENT_MODELS, AGENT_EMOJIS, AGENT_DESCRIPTIONS, AGENT_ICON_CLASSES } from '@/types';
 import type { AgentId, WorkflowOutput, LogEntry } from '@/types';
 
@@ -181,15 +181,37 @@ export default function DashboardLayout() {
   const [cpuValue, setCpuValue] = useState(34);
   const [memValue, setMemValue] = useState(4.2);
   const [gpuValue, setGpuValue] = useState(1.2);
+  
+  const [showLocalModelDialog, setShowLocalModelDialog] = useState(false);
+  const [localModelPathInput, setLocalModelPathInput] = useState('localhost');
+  const [localModelPort, setLocalModelPort] = useState('11435');
+  const [detectingLocalModel, setDetectingLocalModel] = useState(false);
+  const [localModelDetectResult, setLocalModelDetectResult] = useState<{ success: boolean; message: string; models?: any[] } | null>(null);
+  
+  const [showCloudModelDialog, setShowCloudModelDialog] = useState(false);
+  const [cloudModelTab, setCloudModelTab] = useState<'provider' | 'custom'>('provider');
+  const [selectedProvider, setSelectedProvider] = useState('');
+  const [selectedModel, setSelectedModel] = useState('');
+  const [apiKey, setApiKey] = useState('');
+  const [showAdvancedConfig, setShowAdvancedConfig] = useState(false);
+  const [displayName, setDisplayName] = useState('');
+  const [maxTokens, setMaxTokens] = useState(4096);
+  const [temperature, setTemperature] = useState(0.7);
+  
+  const [testConnectionResult, setTestConnectionResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [testingConnection, setTestingConnection] = useState(false);
+  
+  const [validatingApiKey, setValidatingApiKey] = useState(false);
+  const [apiKeyValidationResult, setApiKeyValidationResult] = useState<{ success: boolean; message: string } | null>(null);
 
   const contextMenuRef = useRef<HTMLDivElement>(null);
 
   const {
     isRunning, currentTask, currentStep, elapsedSeconds, useMock,
-    completedSteps, result, judgeDecision, complexityScore, logs,
+    completedSteps, result, judgeDecision, complexityScore, logs, chatHistory,
     setCurrentTask, setIsRunning, setCurrentStep,
     setResult, setJudgeDecision, setComplexityScore, addLog, addCompletedStep,
-    addWorkflowStep, resetWorkflow,
+    addWorkflowStep, resetWorkflow, addChatHistory, clearChatHistory, getContext,
   } = useWorkflowStore();
   const { agents, updateAgentStatus, resetAllAgents, toggleAgentEnabled } = useAgentStore();
 
@@ -234,6 +256,22 @@ export default function DashboardLayout() {
     return `${h}:${m}:${s}`;
   };
 
+  useEffect(() => {
+    if (showLocalModelDialog) {
+      configService.get().then(config => {
+        if (config.ollama_host) {
+          try {
+            const url = new URL(config.ollama_host);
+            setLocalModelPathInput(url.hostname);
+            setLocalModelPort(url.port || '11435');
+          } catch (e) {
+            console.log('解析 ollama_host 失败，使用默认值');
+          }
+        }
+      });
+    }
+  }, [showLocalModelDialog]);
+
   const generateSvgPath = (data: number[]) => {
     const points = data.map((y, i) => {
       const x = (i / (data.length - 1)) * 240;
@@ -250,7 +288,6 @@ export default function DashboardLayout() {
   const executeWithMock = useCallback(async (taskText: string) => {
     setCurrentTask(taskText);
     setIsRunning(true);
-    setInputValue('');
 
     const startTime = new Date().toISOString();
 
@@ -290,17 +327,19 @@ export default function DashboardLayout() {
       complexity_score: 0.72,
     };
 
+    addChatHistory(taskText, mockResult.final_result);
     setResult(mockResult);
     addLog('result', 'success', '所有步骤已完成，最终结果已生成');
     setIsRunning(false);
     setCurrentStep(null);
-  }, [setCurrentTask, setIsRunning, setCurrentStep, setResult, setJudgeDecision, setComplexityScore, addLog, addCompletedStep, addWorkflowStep, updateAgentStatus, agents]);
+  }, [setCurrentTask, setIsRunning, setCurrentStep, setResult, setJudgeDecision, setComplexityScore, addLog, addCompletedStep, addWorkflowStep, updateAgentStatus, agents, addChatHistory]);
 
   const executeWithAPI = useCallback(async (taskText: string) => {
     setCurrentTask(taskText);
     setIsRunning(true);
-    setInputValue('');
     setResult(null);
+    setJudgeDecision(null);
+    setComplexityScore(0);
 
     try {
       await chatService.sendStream(
@@ -340,6 +379,21 @@ export default function DashboardLayout() {
               }
               break;
 
+            case 'judge_decision':
+              if (data.complexity_score !== undefined) {
+                setComplexityScore(data.complexity_score);
+                setJudgeDecision(data.executed_locally ? 'local' : 'cloud');
+                const categoryLabel = data.category || 'unknown';
+                addLog('judge', 'info', `分类: ${categoryLabel} | 复杂度: ${data.complexity_score.toFixed(2)}`);
+                addLog('judge', data.executed_locally ? 'success' : 'warning',
+                  `决策: ${data.executed_locally ? '本地处理（内部PK胜出）' : '云端处理（API网关PK胜出）'}`
+                );
+                if (data.reason && data.reason.length > 0) {
+                  addLog('judge', 'info', `理由: ${data.reason.join('; ')}`);
+                }
+              }
+              break;
+
             case 'agent_error':
               if (data.agent_id) {
                 const agentId = data.agent_id as AgentId;
@@ -351,9 +405,16 @@ export default function DashboardLayout() {
 
             case 'complete':
               console.log('[DEBUG] Received complete event:', data);
+              if (data.complexity_score !== undefined) {
+                setComplexityScore(data.complexity_score);
+                setJudgeDecision(data.executed_locally ? 'local' : 'cloud');
+              }
               if (data.final_result) {
                 console.log('[DEBUG] final_result length:', data.final_result.length);
                 console.log('[DEBUG] final_result preview:', data.final_result.substring(0, 100));
+                
+                addChatHistory(taskText, data.final_result);
+                
                 setResult({
                   final_result: data.final_result,
                   steps: [],
@@ -375,18 +436,18 @@ export default function DashboardLayout() {
       );
     } catch (error) {
       console.error('[Workflow API Error]', error);
-      console.error('[DEBUG] Falling back to mock data!');
-      addLog(undefined, 'error', '后端API调用失败，切换到本地模拟模式');
-      await executeWithMock(taskText);
-      return;
+      addLog(undefined, 'error', `后端API调用失败: ${error instanceof Error ? error.message : String(error)}`);
+      setResult(null);
+      setIsRunning(false);
+      setCurrentStep(null);
     } finally {
       setIsRunning(false);
       setCurrentStep(null);
     }
-  }, [setCurrentTask, setIsRunning, setInputValue, setResult, setCurrentStep, setComplexityScore, setJudgeDecision, addLog, addCompletedStep, addWorkflowStep, updateAgentStatus, executeWithMock]);
+  }, [setCurrentTask, setIsRunning, setResult, setCurrentStep, setComplexityScore, setJudgeDecision, addLog, addCompletedStep, addWorkflowStep, updateAgentStatus, addChatHistory]);
 
   const handleSubmit = async () => {
-    const taskText = inputValue.trim() || currentTask;
+    const taskText = inputValue.trim();
     if (!taskText || isRunning) return;
 
     if (useMock) {
@@ -394,6 +455,8 @@ export default function DashboardLayout() {
     } else {
       await executeWithAPI(taskText);
     }
+    
+    setInputValue('');
   };
 
   const handleStop = () => {
@@ -410,15 +473,186 @@ export default function DashboardLayout() {
 
   const handleClear = () => {
     setConfirmDialog({
-      title: '清空数据',
-      message: '确定要清空所有任务数据吗？此操作不可撤销。',
+      title: '清空对话',
+      message: '确定要清空所有对话历史和任务数据吗？此操作将清除所有记忆，开始新的对话。',
       onConfirm: () => {
         resetWorkflow();
         resetAllAgents();
+        clearChatHistory();
         setInputValue('');
         setConfirmDialog(null);
       },
     });
+  };
+
+  const handleDetectLocalModel = async () => {
+    console.log('[检测本地模型] 开始自动检测 Ollama 端口...');
+    setDetectingLocalModel(true);
+    setLocalModelDetectResult(null);
+    try {
+      // 不传递 host 和 port，让后端自动检测本地常见端口
+      const response = await configService.detectOllama();
+      console.log('[检测本地模型] 检测结果:', response);
+      
+      setLocalModelDetectResult({
+        success: true,
+        message: response.message,
+      });
+      
+      if (response.ollama_host) {
+        try {
+          const url = new URL(response.ollama_host);
+          setLocalModelPathInput(url.hostname);
+          setLocalModelPort(url.port || '11435');
+        } catch (e) {
+          console.error('[检测本地模型] 解析 URL 失败:', e);
+        }
+      }
+    } catch (error) {
+      console.error('[检测本地模型] 错误:', error);
+      const errMsg = error instanceof Error ? error.message : '检测失败';
+      setLocalModelDetectResult({
+        success: false,
+        message: errMsg,
+      });
+    }
+    setDetectingLocalModel(false);
+  };
+
+  const handleTestLocalConnection = async () => {
+    console.log('[测试连接] 测试当前端口...');
+    setTestingConnection(true);
+    setTestConnectionResult(null);
+    try {
+      // 构建测试用的 host 和 port
+      const host = localModelPathInput;
+      const port = localModelPort;
+      
+      console.log('[测试连接] 测试:', { host, port });
+      const response = await configService.testOllama(host, port);
+      console.log('[测试连接] 结果:', response);
+      
+      setTestConnectionResult({
+        success: response.success,
+        message: response.message,
+      });
+    } catch (error) {
+      console.error('[测试连接] 错误:', error);
+      const errMsg = error instanceof Error ? error.message : '测试失败';
+      setTestConnectionResult({
+        success: false,
+        message: errMsg,
+      });
+    }
+    setTestingConnection(false);
+  };
+
+  const handleSaveLocalModel = async () => {
+    console.log('[保存本地模型] 开始保存...');
+    try {
+      let ollamaHost;
+      if (localModelPathInput.indexOf('http') === 0) {
+        ollamaHost = localModelPathInput;
+      } else {
+        ollamaHost = 'http://' + localModelPathInput + ':' + localModelPort;
+      }
+
+      console.log('[保存本地模型] ollamaHost:', ollamaHost);
+      await configService.update({ ollama_host: ollamaHost });
+      
+      console.log('[保存本地模型] 保存成功');
+      setShowLocalModelDialog(false);
+      addLog('system', 'info', '本地模型配置已保存: ' + ollamaHost);
+    } catch (error) {
+      console.error('[保存本地模型] 错误:', error);
+      const errMsg = error instanceof Error ? error.message : '未知错误';
+      addLog('system', 'error', '配置保存失败: ' + errMsg);
+    }
+  };
+
+  const handleAddCloudModel = async () => {
+    try {
+      await configService.createModel({
+        name: selectedModel,
+        provider: selectedProvider,
+        model: selectedModel,
+        api_key: apiKey,
+        display_name: displayName || selectedModel,
+        max_tokens: maxTokens,
+        temperature: temperature,
+      });
+      addLog('system', 'success', '云端模型 ' + selectedModel + ' 已添加');
+      setShowCloudModelDialog(false);
+      setSelectedProvider('');
+      setSelectedModel('');
+      setApiKey('');
+      setDisplayName('');
+      setMaxTokens(4096);
+      setTemperature(0.7);
+    } catch (error) {
+      addLog('system', 'error', '添加云端模型失败: ' + (error instanceof Error ? error.message : '未知错误'));
+    }
+  };
+
+  const handleValidateApiKey = async () => {
+    console.log('[验证密钥] 开始验证...');
+    if (!selectedProvider || !apiKey) {
+      console.log('[验证密钥] 缺少服务商或API密钥');
+      return;
+    }
+    setValidatingApiKey(true);
+    setApiKeyValidationResult(null);
+    try {
+      console.log('[验证密钥] 参数:', { provider: selectedProvider, api_key: apiKey.length > 0 ? '***' : '', model: selectedModel });
+      const response = await configService.validateApiKey({
+        provider: selectedProvider,
+        api_key: apiKey,
+        model: selectedModel,
+      });
+      console.log('[验证密钥] 响应:', response);
+      setApiKeyValidationResult({
+        success: response.success,
+        message: response.message,
+      });
+    } catch (error) {
+      console.error('[验证密钥] 错误:', error);
+      setApiKeyValidationResult({
+        success: false,
+        message: error instanceof Error ? error.message : '验证失败',
+      });
+    }
+    setValidatingApiKey(false);
+  };
+
+  const modelProviders = [
+    { value: 'deepseek', label: 'DeepSeek' },
+    { value: 'gemini', label: 'Gemini' },
+    { value: 'openai', label: 'OpenAI' },
+    { value: 'anthropic', label: 'Anthropic' },
+  ];
+
+  const modelsByProvider: Record<string, { value: string; label: string }[]> = {
+    deepseek: [
+      { value: 'deepseek-chat', label: 'DeepSeek Chat' },
+      { value: 'deepseek-r1-distill', label: 'DeepSeek R1 Distill' },
+      { value: 'deepseek-r1', label: 'DeepSeek R1' },
+      { value: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
+    ],
+    gemini: [
+      { value: 'gemini-pro', label: 'Gemini Pro' },
+      { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
+      { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
+    ],
+    openai: [
+      { value: 'gpt-4o', label: 'GPT-4o' },
+      { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
+      { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' },
+    ],
+    anthropic: [
+      { value: 'claude-3-5-sonnet', label: 'Claude 3.5 Sonnet' },
+      { value: 'claude-3-opus', label: 'Claude 3 Opus' },
+      { value: 'claude-3-sonnet', label: 'Claude 3 Sonnet' },
+    ],
   };
 
   const handleContextMenu = (e: React.MouseEvent, target: string, type: 'node' | 'agent') => {
@@ -528,39 +762,58 @@ export default function DashboardLayout() {
             <span className="logo-subtitle">多智能体协同平台</span>
           </div>
           <div className="task-bar" style={{ cursor: 'pointer' }} onClick={() => setTaskListOpen(!taskListOpen)}>
-            <span className="task-label">任务：1</span>
-            {currentTask && !isRunning && completedSteps.length > 0 ? (
-              <span className="task-text">{currentTask}</span>
-            ) : (
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleSubmit();
-                  }
-                }}
-                onClick={(e) => e.stopPropagation()}
-                placeholder="输入您的任务需求... 例如：帮我写一份关于智能体协作的年度计划"
-                className="task-input"
-              />
-            )}
-            {taskListOpen && (
+            <span className="task-label">任务：{chatHistory.length + 1}</span>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSubmit();
+                }
+              }}
+              onClick={(e) => e.stopPropagation()}
+              placeholder={currentTask ? `继续对话... 上次任务: ${currentTask.slice(0, 30)}${currentTask.length > 30 ? '...' : ''}` : '输入您的任务需求... 例如：帮我写一份关于智能体协作的年度计划'}
+              className="task-input"
+              disabled={isRunning}
+            />
+            {taskListOpen && chatHistory.length > 0 && (
               <div style={{
                 position: 'absolute', top: '100%', left: 0, right: 0,
                 background: 'var(--bg-card)', border: '1px solid var(--border-color)',
                 borderRadius: 8, padding: 8, zIndex: 50, marginTop: 4,
                 boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+                maxHeight: '300px',
+                overflowY: 'auto',
               }}>
-                {currentTask ? (
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '4px 8px' }}>
-                    {currentTask}
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: '4px 8px', marginBottom: 8, borderBottom: '1px solid var(--border-color)' }}>
+                  对话历史 ({chatHistory.length} 条)
+                </div>
+                {[...chatHistory].reverse().map((item, index) => (
+                  <div key={index} style={{ 
+                    padding: '8px', 
+                    marginBottom: 8, 
+                    background: 'var(--bg-secondary)', 
+                    borderRadius: 4,
+                    cursor: 'pointer',
+                    transition: 'background 0.2s',
+                  }} 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setInputValue(item.user_input);
+                    setTaskListOpen(false);
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
+                  onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-secondary)'}>
+                    <div style={{ fontSize: 13, color: 'var(--text-primary)', marginBottom: 4 }}>
+                      用户: {item.user_input}
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', maxHeight: '60px', overflow: 'hidden' }}>
+                      助手: {item.response.slice(0, 100)}{item.response.length > 100 ? '...' : ''}
+                    </div>
                   </div>
-                ) : (
-                  <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: '4px 8px' }}>暂无任务</div>
-                )}
+                ))}
               </div>
             )}
           </div>
@@ -786,39 +1039,31 @@ export default function DashboardLayout() {
           <div className="card animate-in delay-5">
             <div className="card-title">系统设置</div>
             <div className="setting-item">
-              <div className="setting-label">本地模型路径</div>
-              <div style={{ position: 'relative' }}>
-                <select
-                  className="setting-input"
-                  value={modelPath}
-                  onChange={(e) => setModelPath(e.target.value)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <option value="/models">/models</option>
-                  <option value="/models/qwen">/models/qwen</option>
-                  <option value="/models/deepseek">/models/deepseek</option>
-                  <option value="/opt/llm/models">/opt/llm/models</option>
-                </select>
-              </div>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowLocalModelDialog(true)}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                </svg>
+                本地模型设置
+              </button>
             </div>
             <div className="setting-item">
-              <div className="setting-label">API Key</div>
-              <div className="api-key-wrapper">
-                <input
-                  type={showApiKey ? 'text' : 'password'}
-                  className="setting-input with-toggle"
-                  defaultValue="sk-******-******-******-demo"
-                  readOnly={!showApiKey}
-                  style={{ cursor: showApiKey ? 'text' : 'default' }}
-                />
-                <button
-                  className="api-key-toggle"
-                  onClick={() => setShowApiKey(!showApiKey)}
-                  type="button"
-                >
-                  {showApiKey ? '🔒' : '👁'}
-                </button>
-              </div>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowCloudModelDialog(true)}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 18H6a4 4 0 0 1-1.172-7.836 5.5 5.5 0 0 1 10.63-1.636 3.5 3.5 0 0 1 4.54 5.46z" />
+                  <path d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                  <path d="M21 12v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                </svg>
+                添加云端模型
+              </button>
             </div>
             <div className="setting-item">
               <div className="setting-label">难度阈值 (置信度)</div>
@@ -1017,6 +1262,15 @@ export default function DashboardLayout() {
                   <div className="node-icon">🏆</div>
                   <div className="node-title">内部PK胜出</div>
                   <div className="node-subtitle">本地模型输出更优</div>
+                  {judgeDecision && (
+                    <div className={`node-status ${judgeDecision === 'local' ? 'completed' : ''}`}>
+                      {judgeDecision === 'local' ? (
+                        <><span className="checkmark-anim">✓</span> 已完成 - 本地输出</>
+                      ) : (
+                        '未采用'
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div
                   className={`pipeline-node node-api ${judgeDecision === 'cloud' ? 'node-completed' : ''}`}
@@ -1026,15 +1280,15 @@ export default function DashboardLayout() {
                   <div className="node-icon">☁️</div>
                   <div className="node-title">API网关</div>
                   <div className="node-subtitle">云端增强与生成</div>
-                  <div className={`node-status ${getNodeStatus('judge') === 'completed' ? 'completed' : 'loading'}`}>
-                    {getNodeStatus('judge') === 'completed' ? (
-                      <><span className="checkmark-anim">✓</span> 已完成</>
-                    ) : currentStep === 'judge' ? (
-                      <><span className="spinner"></span> 调用中...</>
-                    ) : (
-                      '等待中'
-                    )}
-                  </div>
+                  {judgeDecision && (
+                    <div className={`node-status ${judgeDecision === 'cloud' ? 'completed' : ''}`}>
+                      {judgeDecision === 'cloud' ? (
+                        <><span className="checkmark-anim">✓</span> 已完成 - 云端生成</>
+                      ) : (
+                        '未采用'
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1188,13 +1442,15 @@ export default function DashboardLayout() {
                           ) : agentId === 'judge' ? (
                             <>
                               <div className="timeline-label">
-                                决策：<span style={{ color: 'var(--blue)', fontWeight: 600 }}>调用API网关</span>
+                                决策：<span style={{ color: judgeDecision === 'local' ? 'var(--green)' : 'var(--blue)', fontWeight: 600 }}>{judgeDecision === 'local' ? '本地模型直接输出' : '调用API网关增强'}</span>
                               </div>
                               <div className="timeline-label" style={{ marginTop: 6 }}>理由：</div>
                               <ul className="timeline-list">
-                                <li>难度评分0.72 &gt; 阈值0.65</li>
-                                <li>本地模型置信度不足</li>
-                                <li>需要更高质量的专业内容</li>
+                                {judgeDecision === 'local' ? (
+                                  <><li>简单任务或知识库已命中</li><li>本地模型质量达标</li></>
+                                ) : (
+                                  <><li>复杂任务或知识库未命中</li><li>需要云端大模型增强</li></>
+                                )}
                               </ul>
                             </>
                           ) : (
@@ -1445,6 +1701,322 @@ export default function DashboardLayout() {
             <div className="confirm-dialog-actions">
               <button className="btn btn-secondary" onClick={() => setConfirmDialog(null)}>取消</button>
               <button className="btn btn-primary" onClick={confirmDialog.onConfirm}>确定</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLocalModelDialog && (
+        <div className="modal-overlay" onClick={() => setShowLocalModelDialog(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>本地模型设置</h3>
+              <button className="modal-close" onClick={() => setShowLocalModelDialog(false)}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label className="form-label">
+                  <span className="required">*</span> 主机地址
+                </label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={localModelPathInput}
+                  onChange={(e) => setLocalModelPathInput(e.target.value)}
+                  placeholder="localhost"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">端口号</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={localModelPort}
+                  onChange={(e) => setLocalModelPort(e.target.value)}
+                  placeholder="11435"
+                />
+              </div>
+              <div className="form-group">
+                <div className="form-actions">
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleDetectLocalModel}
+                    disabled={detectingLocalModel}
+                  >
+                    {detectingLocalModel ? (
+                      <>
+                        <span className="spinner small"></span>
+                        检测中...
+                      </>
+                    ) : (
+                      <>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8m6-2 3 3m-3-3 3-3" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                        检测本地模型
+                      </>
+                    )}
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleTestLocalConnection}
+                    disabled={testingConnection}
+                  >
+                    {testingConnection ? (
+                      <>
+                        <span className="spinner small"></span>
+                        测试中...
+                      </>
+                    ) : (
+                      <>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                          <polyline points="22,4 12,14.01 9,11.01" />
+                        </svg>
+                        测试连接
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+              {localModelDetectResult && (
+                <div className={`result-message ${localModelDetectResult.success ? 'success' : 'error'}`}>
+                  {localModelDetectResult.success ? (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      {localModelDetectResult.message}
+                    </>
+                  ) : (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="15" y1="9" x2="9" y2="15" />
+                        <line x1="9" y1="9" x2="15" y2="15" />
+                      </svg>
+                      {localModelDetectResult.message}
+                    </>
+                  )}
+                </div>
+              )}
+              {testConnectionResult && (
+                <div className={`result-message ${testConnectionResult.success ? 'success' : 'error'}`}>
+                  {testConnectionResult.success ? (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      {testConnectionResult.message}
+                    </>
+                  ) : (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="15" y1="9" x2="9" y2="15" />
+                        <line x1="9" y1="9" x2="15" y2="15" />
+                      </svg>
+                      {testConnectionResult.message}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowLocalModelDialog(false)}>取消</button>
+              <button className="btn btn-primary" onClick={handleSaveLocalModel}>保存设置</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCloudModelDialog && (
+        <div className="modal-overlay" onClick={() => setShowCloudModelDialog(false)}>
+          <div className="modal-content cloud-model-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>添加模型</h3>
+              <button className="modal-close" onClick={() => setShowCloudModelDialog(false)}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+            <div className="modal-tabs">
+              <button
+                className={`modal-tab ${cloudModelTab === 'provider' ? 'active' : ''}`}
+                onClick={() => setCloudModelTab('provider')}
+              >
+                模型服务商
+              </button>
+              <button
+                className={`modal-tab ${cloudModelTab === 'custom' ? 'active' : ''}`}
+                onClick={() => setCloudModelTab('custom')}
+              >
+                自定义配置
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label className="form-label">
+                  <span className="required">*</span> 服务商
+                </label>
+                <select
+                  className="form-input"
+                  value={selectedProvider}
+                  onChange={(e) => {
+                    setSelectedProvider(e.target.value);
+                    setSelectedModel('');
+                  }}
+                >
+                  <option value="">选择模型服务商</option>
+                  {modelProviders.map((provider) => (
+                    <option key={provider.value} value={provider.value}>
+                      {provider.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">
+                  <span className="required">*</span> 模型
+                </label>
+                <select
+                  className="form-input"
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  disabled={!selectedProvider}
+                >
+                  <option value="">选择模型</option>
+                  {selectedProvider && modelsByProvider[selectedProvider]?.map((model) => (
+                    <option key={model.value} value={model.value}>
+                      {model.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">
+                  <span className="required">*</span> API 密钥
+                </label>
+                <input
+                  type="password"
+                  className="form-input"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="输入 API 密钥"
+                />
+                <button
+                  className="api-key-toggle-btn"
+                  onClick={handleValidateApiKey}
+                  disabled={!selectedProvider || !apiKey || validatingApiKey}
+                >
+                  {validatingApiKey ? (
+                    <>
+                      <span className="spinner small"></span>
+                      验证中...
+                    </>
+                  ) : (
+                    '验证密钥'
+                  )}
+                </button>
+                {apiKeyValidationResult && (
+                  <div className={`result-message ${apiKeyValidationResult.success ? 'success' : 'error'}`}>
+                    {apiKeyValidationResult.success ? (
+                      <>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        {apiKeyValidationResult.message}
+                      </>
+                    ) : (
+                      <>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="15" y1="9" x2="9" y2="15" />
+                          <line x1="9" y1="9" x2="15" y2="15" />
+                        </svg>
+                        {apiKeyValidationResult.message}
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="form-group">
+                <button
+                  className="advanced-toggle"
+                  onClick={() => setShowAdvancedConfig(!showAdvancedConfig)}
+                >
+                  <svg 
+                    width="14" 
+                    height="14" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2"
+                    className={showAdvancedConfig ? 'rotated' : ''}
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                  {showAdvancedConfig ? '收起' : '展开'} 高级配置
+                  <span className="advanced-desc">包含模型系列（优化的 Prompt 和超参）、展示名称、上下文窗口等配置。</span>
+                </button>
+              </div>
+              {showAdvancedConfig && (
+                <div className="advanced-config-container">
+                  <div className="advanced-config">
+                    <div className="form-group">
+                      <label className="form-label">展示名称</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        placeholder="显示名称"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">最大 tokens</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={maxTokens}
+                        onChange={(e) => setMaxTokens(Number(e.target.value))}
+                        placeholder="4096"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">温度</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={temperature}
+                        onChange={(e) => setTemperature(Number(e.target.value))}
+                        min="0"
+                        max="2"
+                        step="0.1"
+                        placeholder="0.7"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowCloudModelDialog(false)}>取消</button>
+              <button
+                className="btn btn-primary"
+                onClick={handleAddCloudModel}
+                disabled={!selectedProvider || !selectedModel || !apiKey}
+              >
+                添加模型
+              </button>
             </div>
           </div>
         </div>

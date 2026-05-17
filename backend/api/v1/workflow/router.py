@@ -109,6 +109,7 @@ async def execute_workflow(
     review_score = 0.0
     judge_decision = "local_output"
     cloud_mode = "none"
+    knowledge_found = False
     start_time = time.time()
     workflow_start = datetime.now()
     
@@ -136,7 +137,6 @@ async def execute_workflow(
             agent_start = time.time()
             agent_name = agent_names.get(agent_id, agent_id)
             
-            # 根据 Agent 类型构建正确的输入格式
             if agent_id == "review":
                 agent_input_content = json.dumps({
                     "user_task": original_user_input,
@@ -148,7 +148,8 @@ async def execute_workflow(
                     "user_task": original_user_input,
                     "summary_result": summary_result,
                     "review_result": review_result,
-                    "writer_output": writer_output
+                    "writer_output": writer_output,
+                    "knowledge_found": knowledge_found
                 })
             elif agent_id == "result":
                 agent_input_content = json.dumps({
@@ -162,13 +163,18 @@ async def execute_workflow(
                     "judge_decision": judge_decision,
                     "cloud_mode": cloud_mode
                 })
+            elif agent_id == "summary":
+                agent_input_content = current_input
+            elif agent_id == "writer":
+                agent_input_content = current_input
             else:
                 agent_input_content = current_input
             
             try:
+                need_cloud = (agent_id == "result" and judge_decision == "cloud_enhance" and cloud_mode != "none")
                 output = await registry.execute_agent(
                     agent_id,
-                    AgentInput(content=agent_input_content, context=current_context, use_llm=True, use_cloud=False)
+                    AgentInput(content=agent_input_content, context=current_context, use_llm=True, use_cloud=need_cloud)
                 )
                 agent_duration = time.time() - agent_start
                 
@@ -186,7 +192,9 @@ async def execute_workflow(
                 current_context[agent_id] = output.content
                 
                 # 保存关键 Agent 的输出
-                if agent_id == "summary":
+                if agent_id == "knowledge":
+                    knowledge_found = step.metadata.get("knowledge_count", 0) > 0
+                elif agent_id == "summary":
                     summary_result = output.content
                 elif agent_id == "writer":
                     writer_output = output.content
@@ -227,7 +235,9 @@ async def execute_workflow(
                 steps.append(step)
                 raise HTTPException(status_code=500, detail=f"Agent {agent_id} failed: {str(e)}")
         
-        final_result = steps[-1].output if steps else ""
+        final_result = writer_output
+        if judge_decision == "cloud_enhance" and cloud_mode != "none":
+            final_result = steps[-1].output if steps else writer_output
         total_duration = time.time() - start_time
         workflow_end = datetime.now()
         
@@ -403,8 +413,12 @@ async def execute_workflow_stream(
     current_context = input_data.context or {}
     executed_locally = True
     complexity_score = 0.0
+    review_score = 0.0
+    judge_decision = "local_output"
+    cloud_mode = "none"
+    knowledge_found = False
     start_time = time.time()
-    
+
     try:
         agent_order = ["knowledge", "summary", "writer", "review", "judge", "result"]
         agent_names = {
@@ -415,62 +429,77 @@ async def execute_workflow_stream(
             "judge": "Judge Agent",
             "result": "Result Agent"
         }
-        
+
         current_input = input_data.user_input
-        
+        original_user_input = input_data.user_input
+        writer_output = ""
+        summary_result = ""
+        review_result = ""
+
         logger.info(f"[STREAM] Starting workflow for input: {input_data.user_input[:50]}...")
-        
+
         yield {
             "type": "start",
             "message": "工作流开始执行",
             "timestamp": time.time()
         }
-        
+
         for agent_id in agent_order:
             agent_start = time.time()
             agent_name = agent_names.get(agent_id, agent_id)
-            
+
             yield {
                 "type": "agent_start",
                 "agent_id": agent_id,
                 "agent_name": agent_name,
                 "timestamp": time.time()
             }
-            
+
             try:
-                if agent_id == "summary":
-                    agent_input = f"{current_context.get('knowledge', '')}\n\n任务摘要: {current_input}"
-                elif agent_id == "writer":
-                    agent_input = f"{current_context.get('knowledge', '')}\n\n任务摘要: {current_context.get('summary', '')}"
-                elif agent_id == "review":
-                    agent_input = f"待评审内容: {current_input}\n任务摘要: {current_context.get('summary', '')}"
+                if agent_id == "review":
+                    agent_input = json.dumps({
+                        "user_task": original_user_input,
+                        "summary": summary_result,
+                        "writer_output": writer_output
+                    })
                 elif agent_id == "judge":
-                    agent_input = f"内容: {current_input}\n评审结果: {current_context.get('review', '')}"
+                    agent_input = json.dumps({
+                        "user_task": original_user_input,
+                        "summary_result": summary_result,
+                        "review_result": review_result,
+                        "writer_output": writer_output,
+                        "knowledge_found": knowledge_found
+                    })
                 elif agent_id == "result":
                     agent_input = json.dumps({
-                        "user_task": input_data.user_input,
-                        "summary_result": current_context.get("summary", ""),
-                        "review_result": current_context.get("review", ""),
-                        "judge_result": current_context.get("judge", ""),
-                        "writer_output": current_context.get("writer", ""),
+                        "user_task": original_user_input,
+                        "summary_result": summary_result,
+                        "review_result": review_result,
+                        "judge_result": current_context.get("judge", "{}"),
+                        "writer_output": writer_output,
                         "executed_locally": executed_locally,
                         "complexity_score": complexity_score,
-                        "judge_decision": "local_output" if executed_locally else "cloud_enhance",
-                        "cloud_mode": "none"
+                        "judge_decision": judge_decision,
+                        "cloud_mode": cloud_mode
                     }, ensure_ascii=False)
-                    logger.info(f"[DEBUG] Result Agent input: user_task={input_data.user_input[:50]}..., writer_output exists: {bool(current_context.get('writer'))}")
+                    need_cloud = judge_decision == "cloud_enhance" and cloud_mode != "none"
+                    logger.info(f"[DEBUG] Result Agent input: user_task={original_user_input[:50]}..., writer_output exists: {bool(writer_output)}, cloud={need_cloud}")
+                elif agent_id == "summary":
+                    agent_input = current_input
+                elif agent_id == "writer":
+                    agent_input = current_input
                 else:
                     agent_input = current_input
-                
+
                 logger.info(f"[DEBUG] Executing {agent_id} with input length: {len(agent_input)}")
-                
+
                 try:
                     output = await asyncio.wait_for(
                         registry.execute_agent(
                             agent_id,
-                            AgentInput(content=agent_input, context=current_context, use_llm=True, use_cloud=False)
+                            AgentInput(content=agent_input, context=current_context, use_llm=True, use_cloud=need_cloud if agent_id == "result" else False)
                         ),
-                        timeout=60  # 60秒超时
+                        timeout=120 if (agent_id == "result" and need_cloud) else 90
                     )
                 except asyncio.TimeoutError:
                     logger.error(f"[DEBUG] Agent {agent_id} execution timed out")
@@ -480,7 +509,7 @@ async def execute_workflow_stream(
                         metadata={}
                     )
                 agent_duration = time.time() - agent_start
-                
+
                 step = WorkflowStep(
                     agent_id=agent_id,
                     agent_name=agent_name,
@@ -491,10 +520,43 @@ async def execute_workflow_stream(
                     metadata=output.metadata or {}
                 )
                 steps.append(step)
-                
+
                 current_context[agent_id] = output.content
                 current_input = output.content
-                
+
+                if agent_id == "knowledge":
+                    knowledge_found = step.metadata.get("knowledge_count", 0) > 0
+
+                if agent_id == "summary":
+                    summary_result = output.content
+
+                if agent_id == "writer":
+                    writer_output = output.content
+
+                if agent_id == "review":
+                    review_result = output.content
+                    try:
+                        review_data = json.loads(output.content)
+                        review_score = review_data.get("review_score", 0.0)
+                    except:
+                        review_score = 0.0
+
+                if agent_id == "judge":
+                    try:
+                        judge_data = json.loads(output.content)
+                        complexity_score = judge_data.get("complexity_score", 0.0)
+                        review_score = judge_data.get("review_score", review_score)
+                        judge_decision = judge_data.get("decision", "local_output")
+                        cloud_mode = judge_data.get("cloud_mode", "none")
+                        category = judge_data.get("category", "unknown")
+                        reason = judge_data.get("reason", [])
+                        executed_locally = judge_decision == "local_output"
+                    except Exception as e:
+                        logger.error(f"[STREAM] Failed to parse judge result: {e}")
+                        executed_locally = True
+                        category = "unknown"
+                        reason = []
+
                 yield {
                     "type": "agent_complete",
                     "agent_id": agent_id,
@@ -502,13 +564,22 @@ async def execute_workflow_stream(
                     "duration": round(agent_duration, 2),
                     "success": output.success,
                     "output_length": len(output.content),
-                    "timestamp": time.time()
+                    "timestamp": time.time(),
+                    "complexity_score": complexity_score if agent_id == "judge" else None,
+                    "executed_locally": executed_locally if agent_id == "judge" else None,
                 }
-                
+
                 if agent_id == "judge":
-                    executed_locally = step.metadata.get("executed_locally", True)
-                    complexity_score = step.metadata.get("complexity_score", 0.0)
-            
+                    yield {
+                        "type": "judge_decision",
+                        "complexity_score": complexity_score,
+                        "executed_locally": executed_locally,
+                        "decision": judge_decision,
+                        "category": category,
+                        "reason": reason,
+                        "timestamp": time.time()
+                    }
+
             except Exception as e:
                 agent_duration = time.time() - agent_start
                 yield {
@@ -520,12 +591,15 @@ async def execute_workflow_stream(
                     "timestamp": time.time()
                 }
                 raise
-        
-        final_result = steps[-1].output if steps else ""
+
+        final_result = writer_output
+        if judge_decision == "cloud_enhance" and cloud_mode != "none":
+            final_result = steps[-1].output if steps else writer_output
+
         total_duration = time.time() - start_time
-        
+
         logger.info(f"[DEBUG] Final result length: {len(final_result)}, first 100 chars: {final_result[:100]}")
-        
+
         yield {
             "type": "complete",
             "final_result": final_result,
@@ -535,7 +609,7 @@ async def execute_workflow_stream(
             "steps_count": len(steps),
             "timestamp": time.time()
         }
-        
+
     except Exception as e:
         yield {
             "type": "error",

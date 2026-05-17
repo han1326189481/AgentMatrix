@@ -14,6 +14,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import JSONResponse
+import socketio
 
 from app.config import settings
 from app.dependencies import get_agent_registry
@@ -107,13 +108,53 @@ async def api_health_check():
 
 app.include_router(v1_router, prefix="/api/v1")
 
+sio = socketio.AsyncServer(
+    async_mode="asgi",
+    cors_allowed_origins=settings.allowed_origins,
+    logger=False,
+    engineio_logger=False,
+)
+
+
+@sio.event
+async def connect(sid, environ, auth):
+    logger.info(f"Socket.IO client connected: {sid}")
+
+
+@sio.event
+async def disconnect(sid):
+    logger.info(f"Socket.IO client disconnected: {sid}")
+
+
+@sio.on("workflow:step_start")
+async def on_step_start(sid, data):
+    logger.info(f"Step start from {sid}: {data}")
+
+
+@sio.on("workflow:step_complete")
+async def on_step_complete(sid, data):
+    logger.info(f"Step complete from {sid}")
+
+
+@sio.on("workflow:step_error")
+async def on_step_error(sid, data):
+    logger.info(f"Step error from {sid}: {data}")
+
+
+@sio.on("workflow:complete")
+async def on_workflow_complete(sid, data):
+    logger.info(f"Workflow complete from {sid}")
+
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+socket_app = socketio.ASGIApp(sio, app)
 
 if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(
-        "app.main:app",
+        "app.main:socket_app",
         host=settings.server_host,
         port=settings.server_port,
         reload=settings.server_reload,

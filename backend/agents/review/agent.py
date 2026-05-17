@@ -7,7 +7,7 @@ import re
 class ReviewAgent(BaseAgent):
     def __init__(self):
         super().__init__("review", "Review Agent")
-        self.local_model = "phi4-mini"
+        self.local_model = "phi4-mini:3.8b"
         self.world_rules = self._load_world_rules()
 
     def _load_world_rules(self) -> List[Dict[str, Any]]:
@@ -43,6 +43,24 @@ class ReviewAgent(BaseAgent):
                     injections.append(rule.get("inject", ""))
                     break
         return "\n".join(injections)
+
+    def _detect_simple_conversation(self, user_task: str, writer_output: str) -> bool:
+        task_lower = user_task.strip().lower()
+        if len(task_lower) < 10:
+            return True
+        simple_patterns = [
+            r"^(你好|您好|hi|hello|嗨|hey|早上好|下午好|晚上好)",
+            r"^(在吗|在不在|有人吗|你在吗)",
+            r"^(你是谁|你叫什么|你的名字|自我介绍|你是什么)",
+            r"^(谢谢|感谢|辛苦|多谢|thanks)",
+            r"^(天气|心情|无聊|开心|难过|累了|困了|饿了)",
+        ]
+        for pattern in simple_patterns:
+            if re.search(pattern, task_lower):
+                return True
+        if len(writer_output) < 200 and not re.search(r"(# |## |一、|二、|1\.|2\.)", writer_output):
+            return True
+        return False
 
     async def execute(self, input_data: AgentInput) -> AgentOutput:
         await self._set_status("processing")
@@ -90,6 +108,23 @@ class ReviewAgent(BaseAgent):
             )
 
     def _review_content(self, user_task: str, summary: str, writer_output: str) -> Dict[str, Any]:
+        is_simple_conversation = self._detect_simple_conversation(user_task, writer_output)
+
+        if is_simple_conversation:
+            return {
+                "review_score": 0.85,
+                "dimensions": {
+                    "structure": 0.80,
+                    "relevance": 0.90,
+                    "richness": 0.80,
+                    "professional": 0.85,
+                    "actionable": 0.85
+                },
+                "issues": [],
+                "suggestions": ["简单对话，内容自然合理"],
+                "pass": True
+            }
+
         structure = 0.5
         relevance = 0.7
         richness = 0.4
@@ -177,8 +212,27 @@ class ReviewAgent(BaseAgent):
         }
 
     async def _review_content_with_llm(self, user_task: str, summary: str, writer_output: str, use_cloud: bool = False) -> Dict[str, Any]:
+        if self._detect_simple_conversation(user_task, writer_output):
+            return self._review_content(user_task, summary, writer_output)
+
         injection_rules = self._get_injection_rules(user_task)
-        
+
+        few_shot = """
+=== Few-shot 示例 ===
+
+示例1（低质量）:
+输入任务：写校园活动策划
+Writer输出：举办活动促进同学交流。
+输出：
+{"review_score":0.42,"dimensions":{"structure":0.3,"relevance":0.7,"richness":0.2,"professional":0.4,"actionable":0.5},"issues":["内容过短","缺少活动流程","缺少预算与时间安排"],"suggestions":["增加活动目标","补充时间线","增加预算模块"],"pass":false}
+
+示例2（高质量）:
+输入任务：生成完整的XX系统设计方案
+Writer输出：（包含完整章节、详细分析、实施步骤的专业文档）
+输出：
+{"review_score":0.86,"dimensions":{"structure":0.9,"relevance":0.9,"richness":0.8,"professional":0.9,"actionable":0.8},"issues":["预算部分略简略"],"suggestions":["补充详细预算表"],"pass":true}
+"""
+
         prompt = f"""
 你是 Review Agent。
 
@@ -192,6 +246,8 @@ class ReviewAgent(BaseAgent):
 你不能重新生成全文。
 
 {injection_rules}
+
+{few_shot}
 
 你必须：
 - 使用结构化JSON输出
@@ -210,6 +266,11 @@ class ReviewAgent(BaseAgent):
 每项评分范围：0~1
 
 最终总分：review_score = 五项平均值
+
+决策规则：
+- review_score >= 0.8 → 高质量，允许直接输出
+- 0.65 ~ 0.8 → 中等质量，建议本地增强
+- < 0.65 → 低质量，建议调用云端API
 
 用户任务：{user_task}
 
@@ -237,15 +298,17 @@ Writer输出：
   "pass": true
 }}
 """
-        
+
         response = await self._call_llm(prompt, model=self.local_model, use_cloud=use_cloud, temperature=0.2)
-        
+
         try:
             result = json.loads(response)
             if "review_score" in result and "dimensions" in result:
+                if result["review_score"] == 0.0:
+                    return self._review_content(user_task, summary, writer_output)
                 result["pass"] = result["review_score"] >= 0.65
                 return result
         except Exception as e:
             pass
-        
+
         return self._review_content(user_task, summary, writer_output)

@@ -19,25 +19,36 @@ class SummaryAgent(BaseAgent):
             # 2. 提取用户原始问题
             original_question = parsed_data.get("original_question", input_data.content)
             
-            # 3. 提取关键词
-            keywords = self._extract_keywords(input_data.content, parsed_data.get("knowledge_points", []))
+            # 3. 判断任务类型
+            is_creative = any(keyword in original_question.lower() for keyword in ["情书", "信件", "诗歌", "诗", "小说", "故事", "祝福语", "感谢信"])
             
-            # 4. 提取需求点
-            requirements = self._extract_requirements(original_question, parsed_data.get("knowledge_points", []))
-            
-            # 5. 生成方案大纲
-            outline = self._generate_outline(original_question, keywords, requirements)
-            
-            # 6. 构建结构化输出
-            summary_result = {
-                "task": self._extract_task(original_question),
-                "original_question": original_question,
-                "keywords": keywords,
-                "knowledge_points": parsed_data.get("knowledge_points", []),
-                "requirements": requirements,
-                "outline": outline,
-                "summary": self._generate_brief_summary(original_question, keywords, requirements)
-            }
+            if is_creative:
+                # 创意类任务：简单的摘要，不生成方案大纲
+                keywords = self._extract_keywords(input_data.content, parsed_data.get("knowledge_points", []))
+                summary_result = {
+                    "task": original_question,
+                    "original_question": original_question,
+                    "keywords": keywords,
+                    "knowledge_points": parsed_data.get("knowledge_points", []),
+                    "requirements": [],
+                    "outline": [],
+                    "summary": f"用户需求：{original_question}"
+                }
+            else:
+                # 正常任务：生成完整的结构化输出
+                keywords = self._extract_keywords(input_data.content, parsed_data.get("knowledge_points", []))
+                requirements = self._extract_requirements(original_question, parsed_data.get("knowledge_points", []))
+                outline = self._generate_outline(original_question, keywords, requirements)
+                
+                summary_result = {
+                    "task": self._extract_task(original_question),
+                    "original_question": original_question,
+                    "keywords": keywords,
+                    "knowledge_points": parsed_data.get("knowledge_points", []),
+                    "requirements": requirements,
+                    "outline": outline,
+                    "summary": self._generate_brief_summary(original_question, keywords, requirements)
+                }
             
             await self._set_status("idle")
             await self._set_current_task(None)
@@ -50,9 +61,10 @@ class SummaryAgent(BaseAgent):
                     "word_count": len(summary_result["task"]),
                     "keyword_count": len(keywords),
                     "knowledge_count": len(summary_result["knowledge_points"]),
-                    "requirement_count": len(requirements),
-                    "outline_sections": len(outline),
-                    "model_used": self.local_model
+                    "requirement_count": len(summary_result.get("requirements", [])),
+                    "outline_sections": len(summary_result.get("outline", [])),
+                    "model_used": self.local_model,
+                    "is_creative": is_creative
                 },
                 model_used=self.local_model
             )
@@ -151,7 +163,10 @@ class SummaryAgent(BaseAgent):
             "开发", "设计", "报告", "分析", "研究", "评估", "优化",
             "马拉松", "活动策划", "运动会", "志愿服务", "端云协同",
             "多智能体", "RAG", "国产操作系统", "麒麟系统", "统信UOS",
-            "会议", "文档", "办公", "安全", "预算", "时间", "目标"
+            "会议", "文档", "办公", "安全", "预算", "时间", "目标",
+            "鸿蒙", "deepin", "信创", "办公软件", "WPS", "项目管理",
+            "健康", "营养", "急救", "天气", "交通", "法律", "理财",
+            "考试", "奖学金", "就业", "金融", "AIGC", "提示词"
         ]
         
         content_lower = content.lower()

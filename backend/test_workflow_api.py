@@ -1,51 +1,49 @@
-import sys
-import os
 import asyncio
-import json
+import httpx
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-import aiohttp
-
-async def main():
-    print("=== 测试工作流 API ===")
+async def test_workflow_api():
+    print("测试工作流API...")
+    print("=" * 60)
     
-    # 模拟前端调用工作流API
-    url = "http://localhost:8080/api/v1/workflow/execute"
+    tasks = [
+        "帮我写一份简单的活动策划",
+        "什么是人工智能？",
+        "帮我设计一个校园运动会方案"
+    ]
     
-    user_input = "帮我写一个关于校园AI助手的年度规划包含：1.时间线、2.人员安排、3.经费预算、4.风险分析、5.推广方案"
-    
-    payload = {
-        "user_input": user_input,
-        "context": {}
-    }
-    
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, json=payload) as response:
-                print(f"HTTP状态码: {response.status}")
+    for task in tasks:
+        print(f"\n任务: {task}")
+        print("-" * 40)
+        
+        try:
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                response = await client.post(
+                    "http://localhost:8000/api/v1/workflow/execute",
+                    json={"user_input": task}
+                )
                 
-                if response.status == 200:
-                    result = await response.json()
-                    print("成功!")
-                    print(f"最终结果长度: {len(result.get('final_result', ''))}")
-                    print(f"步骤数: {len(result.get('steps', []))}")
+                if response.status_code == 200:
+                    data = response.json()
+                    print(f"执行方式: {'本地执行' if data.get('executed_locally') else '云端执行'}")
+                    print(f"复杂度评分: {data.get('complexity_score', 0.0):.2f}")
+                    print(f"总耗时: {data.get('total_duration_seconds', 0.0):.2f}秒")
+                    print(f"步骤数: {len(data.get('steps', []))}")
                     
-                    for step in result.get('steps', []):
-                        print(f"\n步骤: {step['agent_name']}")
-                        print(f"  状态: {'成功' if step['success'] else '失败'}")
-                        print(f"  耗时: {step['duration_seconds']:.2f}s")
-                        if 'error' in step.get('metadata', {}):
-                            print(f"  错误: {step['metadata']['error']}")
+                    print("\n各步骤详情:")
+                    for step in data.get('steps', []):
+                        model = step.get('metadata', {}).get('model_used', 'N/A')
+                        status = "✅" if step.get('success') else "❌"
+                        print(f"  {status} {step.get('agent_name')}: 模型={model}, 耗时={step.get('duration_seconds', 0.0):.2f}s")
+                    
+                    final_result = data.get('final_result', '')
+                    print(f"\n最终结果预览 ({len(final_result)} 字符):")
+                    print(final_result[:500] + "..." if len(final_result) > 500 else final_result)
                 else:
-                    error_text = await response.text()
-                    print(f"失败!")
-                    print(f"错误信息: {error_text}")
+                    print(f"❌ 请求失败: {response.status_code}")
+                    print(f"错误信息: {response.text}")
                     
-    except Exception as e:
-        print(f"请求失败: {e}")
-        import traceback
-        traceback.print_exc()
+        except Exception as e:
+            print(f"❌ 请求异常: {str(e)}")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(test_workflow_api())

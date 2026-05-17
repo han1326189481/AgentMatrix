@@ -31,6 +31,7 @@ class KnowledgeAgent(BaseAgent):
         self.prompt_manager = get_prompt_manager()
 
         self.identity_rules = [
+            "我来自 AgentMatrix 平台——多智能体动态协同与国产算力优化平台",
             "我是 Knowledge Agent，负责知识检索和知识增强",
             "我不干预其他 Agent 的工作流程",
             "我只提供知识支持，不直接回答用户问题",
@@ -108,8 +109,8 @@ class KnowledgeAgent(BaseAgent):
                 return True
         return False
 
-    def _return_identity_info(self) -> AgentOutput:
-        identity_content = "\n".join(self.identity_rules)
+    def _return_identity_info(self, original_query: str = "") -> AgentOutput:
+        identity_content = f"用户查询：{original_query}\n\n【知识类型】平台身份查询\n用户询问 AgentMatrix 平台身份信息，这是一个简单的基础身份问答。"
         return AgentOutput(
             content=identity_content,
             success=True,
@@ -152,7 +153,11 @@ class KnowledgeAgent(BaseAgent):
                           "系统", "开发", "设计", "报告", "分析", "端云协同",
                           "多智能体", "RAG", "检索增强", "知识蒸馏",
                           "马拉松", "活动策划", "运动会", "志愿服务", "赛事",
-                          "跑步", "活动", "策划", "组织", "安全", "预算"]
+                          "跑步", "活动", "策划", "组织", "安全", "预算",
+                          "办公", "WPS", "Office", "会议", "邮件", "项目管理",
+                          "国产操作系统", "麒麟", "统信", "deepin", "鸿蒙", "信创",
+                          "生活", "健康", "营养", "急救", "天气", "交通",
+                          "法律", "理财", "考试", "奖学金", "就业", "金融"]
         for kw in common_keywords:
             kw_lower = kw.lower()
             if kw_lower in content_lower and kw not in keywords_found:
@@ -162,7 +167,7 @@ class KnowledgeAgent(BaseAgent):
             if kb_keyword.lower() in content_lower and kb_keyword not in keywords_found:
                 keywords_found.append(kb_keyword)
 
-        return keywords_found or ["general"]
+        return keywords_found
 
     def _search_domain_knowledge(self, keywords: List[str]) -> List[Dict[str, Any]]:
         results = []
@@ -216,7 +221,7 @@ class KnowledgeAgent(BaseAgent):
             if self._detect_identity_query(input_data.content):
                 await self._set_status("idle")
                 await self._set_current_task(None)
-                return self._return_identity_info()
+                return self._return_identity_info(input_data.content)
 
             keywords = self._extract_keywords(input_data.content)
 

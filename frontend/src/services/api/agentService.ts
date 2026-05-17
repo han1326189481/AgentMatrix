@@ -301,13 +301,13 @@ export const configService = {
     return response.data;
   },
 
-  async detectOllama(): Promise<{ ollama_host: string; message: string }> {
-    const response = await api.post('/config/detect-ollama');
+  async detectOllama(host?: string, port?: string): Promise<{ ollama_host: string; message: string }> {
+    const response = await api.post('/config/detect-ollama', { host, port });
     return response.data;
   },
 
-  async testOllama(): Promise<{ success: boolean; message: string; details?: Record<string, string> }> {
-    const response = await api.post('/config/test-ollama');
+  async testOllama(host?: string, port?: string): Promise<{ success: boolean; message: string; details?: Record<string, string> }> {
+    const response = await api.post('/config/test-ollama', { host, port });
     return response.data;
   },
 

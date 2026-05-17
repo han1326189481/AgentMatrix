@@ -1,56 +1,51 @@
 import asyncio
-import aiohttp
+import httpx
 
-async def test_deepseek():
-    api_key = input("请输入你的 DeepSeek API Key: ").strip()
+async def test_with_deepseek():
+    print("=" * 70)
+    print("测试 DeepSeek API Key 是否被正确使用")
+    print("=" * 70)
 
-    if not api_key:
-        print("API Key 不能为空！")
-        return
+    user_input = "帮我写一份详细的项目计划书，包含目标、时间线、预算和人员分工"
+    print(f"\n发送请求: {user_input}")
+    print("（这是一个复杂任务，应该会调用云端模型）\n")
 
-    url = "https://api.deepseek.com/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": "deepseek-chat",
-        "messages": [
-            {"role": "user", "content": "你好，请简单介绍一下你自己"}
-        ],
-        "temperature": 0.7,
-        "max_tokens": 100
-    }
+    async with httpx.AsyncClient(timeout=180) as client:
+        try:
+            response = await client.post(
+                "http://localhost:8000/api/v1/workflow/execute",
+                json={"user_input": user_input}
+            )
 
-    print(f"\n测试 DeepSeek API...")
-    print(f"URL: {url}")
-    print(f"Model: deepseek-chat")
-    print(f"API Key: {api_key[:10]}...{api_key[-4:]}")
-    print("\n正在请求...\n")
+            if response.status_code == 200:
+                data = response.json()
+                print(f"状态码: 200 OK")
+                print(f"执行方式: {'本地执行' if data.get('executed_locally') else '云端执行（使用 DeepSeek）'}")
+                print(f"复杂度评分: {data.get('complexity_score', 0.0):.2f}")
+                print(f"总耗时: {data.get('total_duration_seconds', 0.0):.2f}秒")
 
-    try:
-        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as session:
-            async with session.post(url, json=payload, headers=headers) as response:
-                status = response.status
-                text = await response.text()
-
-                print(f"状态码: {status}")
-                print(f"响应: {text[:500]}")
-
-                if status == 200:
-                    print("\n✅ API 调用成功！")
-                    data = await response.json()
-                    content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-                    print(f"\n回复内容:\n{content}")
-                elif status == 401:
-                    print("\n❌ 认证失败！请检查 API Key 是否正确")
-                elif status == 400:
-                    print("\n❌ 请求格式错误！")
+                print("\n" + "=" * 70)
+                print("最终结果:")
+                print("=" * 70)
+                result = data.get('final_result', '')
+                if len(result) > 1500:
+                    print(result[:1500] + "\n...")
                 else:
-                    print(f"\n❌ 请求失败，状态码: {status}")
+                    print(result)
 
-    except Exception as e:
-        print(f"\n❌ 连接失败: {e}")
+                if not data.get('executed_locally'):
+                    print("\n" + "=" * 70)
+                    print("✅ 成功使用云端模型（DeepSeek）")
+                    print("=" * 70)
+                else:
+                    print("\n" + "=" * 70)
+                    print("⚠️ 使用了本地模型")
+                    print("=" * 70)
+            else:
+                print(f"请求失败: {response.status_code}")
+                print(response.text)
+        except Exception as e:
+            print(f"发生错误: {str(e)}")
 
 if __name__ == "__main__":
-    asyncio.run(test_deepseek())
+    asyncio.run(test_with_deepseek())

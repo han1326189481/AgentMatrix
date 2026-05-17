@@ -35,6 +35,7 @@ class WorkflowService:
         review_score = 0.0
         judge_decision = "local_output"
         cloud_mode = "none"
+        knowledge_found = False
         start_time = time.time()
         workflow_start = datetime.now()
 
@@ -53,7 +54,6 @@ class WorkflowService:
                 agent_name = self.agent_names.get(agent_id, agent_id)
                 
                 if agent_id == "review":
-                    # Review Agent 需要的格式
                     review_input = json.dumps({
                         "user_task": original_user_input,
                         "summary": summary_result,
@@ -61,14 +61,14 @@ class WorkflowService:
                     })
                     agent_input = AgentInput(content=review_input, context=current_context, use_llm=True, use_cloud=False)
                 elif agent_id == "judge":
-                    # Judge Agent 需要的格式 - 使用 LLM 模式
                     judge_input = json.dumps({
                         "user_task": original_user_input,
                         "summary_result": summary_result,
                         "review_result": review_result,
-                        "writer_output": writer_output
+                        "writer_output": writer_output,
+                        "knowledge_found": knowledge_found
                     })
-                    agent_input = AgentInput(content=judge_input, context=current_context, use_llm=True, use_cloud=False)
+                    agent_input = AgentInput(content=judge_input, context=current_context, use_llm=False, use_cloud=False)
                 elif agent_id == "result":
                     # Result Agent 需要的格式
                     result_input = json.dumps({
@@ -82,7 +82,9 @@ class WorkflowService:
                         "judge_decision": judge_decision,
                         "cloud_mode": cloud_mode
                     })
-                    agent_input = AgentInput(content=result_input, context=current_context, use_llm=True, use_cloud=False)
+                    # 只有cloud_enhance才真正调云端；local_retry只是建议本地增强，不调云端
+                    need_cloud_enhance = judge_decision == "cloud_enhance" and cloud_mode != "none"
+                    agent_input = AgentInput(content=result_input, context=current_context, use_llm=True, use_cloud=need_cloud_enhance)
                 else:
                     agent_input = AgentInput(content=current_input, context=current_context, use_llm=True, use_cloud=False)
 
@@ -102,7 +104,9 @@ class WorkflowService:
 
                 current_context[agent_id] = output.content
                 
-                # 保存关键 Agent 的输出
+                if agent_id == "knowledge":
+                    knowledge_found = output.metadata.get("knowledge_count", 0) > 0 if output.metadata else False
+                
                 if agent_id == "summary":
                     summary_result = output.content
                 
@@ -133,8 +137,17 @@ class WorkflowService:
                 
                 current_input = output.content
 
-            # Result Agent 已经在循环中执行，直接获取最终结果
-            final_result = output.content if steps else ""
+            # 找到Writer和Judge的输出
+            writer_output = ""
+            for step in steps:
+                if step.agent_id == "writer":
+                    writer_output = step.output
+                    break
+            
+            # 如果需要云端增强，则使用Result Agent的云端输出
+            final_result = writer_output
+            if judge_decision == "cloud_enhance" and cloud_mode != "none":
+                final_result = output.content if steps else writer_output
             
             if not executed_locally:
                 metrics["cloud_executions"] += 1

@@ -41,7 +41,7 @@ const initialState = {
   currentTask: null as string | null,
   elapsedSeconds: 0,
   timerRef: null as ReturnType<typeof setInterval> | null,
-  useMock: true,
+  useMock: false,
 };
 
 export const useWorkflowStore = create<WorkflowStore>((set, get) => ({

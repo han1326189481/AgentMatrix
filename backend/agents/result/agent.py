@@ -7,7 +7,8 @@ class ResultAgent(BaseAgent):
     def __init__(self):
         super().__init__("result", "Result Agent")
         self.local_model = "qwen2.5:1.5b"
-        self.cloud_model = "deepseek-r1-distill"
+        from app.config import settings
+        self.cloud_model = settings.deepseek_model if hasattr(settings, 'deepseek_model') else "deepseek-chat"
     
     async def execute(self, input_data: AgentInput) -> AgentOutput:
         await self._set_status("processing")
@@ -26,9 +27,16 @@ class ResultAgent(BaseAgent):
             judge_decision = input_data_dict.get("judge_decision", "local_output")
             cloud_mode = input_data_dict.get("cloud_mode", "none")
             
-            if judge_decision != "local_output" and cloud_mode != "none":
-                writer_output = await self._enhance_with_cloud(user_task, writer_output, cloud_mode)
+            model_used = self.local_model
+            
+            # 检查是否有 DeepSeek API Key
+            from app.config import settings
+            has_api_key = settings.deepseek_api_key and settings.deepseek_api_key.strip()
+            
+            if has_api_key and input_data.use_cloud and cloud_mode != "none":
+                writer_output = await self._enhance_with_cloud(user_task, summary_result, writer_output, cloud_mode)
                 executed_locally = False
+                model_used = self.cloud_model
             
             final_result = self._format_result(judge_result, input_data.context, writer_output, complexity_score, executed_locally, judge_decision, cloud_mode)
             
@@ -39,8 +47,8 @@ class ResultAgent(BaseAgent):
                 content=final_result,
                 success=True,
                 message="结果生成完成",
-                metadata={"format": "markdown", "length": len(final_result), "model_used": self.local_model, "executed_locally": executed_locally},
-                model_used=self.local_model
+                metadata={"format": "markdown", "length": len(final_result), "model_used": model_used, "executed_locally": executed_locally},
+                model_used=model_used
             )
         
         except Exception as e:
@@ -52,16 +60,42 @@ class ResultAgent(BaseAgent):
                 message=str(e)
             )
 
-    async def _enhance_with_cloud(self, user_task: str, writer_output: str, cloud_mode: str) -> str:
-        system_prompt = "请根据用户需求优化以下内容"
-        
-        if cloud_mode == "full_rewrite":
-            prompt = f"根据用户需求重新生成专业内容：\n\n用户需求：{user_task}\n\n已有内容：{writer_output}\n\n请提供完整的专业回复。"
-        elif cloud_mode == "polish":
-            prompt = f"请优化以下内容，使其更加专业和完善：\n\n{writer_output}"
-        else:
-            prompt = f"请完善以下内容：\n\n{writer_output}"
-        
+    async def _enhance_with_cloud(self, user_task: str, summary_result: Any, writer_output: str, cloud_mode: str) -> str:
+        summary_text = ""
+        if isinstance(summary_result, str):
+            try:
+                summary_data = json.loads(summary_result)
+                summary_text = summary_data.get("summary", summary_result)
+                keywords = summary_data.get("keywords", [])
+                requirements = summary_data.get("requirements", [])
+                if keywords:
+                    summary_text += f"\n关键词：{', '.join(keywords)}"
+                if requirements:
+                    summary_text += f"\n需求点：{'; '.join(requirements)}"
+            except:
+                summary_text = str(summary_result)
+
+        system_prompt = "你是 AgentMatrix 平台的 AI 助手。你需要根据用户需求、任务摘要，重新生成一份更高质量、更专业的完整回复。你永远不代表任何其他公司的AI助手。"
+
+        prompt = f"""
+请根据以下信息，重新生成一份高质量、专业的完整回复。
+
+【用户问题】
+{user_task}
+
+【需求摘要】
+{summary_text}
+
+【重写要求】
+1. 内容必须专业、准确、有深度
+2. 直接回应用户的问题，不要偏离
+3. 使用清晰的 Markdown 格式
+4. 确保内容的可执行性和实用性
+5. 不要包含"根据您的要求"等开场白
+
+请直接输出最终内容：
+"""
+
         response = await self._call_llm(prompt, model=self.cloud_model, use_cloud=True, system_prompt=system_prompt)
         return response
 
@@ -74,84 +108,12 @@ class ResultAgent(BaseAgent):
             except:
                 judge_result = {}
         
-        result = "# [Report] 任务执行结果\n\n"
-        
-        result += "## [Agent] 执行流程\n"
-        result += "| 智能体 | 状态 | 模型 |\n"
-        result += "|--------|------|------|\n"
-        result += "| Knowledge Agent | [OK] 完成 | qwen2.5 |\n"
-        result += "| Summary Agent | [OK] 完成 | qwen2.5 |\n"
-        result += "| Writer Agent | [OK] 完成 | phi4-mini |\n"
-        result += "| Review Agent | [OK] 完成 | phi4-mini |\n"
-        result += "| Judge Agent | [OK] 完成 | rule-based |\n"
-        
-        if not executed_locally:
-            result += "| Cloud Enhancement | [OK] 完成 | DeepSeek |\n"
-        
-        result += "| Result Agent | [OK] 完成 | qwen2.5 |\n\n"
-        
-        result += "## [Details] 执行详情\n"
-        result += f"- 复杂度评分: {complexity_score:.2f}\n"
-        
-        review_score = judge_result.get("review_score", 0.0)
-        result += f"- Review评分: {review_score:.2f}\n"
-        result += f"- 执行方式: {judge_decision}\n"
-        result += f"- Cloud模式: {cloud_mode}\n"
-        
-        reasons = judge_result.get("reason", []) or judge_result.get("reasons", [])
-        if reasons:
-            result += "\n## [Reason] 决策原因\n"
-            for reason in reasons:
-                result += f"- {reason}\n"
-        
-        review_result = {}
-        if context and "review" in context:
-            try:
-                review_result = json.loads(context["review"])
-            except:
-                pass
-        
-        if review_result:
-            result += "\n## [Review] 质量评审详情\n"
-            result += "| 维度 | 评分 |\n"
-            result += "|------|------|\n"
-            dimensions = review_result.get("dimensions", {})
-            result += f"| 结构完整性 | {dimensions.get('structure', 0):.2f} |\n"
-            result += f"| 需求相关性 | {dimensions.get('relevance', 0):.2f} |\n"
-            result += f"| 内容丰富度 | {dimensions.get('richness', 0):.2f} |\n"
-            result += f"| 专业性 | {dimensions.get('professional', 0):.2f} |\n"
-            result += f"| 可执行性 | {dimensions.get('actionable', 0):.2f} |\n"
-            
-            issues = review_result.get("issues", [])
-            if issues:
-                result += "\n### [Issue] 发现的问题\n"
-                for issue in issues:
-                    result += f"- {issue}\n"
-            
-            suggestions = review_result.get("suggestions", [])
-            if suggestions:
-                result += "\n### [Suggestion] 修改建议\n"
-                for suggestion in suggestions:
-                    result += f"- {suggestion}\n"
-        
-        result += "\n---\n\n"
-        result += "## [Output] 最终输出\n\n"
+        # 直接返回Writer的内容，不要添加那些复杂的报告信息
         if writer_output:
             cleaned_content = self._clean_content(writer_output)
-            result += cleaned_content
+            return cleaned_content
         else:
-            result += "暂无生成内容，请重试。\n"
-        
-        result += "\n\n---\n\n"
-        result += "## [Complexity] 复杂度评估\n"
-        result += "| 指标 | 数值 |\n"
-        result += "|------|------|\n"
-        result += f"| 复杂度评分 | {complexity_score:.2f} |\n"
-        result += f"| Review评分 | {review_score:.2f} |\n"
-        result += f"| 执行方式 | {judge_decision} |\n"
-        result += f"| Cloud模式 | {cloud_mode} |\n"
-        
-        return result
+            return "暂无生成内容，请重试。"
 
     def _clean_content(self, content: str) -> str:
         try:

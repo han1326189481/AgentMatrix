@@ -161,10 +161,43 @@ async def _check_ollama_port(host: str) -> bool:
     except:
         return False
 
+class DetectOllamaRequest(BaseModel):
+    host: Optional[str] = None
+    port: Optional[str] = None
+
 @router.post("/detect-ollama")
-async def detect_ollama():
+async def detect_ollama(request: DetectOllamaRequest = DetectOllamaRequest()):
     """自动检测Ollama服务端口"""
     client = get_llm_client()
+    
+    # 如果用户指定了端口，优先使用
+    if request.host or request.port:
+        # 构建用户指定的host
+        if request.host:
+            # 如果用户提供的host已经是完整URL，直接使用
+            if request.host.startswith("http://") or request.host.startswith("https://"):
+                test_host = request.host
+            else:
+                # 否则，组合host和port
+                port = request.port or "11434"
+                test_host = f"http://{request.host}:{port}"
+        elif request.port:
+            # 只提供了port
+            test_host = f"http://localhost:{request.port}"
+        
+        # 测试用户指定的host
+        if await _check_ollama_port(test_host):
+            _runtime_config["ollama_host"] = test_host
+            client.dynamic_ollama_host = test_host
+            return {
+                "ollama_host": test_host,
+                "message": f"检测到 Ollama 服务: {test_host}"
+            }
+        else:
+            return {
+                "ollama_host": test_host,
+                "message": f"未检测到 Ollama 服务在 {test_host}，请检查地址和端口是否正确"
+            }
     
     # 常见的Ollama端口列表
     ports_to_check = [
@@ -202,10 +235,31 @@ async def detect_ollama():
         "message": "未检测到 Ollama 服务，请手动配置"
     }
 
+class TestOllamaRequest(BaseModel):
+    host: Optional[str] = None
+    port: Optional[str] = None
+
 @router.post("/test-ollama")
-async def test_ollama_connection():
+async def test_ollama_connection(request: TestOllamaRequest = TestOllamaRequest()):
     """测试Ollama连接"""
     client = get_llm_client()
+    
+    # 如果用户指定了host/port，先更新配置
+    if request.host or request.port:
+        if request.host:
+            if request.host.startswith("http://") or request.host.startswith("https://"):
+                test_host = request.host
+            else:
+                port = request.port or "11434"
+                test_host = f"http://{request.host}:{port}"
+        elif request.port:
+            test_host = f"http://localhost:{request.port}"
+        else:
+            test_host = None
+        
+        if test_host:
+            _runtime_config["ollama_host"] = test_host
+            client.dynamic_ollama_host = test_host
     
     try:
         # 使用实际的LLM客户端来测试连接

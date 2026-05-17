@@ -45,7 +45,7 @@ class Settings(BaseSettings):
 
     database_url: str = "sqlite:///./agentmatrix.db"
 
-    ollama_host: str = "http://localhost:11434"
+    ollama_host: str = "http://localhost:11435"
     ollama_model: str = "qwen2.5:1.5b"
     ollama_review_model: str = "phi4-mini:3.8b"
 

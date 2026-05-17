@@ -64,8 +64,7 @@ class BaseAgent(ABC):
         """调用真实的 LLM 生成内容"""
         try:
             system_prompt = kwargs.get("system_prompt", None)
-            
-            # 如果使用云端，确保使用运行时配置的 API Key
+
             if use_cloud:
                 try:
                     from api.v1.config.router import _runtime_config

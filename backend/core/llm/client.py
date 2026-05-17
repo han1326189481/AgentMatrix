@@ -116,13 +116,14 @@ class LLMClient:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
 
-        # 使用 deepseek-chat 模型
+        # 使用配置的模型
         payload = {
-            "model": "deepseek-chat",
+            "model": self.deepseek_model,
             "messages": messages,
             "temperature": 0.7,
             "max_tokens": 2048
         }
+        logger.info(f"[DeepSeek] 使用模型: {self.deepseek_model}")
 
         headers = {
             "Authorization": f"Bearer {self.deepseek_api_key}",
@@ -138,7 +139,18 @@ class LLMClient:
                         data = await response.json()
                         choices = data.get("choices", [])
                         if choices:
+                            # 记录详细的 usage 信息
+                            usage = data.get('usage', {})
+                            prompt_tokens = usage.get('prompt_tokens', 0)
+                            completion_tokens = usage.get('completion_tokens', 0)
+                            total_tokens = usage.get('total_tokens', 0)
+
                             logger.info("[DeepSeek] API调用成功")
+                            logger.info(f"[DeepSeek] Token消耗 - prompt: {prompt_tokens}, completion: {completion_tokens}, total: {total_tokens}")
+
+                            if total_tokens > 0:
+                                logger.info(f"[DeepSeek] 💰 费用计算: {total_tokens} tokens")
+
                             return choices[0].get("message", {}).get("content", "")
                         logger.warning("[DeepSeek] API返回但没有choices")
                         return ""
