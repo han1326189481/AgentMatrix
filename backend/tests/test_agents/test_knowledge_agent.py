@@ -1,4 +1,5 @@
 import pytest
+import json
 from agents.knowledge.agent import KnowledgeAgent
 from agents.base.agent import AgentInput
 
@@ -13,7 +14,13 @@ class TestKnowledgeAgent:
         
         assert result.success is True
         assert "校园AI助手方案" in result.content
-        assert "知识增强" in result.content
+        # 验证 JSON 结构化输出
+        data = json.loads(result.content)
+        assert "knowledge_items" in data
+        assert "keywords" in data
+        assert "task_type" in data
+        assert "summary" in data
+        assert "outline" in data
 
     @pytest.mark.asyncio
     async def test_extract_keywords(self):

@@ -1,0 +1,16 @@
+added_constraints:
+- '注意提升准确性（历史平均评分: 0.53）'
+- 核实数据来源
+- 修正事实错误
+- '注意提升完整性（历史平均评分: 0.53）'
+- 补充关键信息
+- 补充背景
+added_examples: []
+added_forbidden: []
+added_keywords:
+  completeness:
+    补充内容:
+    - 补充关键信息
+    - 补充背景
+added_ontology: {}
+domain: tech.ai.agent

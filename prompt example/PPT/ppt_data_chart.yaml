@@ -1,0 +1,749 @@
+- id: ppt_data_chart_001
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "柱状图美化技巧"
+  template: |
+    你是一位数据可视化设计师，专治"柱状图长得跟Excel默认样式一样丑"的毛病。
+    
+    我的数据：
+    - 数据内容：{data_description}
+    - 对比维度：{dimensions}
+    - 使用场景：{scene}
+    
+    请帮我：
+    1. 给出3种柱状图美化方案（渐变柱/圆角柱/立体柱）
+    2. 提供配色建议（主色+辅色+强调色）
+    3. 给出"数据标签+坐标轴+网格线"的排版规范
+    4. 提供"柱子太密/数据差异太大"的解决方案
+    
+    输出格式：
+    - 3种方案的设计参数（颜色/圆角/间距/阴影）
+    - 美化前后对比描述
+    - 附"柱状图禁忌"（3D变形、颜色太多、没有数据标签、Y轴不从0开始）
+  variables:
+    - name: data_description
+      description: "数据内容描述，如：2024年各季度销售额"
+      required: true
+    - name: dimensions
+      description: "对比维度，如：时间、地区、产品"
+      required: true
+    - name: scene
+      description: "使用场景"
+      required: false
+      default_value: "商务汇报"
+  intent_tags: ["柱状图", "柱形图", "数据对比", "图表美化", "数据可视化", "统计图", "Excel图表"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: ppt_data_chart_002
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "饼图环形图优化"
+  template: |
+    你是一位信息图表设计师，知道饼图用不好就是"数据界的灾难"。
+    
+    我的数据：
+    - 数据内容：{data_description}
+    - 类别数量：{category_count}
+    - 是否需要突出某一项：{highlight}
+    
+    请帮我：
+    1. 给出"饼图vs环形图vs玫瑰图"的选择建议
+    2. 提供配色方案（相邻色/对比色/单色系）
+    3. 给出"标签放置+百分比显示+图例排版"的规范
+    4. 提供"类别太多/比例太接近"的替代方案
+    
+    输出格式：
+    - 3种图表类型的适用场景对比表
+    - 配色和标签设计规范
+    - 附"饼图禁忌"（类别超过6个、3D效果、颜色无区分、百分比不标注）
+  variables:
+    - name: data_description
+      description: "数据内容，如：市场份额、预算分配、用户画像"
+      required: true
+    - name: category_count
+      description: "类别数量"
+      required: true
+    - name: highlight
+      description: "是否需要突出显示某一项"
+      required: false
+      default_value: "是"
+  intent_tags: ["饼图", "环形图", "占比", "比例", "百分比", "数据分布", "玫瑰图"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: ppt_data_chart_003
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "折线图趋势展示"
+  template: |
+    你是一位趋势分析专家，擅长用折线图讲清楚"过去发生了什么，未来可能怎样"。
+    
+    我的数据：
+    - 数据内容：{data_description}
+    - 时间跨度：{time_span}
+    - 是否需要预测：{need_forecast}
+    
+    请帮我：
+    1. 给出3种折线图美化方案（平滑曲线/阶梯线/面积图）
+    2. 提供"多线对比"的配色和线型区分（实线/虚线/点线）
+    3. 给出"关键节点标注+趋势线+目标线"的设计规范
+    4. 提供"数据波动大/数据点太多"的处理方案
+    
+    输出格式：
+    - 3种方案的设计参数
+    - 多线对比规范表
+    - 附"折线图禁忌"（线条太细、颜色太接近、没有标注、Y轴截断误导）
+  variables:
+    - name: data_description
+      description: "数据内容，如：月度销售额、网站流量、股价走势"
+      required: true
+    - name: time_span
+      description: "时间跨度"
+      required: true
+    - name: need_forecast
+      description: "是否需要展示预测趋势"
+      required: false
+      default_value: "否"
+  intent_tags: ["折线图", "趋势", "趋势图", "走势", "时间序列", "预测", "数据趋势"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: ppt_data_chart_004
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "KPI仪表盘设计"
+  template: |
+    你是一位商业智能设计师，擅长把"一堆数字"变成"一眼就知道好坏"的仪表盘。
+    
+    我的需求：
+    - KPI指标：{kpis}
+    - 展示场景：{scene}
+    - 更新频率：{update_freq}
+    
+    请帮我：
+    1. 设计一套KPI仪表盘布局（大数字+进度条+趋势小图+红绿灯状态）
+    2. 给出"正常/警告/危险"三色阈值设计
+    3. 提供"6个以内KPI"和"6个以上KPI"的不同布局方案
+    4. 给出"同比环比"的展示方式
+    
+    输出格式：
+    - 仪表盘布局示意图（文字描述）
+    - 配色和状态设计规范
+    - 附"仪表盘禁忌"（数字太小、颜色含义混乱、信息过载、没有对比基准）
+  variables:
+    - name: kpis
+      description: "KPI指标列表，如：销售额、转化率、客户满意度"
+      required: true
+    - name: scene
+      description: "展示场景，如：管理层汇报、展厅大屏、日报"
+      required: true
+    - name: update_freq
+      description: "更新频率，如：实时、每日、每周"
+      required: false
+      default_value: "每日"
+  intent_tags: ["KPI", "仪表盘", "Dashboard", "关键指标", "数据看板", "业绩", "指标监控"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: ppt_data_chart_005
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "漏斗转化图设计"
+  template: |
+    你是一位增长黑客设计师，擅长用漏斗图讲清楚"用户从哪流失的"。
+    
+    我的数据：
+    - 漏斗阶段：{stages}
+    - 各阶段数据：{stage_data}
+    - 是否需要对比：{need_compare}
+    
+    请帮我：
+    1. 给出3种漏斗图设计（传统漏斗/倒金字塔/管道图）
+    2. 提供"阶段颜色渐变"方案（从宽到窄颜色加深）
+    3. 给出"转化率标注+流失原因+优化建议"的排版规范
+    4. 提供"多期对比漏斗"的设计方案
+    
+    输出格式：
+    - 3种漏斗设计参数
+    - 配色和标注规范
+    - 附"漏斗图禁忌"（阶段太多、宽度比例失真、没有转化率、颜色跳跃）
+  variables:
+    - name: stages
+      description: "漏斗阶段，如：访问→注册→激活→付费→复购"
+      required: true
+    - name: stage_data
+      description: "各阶段数据或转化率"
+      required: true
+    - name: need_compare
+      description: "是否需要多期对比"
+      required: false
+      default_value: "否"
+  intent_tags: ["漏斗图", "转化", "转化率", "漏斗", "增长", "用户流失", "转化路径"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: ppt_data_chart_006
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "甘特图项目进度"
+  template: |
+    你是一位项目管理可视化专家，擅长把"复杂的项目进度"变成"一眼看懂"的甘特图。
+    
+    我的项目：
+    - 项目名称：{project_name}
+    - 任务列表：{tasks}
+    - 时间范围：{time_range}
+    
+    请帮我：
+    1. 设计一套甘特图规范（任务条/里程碑/依赖线/进度百分比）
+    2. 给出"进行中/已完成/未开始/延期"四色方案
+    3. 提供"关键路径突出"和"资源分配"的展示方式
+    4. 给出"任务太多一页放不下"的解决方案（缩放/分页/汇总）
+    
+    输出格式：
+    - 甘特图设计参数表
+    - 配色和符号规范
+    - 附"甘特图禁忌"（时间轴不清晰、任务条颜色无区分、没有里程碑、依赖线交叉混乱）
+  variables:
+    - name: project_name
+      description: "项目名称"
+      required: true
+    - name: tasks
+      description: "主要任务列表"
+      required: true
+    - name: time_range
+      description: "项目时间范围"
+      required: true
+  intent_tags: ["甘特图", "项目进度", "项目管理", "进度表", "里程碑", "任务计划", "排期"]
+  difficulty: intermediate
+  quality_score: 0.90
+
+- id: ppt_data_chart_007
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "雷达图多维对比"
+  template: |
+    你是一位多维数据分析师，擅长用雷达图展示"综合能力画像"。
+    
+    我的数据：
+    - 对比对象：{subjects}
+    - 维度指标：{dimensions}
+    - 使用场景：{scene}
+    
+    请帮我：
+    1. 给出雷达图设计规范（轴线/区域/网格/标签）
+    2. 提供"单对象能力展示"和"多对象对比"的配色方案
+    3. 给出"面积填充透明度"和"轴线刻度"的设置建议
+    4. 提供"维度太多/数据差异大"的处理方案
+    
+    输出格式：
+    - 雷达图设计参数
+    - 配色和透明度规范
+    - 附"雷达图禁忌"（维度超过8个、颜色重叠、没有刻度、面积填充不透明）
+  variables:
+    - name: subjects
+      description: "对比对象，如：A产品vsB产品、我vs竞品、团队能力"
+      required: true
+    - name: dimensions
+      description: "维度指标，如：价格、质量、服务、速度、创新"
+      required: true
+    - name: scene
+      description: "使用场景"
+      required: false
+      default_value: "能力评估"
+  intent_tags: ["雷达图", "多维对比", "能力评估", "蜘蛛图", "综合评分", "对比分析", "画像"]
+  difficulty: intermediate
+  quality_score: 0.89
+
+- id: ppt_data_chart_008
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "词云图设计制作"
+  template: |
+    你是一位文本可视化设计师，擅长把"一堆文字"变成"一眼看出重点"的词云。
+    
+    我的数据：
+    - 文本内容：{text_content}
+    - 主题：{theme}
+    - 形状偏好：{shape}
+    
+    请帮我：
+    1. 给出词云图设计规范（字体/颜色/布局/密度）
+    2. 提供3种配色方案（同色系/对比色/主题色）
+    3. 给出"关键词筛选"和"停用词过滤"的建议
+    4. 提供"特定形状词云"（心形/圆形/logo轮廓）的制作思路
+    
+    输出格式：
+    - 词云设计参数表
+    - 配色和字体建议
+    - 附"词云禁忌"（词太多密密麻麻、颜色太杂、形状难以辨认、没有重点词突出）
+  variables:
+    - name: text_content
+      description: "文本内容或关键词列表"
+      required: true
+    - name: theme
+      description: "主题，如：用户评论、政府工作报告、产品评价"
+      required: true
+    - name: shape
+      description: "形状偏好，如：矩形、圆形、心形、自定义"
+      required: false
+      default_value: "矩形"
+  intent_tags: ["词云", "关键词", "文本可视化", "词频", "文字云", "标签云", "关键词云"]
+  difficulty: beginner
+  quality_score: 0.87
+
+- id: ppt_data_chart_009
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "桑基图流向展示"
+  template: |
+    你是一位流向数据可视化专家，擅长用桑基图展示"钱/人/资源从哪来到哪去"。
+    
+    我的数据：
+    - 流向主题：{flow_topic}
+    - 节点和流量：{nodes_and_flows}
+    - 层级数：{levels}
+    
+    请帮我：
+    1. 给出桑基图设计规范（节点/流向/颜色/标签）
+    2. 提供"收入→支出"或"A→B→C"的配色方案（同色系渐变）
+    3. 给出"节点宽度+流向粗细"的比例设置建议
+    4. 提供"层级太多/流量差异大"的处理方案
+    
+    输出格式：
+    - 桑基图设计参数
+    - 配色和比例规范
+    - 附"桑基图禁忌"（层级超过5层、颜色混乱、流向交叉、没有数值标注）
+  variables:
+    - name: flow_topic
+      description: "流向主题，如：预算分配、用户路径、能量转换、人口迁移"
+      required: true
+    - name: nodes_and_flows
+      description: "节点和流量数据"
+      required: true
+    - name: levels
+      description: "层级数量"
+      required: false
+      default_value: "3"
+  intent_tags: ["桑基图", "流向图", "流量", "路径分析", "转化路径", "资金流向", "资源分配"]
+  difficulty: advanced
+  quality_score: 0.90
+
+- id: ppt_data_chart_010
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "热力图数据分布"
+  template: |
+    你是一位空间数据分析师，擅长用热力图展示"哪里热、哪里冷"。
+    
+    我的数据：
+    - 数据主题：{data_topic}
+    - 区域范围：{region}
+    - 数据密度：{density}
+    
+    请帮我：
+    1. 给出热力图设计规范（色阶/边界/标注/图例）
+    2. 提供3种色阶方案（红黄绿/蓝紫红/单色系）
+    3. 给出"高亮区域+数据标签+对比基准"的排版建议
+    4. 提供"数据点太少/区域太大"的处理方案
+    
+    输出格式：
+    - 热力图设计参数
+    - 3种色阶方案及适用场景
+    - 附"热力图禁忌"（色阶不连续、颜色色盲不友好、没有图例、边界不清）
+  variables:
+    - name: data_topic
+      description: "数据主题，如：人口密度、销售额、温度、疫情"
+      required: true
+    - name: region
+      description: "区域范围"
+      required: true
+    - name: density
+      description: "数据点密度"
+      required: false
+      default_value: "中等"
+  intent_tags: ["热力图", "密度图", "分布", "地理数据", "热度", "区域分析", "空间数据"]
+  difficulty: intermediate
+  quality_score: 0.89
+
+- id: ppt_data_chart_011
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "树状图层级展示"
+  template: |
+    你是一位层级结构可视化专家，擅长把"复杂的从属关系"变成"顺着树枝就能看懂"的树状图。
+    
+    我的数据：
+    - 层级主题：{hierarchy_topic}
+    - 层级深度：{depth}
+    - 是否需要数据标注：{need_data}
+    
+    请帮我：
+    1. 给出3种树状图设计（组织结构树/决策树/分类树）
+    2. 提供"层级颜色递减"方案（顶层深→底层浅）
+    3. 给出"节点大小+连线样式+标签位置"的规范
+    4. 提供"层级太深/节点太多"的折叠/分页方案
+    
+    输出格式：
+    - 3种树状图设计参数
+    - 配色和层级规范
+    - 附"树状图禁忌"（层级超过5层、连线交叉、节点大小一致、颜色无区分）
+  variables:
+    - name: hierarchy_topic
+      description: "层级主题，如：公司架构、产品分类、决策流程、生物分类"
+      required: true
+    - name: depth
+      description: "层级深度"
+      required: true
+    - name: need_data
+      description: "节点是否需要数据标注"
+      required: false
+      default_value: "是"
+  intent_tags: ["树状图", "层级", "结构图", "组织架构", "分类", "决策树", "层级关系"]
+  difficulty: intermediate
+  quality_score: 0.88
+
+- id: ppt_data_chart_012
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "气泡图三维数据"
+  template: |
+    你是一位多维数据可视化专家，擅长用气泡图展示"三个维度的故事"。
+    
+    我的数据：
+    - X轴含义：{x_axis}
+    - Y轴含义：{y_axis}
+    - 气泡大小含义：{bubble_size}
+    - 数据场景：{scene}
+    
+    请帮我：
+    1. 给出气泡图设计规范（坐标轴/气泡/标签/图例）
+    2. 提供"气泡颜色分组"方案（按类别/按大小/按趋势）
+    3. 给出"气泡重叠/气泡太小"的处理方案
+    4. 提供"趋势线+象限划分"的分析增强方案
+    
+    输出格式：
+    - 气泡图设计参数
+    - 配色和分组规范
+    - 附"气泡图禁忌"（气泡太多重叠、大小差异太大、没有图例、坐标轴无标签）
+  variables:
+    - name: x_axis
+      description: "X轴代表什么"
+      required: true
+    - name: y_axis
+      description: "Y轴代表什么"
+      required: true
+    - name: bubble_size
+      description: "气泡大小代表什么"
+      required: true
+    - name: scene
+      description: "使用场景"
+      required: false
+      default_value: "市场分析"
+  intent_tags: ["气泡图", "三维数据", "散点图", "多维分析", "市场分析", "数据分布", "气泡"]
+  difficulty: advanced
+  quality_score: 0.90
+
+- id: ppt_data_chart_013
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "瀑布图增减展示"
+  template: |
+    你是一位财务数据可视化专家，擅长用瀑布图讲清楚"钱是怎么从A变成B的"。
+    
+    我的数据：
+    - 起始值：{start_value}
+    - 增减项：{changes}
+    - 结束值：{end_value}
+    - 使用场景：{scene}
+    
+    请帮我：
+    1. 给出瀑布图设计规范（正数/负数/总计的颜色和方向）
+    2. 提供"增长绿+减少红+总计蓝"的标准配色
+    3. 给出"数据标签+连接线+汇总"的排版规范
+    4. 提供"增减项太多/数值差异大"的处理方案
+    
+    输出格式：
+    - 瀑布图设计参数
+    - 配色和标注规范
+    - 附"瀑布图禁忌"（正负颜色混乱、没有连接线、总计不突出、数据标签重叠）
+  variables:
+    - name: start_value
+      description: "起始数值"
+      required: true
+    - name: changes
+      description: "各增减项及数值"
+      required: true
+    - name: end_value
+      description: "结束数值"
+      required: true
+    - name: scene
+      description: "使用场景，如：财务分析、预算执行、利润拆解"
+      required: false
+      default_value: "财务分析"
+  intent_tags: ["瀑布图", "增减", "财务分析", "利润", "预算", "变动分析", "增减项"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: ppt_data_chart_014
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "仪表盘进度条"
+  template: |
+    你是一位进度可视化设计师，擅长用"仪表盘+进度条"让目标完成情况一目了然。
+    
+    我的数据：
+    - 目标值：{target}
+    - 当前值：{current}
+    - 指标名称：{metric_name}
+    
+    请帮我：
+    1. 设计3种进度展示（仪表盘/环形进度条/线性进度条）
+    2. 给出"0-60%黄/60-80%橙/80-100%绿"的色阶方案
+    3. 提供"目标值+当前值+完成率"的排版规范
+    4. 给出"超额完成/严重滞后"的特殊展示方案
+    
+    输出格式：
+    - 3种进度展示的设计参数
+    - 配色和状态规范
+    - 附"进度条禁忌"（颜色含义反直觉、没有目标值、进度超过100%显示异常）
+  variables:
+    - name: target
+      description: "目标值"
+      required: true
+    - name: current
+      description: "当前完成值"
+      required: true
+    - name: metric_name
+      description: "指标名称，如：销售额、项目进度、客户满意度"
+      required: true
+  intent_tags: ["进度条", "仪表盘", "完成率", "目标", "进度", "KPI", "指标完成"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: ppt_data_chart_015
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "箱线图数据分布"
+  template: |
+    你是一位统计分析可视化专家，擅长用箱线图讲清楚"数据的脾气"。
+    
+    我的数据：
+    - 数据组：{data_groups}
+    - 对比维度：{dimensions}
+    - 使用场景：{scene}
+    
+    请帮我：
+    1. 给出箱线图设计规范（箱体/须线/异常值/中位数）
+    2. 提供"多组对比"的配色方案（同色系不同深浅）
+    3. 给出"异常值标注+统计量显示"的排版规范
+    4. 提供"数据组太多/数据分布太散"的处理方案
+    
+    输出格式：
+    - 箱线图设计参数
+    - 配色和统计标注规范
+    - 附"箱线图禁忌"（没有图例、异常值不标注、箱体太宽、颜色无区分）
+  variables:
+    - name: data_groups
+      description: "数据组，如：A班成绩、B班成绩、C班成绩"
+      required: true
+    - name: dimensions
+      description: "对比维度"
+      required: true
+    - name: scene
+      description: "使用场景，如：成绩分析、质量检测、薪资分布"
+      required: false
+      default_value: "数据分析"
+  intent_tags: ["箱线图", "数据分布", "统计", "异常值", "中位数", "四分位", "数据对比"]
+  difficulty: advanced
+  quality_score: 0.88
+
+- id: ppt_data_chart_016
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "矩阵图四象限分析"
+  template: |
+    你是一位战略分析可视化专家，擅长用四象限图帮领导做决策。
+    
+    我的数据：
+    - 分析对象：{items}
+    - X轴维度：{x_dimension}
+    - Y轴维度：{y_dimension}
+    - 使用场景：{scene}
+    
+    请帮我：
+    1. 给出四象限图设计规范（轴线/象限/标签/颜色）
+    2. 提供"明星/问题/金牛/瘦狗"或自定义四区的配色方案
+    3. 给出"对象标注+大小含义+趋势箭头"的排版规范
+    4. 提供"对象太多/重叠严重"的处理方案
+    
+    输出格式：
+    - 四象限图设计参数
+    - 配色和标注规范
+    - 附"四象限禁忌"（象限定义不清、颜色无区分、对象重叠、没有行动建议）
+  variables:
+    - name: items
+      description: "分析对象列表，如：产品、项目、客户"
+      required: true
+    - name: x_dimension
+      description: "X轴维度，如：市场增长率、重要性、成本"
+      required: true
+    - name: y_dimension
+      description: "Y轴维度，如：市场份额、紧急性、收益"
+      required: true
+    - name: scene
+      description: "使用场景，如：BCG矩阵、优先级排序、风险评估"
+      required: false
+      default_value: "战略分析"
+  intent_tags: ["四象限", "矩阵", "BCG", "优先级", "战略分析", "象限图", "分类"]
+  difficulty: intermediate
+  quality_score: 0.90
+
+- id: ppt_data_chart_017
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "动图数据演变"
+  template: |
+    你是一位动态数据叙事专家，擅长用"时间轴动画"展示数据演变过程。
+    
+    我的数据：
+    - 数据主题：{topic}
+    - 时间跨度：{time_span}
+    - 关键变化点：{key_changes}
+    
+    请帮我：
+    1. 给出"静态分帧"和"动态平滑过渡"两种展示方案
+    2. 提供"关键年份高亮+变化标注+趋势总结"的设计规范
+    3. 给出"数据变化太快/跨度太大"的处理方案
+    4. 提供PPT内实现动态效果的步骤（切换动画/平滑切换）
+    
+    输出格式：
+    - 两种方案的设计参数和实现步骤
+    - 配色和标注规范
+    - 附"动态图禁忌"（变化太快看不清、颜色闪烁、信息过载、没有暂停帧）
+  variables:
+    - name: topic
+      description: "数据主题，如：GDP增长、人口变化、市场份额演变"
+      required: true
+    - name: time_span
+      description: "时间跨度"
+      required: true
+    - name: key_changes
+      description: "关键变化节点"
+      required: false
+      default_value: "（用户未提供，请标注明显拐点）"
+  intent_tags: ["动态图", "演变", "时间轴", "数据动画", "变化趋势", "历史数据", "发展"]
+  difficulty: advanced
+  quality_score: 0.89
+
+- id: ppt_data_chart_018
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "表格数据美化"
+  template: |
+    你是一位表格美化专家，擅长把"Excel默认表格"变成"杂志级数据表"。
+    
+    我的数据：
+    - 表格内容：{table_content}
+    - 行列数：{rows_cols}
+    - 是否需要排序：{need_sort}
+    
+    请帮我：
+    1. 给出3种表格美化方案（斑马纹/卡片式/极简线框）
+    2. 提供"表头突出+数据对齐+重点高亮"的排版规范
+    3. 给出"数据条/图标集/条件格式"的增强方案
+    4. 提供"表格太宽/太长"的处理方案（分页/转置/汇总）
+    
+    输出格式：
+    - 3种方案的设计参数
+    - 排版规范表（对齐/字号/颜色/边距）
+    - 附"表格禁忌"（边框太粗、颜色太多、文字居中、没有表头重复）
+  variables:
+    - name: table_content
+      description: "表格内容描述"
+      required: true
+    - name: rows_cols
+      description: "大概多少行多少列"
+      required: true
+    - name: need_sort
+      description: "是否需要按某列排序"
+      required: false
+      default_value: "否"
+  intent_tags: ["表格", "数据表", "表格美化", "排版", "Excel表格", "数据呈现", "表格设计"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: ppt_data_chart_019
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "信息图数据故事"
+  template: |
+    你是一位信息图设计师，擅长把"枯燥数字"变成"有故事感"的视觉叙事。
+    
+    我的数据：
+    - 核心数据：{key_data}
+    - 数据故事：{story}
+    - 目标受众：{audience}
+    
+    请帮我：
+    1. 给出"数据→图标→场景→故事"的信息图设计流程
+    2. 提供3种信息图版式（时间线/对比/流程/比例）
+    3. 给出"大数字+小解释+视觉隐喻"的排版公式
+    4. 提供"数据不准/数据太少"的替代方案（用范围/用对比/用趋势）
+    
+    输出格式：
+    - 信息图设计流程和版式建议
+    - 配色和图标建议
+    - 附"信息图禁忌"（数据造假、图标误导、比例失真、信息过载）
+  variables:
+    - name: key_data
+      description: "核心数据点"
+      required: true
+    - name: story
+      description: "数据背后的故事或结论"
+      required: true
+    - name: audience
+      description: "目标受众"
+      required: false
+      default_value: "通用"
+  intent_tags: ["信息图", "数据故事", "可视化", "信息图表", "数据叙事", "视觉化", "图表"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: ppt_data_chart_020
+  domain: ppt
+  sub_domain: ppt_data_chart
+  title: "3D数据展示"
+  template: |
+    你是一位三维可视化设计师，知道什么时候该用3D、什么时候3D是灾难。
+    
+    我的数据：
+    - 数据主题：{topic}
+    - 维度数：{dimensions}
+    - 使用场景：{scene}
+    
+    请帮我：
+    1. 给出"2D vs 3D"的选择建议（什么时候3D加分、什么时候减分）
+    2. 提供3种3D图表设计（3D柱状/3D饼图/3D地形）
+    3. 给出"透视角度+光照+材质"的设置建议
+    4. 提供"3D打印/3D模型导出"的PPT内实现方案
+    
+    输出格式：
+    - 3D设计参数和适用场景
+    - 配色和透视规范
+    - 附"3D禁忌"（为了3D而3D、透视误导、颜色失真、打印时变2D）
+  variables:
+    - name: topic
+      description: "数据主题"
+      required: true
+    - name: dimensions
+      description: "数据维度数"
+      required: true
+    - name: scene
+      description: "使用场景，如：展厅、汇报、教学"
+      required: false
+      default_value: "汇报"
+  intent_tags: ["3D图表", "三维", "立体图", "3D展示", "数据可视化", "3D效果", "立体"]
+  difficulty: advanced
+  quality_score: 0.87

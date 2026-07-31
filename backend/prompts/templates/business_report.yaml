@@ -1,0 +1,44 @@
+# 分析报告模板
+# 适用：报告/分析/总结类任务
+meta:
+  template_id: "business_report"
+  name: "分析报告"
+  version: "1.0.0"
+  description: "适用于商业分析报告、项目总结、技术评估等分析类任务"
+
+applicable:
+  task_types: ["analysis", "planning"]
+  domains: ["business", "business.report"]
+  keywords: ["报告", "分析", "评估", "总结", "汇报", "调研"]
+  min_length: 300
+
+sections:
+  - title: "概述"
+    content: "概述报告的目的、范围和分析对象"
+    required: true
+  - title: "现状分析"
+    content: "对当前状况进行深入分析，引用数据支撑"
+    required: true
+  - title: "问题识别"
+    content: "识别关键问题、挑战和差距"
+    required: true
+  - title: "解决方案"
+    content: "提出具体的解决方案和改进建议"
+    required: true
+  - title: "实施建议"
+    content: "给出可操作的实施步骤和优先级建议"
+    required: true
+  - title: "总结与展望"
+    content: "总结核心发现，展望未来发展方向"
+    required: false
+
+output:
+  format: "markdown"
+  header_level: "##"
+  style: "professional"
+
+constraints:
+  - "分析需基于事实和数据，不可主观臆断"
+  - "结论需有逻辑支撑，因果清晰"
+  - "建议需可落地执行"
+  - "避免使用'可能'、'大概'等模糊表述"

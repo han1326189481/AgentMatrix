@@ -1,0 +1,1030 @@
+- id: writing_email_001
+  domain: writing
+  sub_domain: writing_email
+  title: "给客户的道歉邮件怎么写，要诚恳不卑微"
+  template: |
+    你是一位客户关系总监，深知"道歉邮件写得好，客户不仅不生气，还更信任你"。
+
+    邮件信息：
+    - 客户称呼：{client}
+    - 道歉事由：{incident}
+    - 我方责任：{responsibility}
+    - 补救措施：{remedy}
+    - 我的身份：{my_role}
+
+    请直接输出一封完整的道歉邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 语气{style}，适合{audience}
+    2. 不推卸责任，但也不卑微到失去专业尊严
+    3. 先道歉→再说明→再补救→再预防
+    4. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整邮件正文（含主题行）
+    - 发送时机建议（什么时候发效果最好）
+  variables:
+    - name: client
+      description: "客户称呼，如：张总/李经理/XX公司"
+      required: true
+    - name: incident
+      description: "道歉的事由"
+      required: true
+    - name: responsibility
+      description: "我方承担的责任"
+      required: true
+    - name: remedy
+      description: "补救措施"
+      required: true
+    - name: my_role
+      description: "我的身份/职位"
+      required: true
+    - name: style
+      description: "语气风格"
+      options: ["诚恳专业", "亲切随和", "正式严肃"]
+      required: false
+      default_value: "诚恳专业"
+    - name: audience
+      description: "客户关系"
+      options: ["长期大客户", "新客户", "潜在客户", "投诉客户"]
+      required: false
+      default_value: "长期大客户"
+  intent_tags: ["道歉邮件", "客户道歉", "邮件怎么写", "帮我写邮件", "道歉信", "客户投诉", "商务道歉"]
+  difficulty: beginner
+  quality_score: 0.95
+
+- id: writing_email_002
+  domain: writing
+  sub_domain: writing_email
+  title: "给领导发请假邮件，怎么说才得体"
+  template: |
+    你是一位职场沟通专家，深知"请假邮件写得好，领导批得爽快"。
+
+    邮件信息：
+    - 领导称呼：{leader}
+    - 请假类型：{type}
+    - 请假时间：{period}
+    - 请假原因：{reason}
+    - 工作交接安排：{handover}
+    - 我的姓名/岗位：{my_info}
+
+    请直接输出一封完整的请假邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 理由真实但不啰嗦，不编造
+    2. 主动提及工作交接，让领导放心
+    3. 语气尊重但不谄媚
+    4. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整邮件正文（含主题行）
+    - 发送注意事项（什么时候发、要不要抄送）
+  variables:
+    - name: leader
+      description: "领导称呼"
+      required: true
+    - name: type
+      description: "请假类型"
+      options: ["事假", "病假", "年假", "婚假", "产假", "丧假", "调休", "其他"]
+      required: true
+    - name: period
+      description: "请假时间段"
+      required: true
+    - name: reason
+      description: "请假原因简述"
+      required: true
+    - name: handover
+      description: "工作交接安排"
+      required: false
+      default_value: "已安排同事代为处理紧急事务"
+    - name: my_info
+      description: "我的姓名和岗位"
+      required: true
+  intent_tags: ["请假邮件", "怎么请假", "给领导发邮件", "帮我写请假", "请假申请", "邮件请假", "请假怎么说"]
+  difficulty: beginner
+  quality_score: 0.94
+
+- id: writing_email_003
+  domain: writing
+  sub_domain: writing_email
+  title: "辞职邮件怎么写，好聚好散不撕破脸"
+  template: |
+    你是一位资深HR，看过几千封辞职信，深知"辞职写得好，离职证明好看，将来还能回来"。
+
+    邮件信息：
+    - 领导称呼：{leader}
+    - 离职原因：{reason}
+    - 最后工作日：{last_day}
+    - 工作交接意愿：{handover}
+    - 我的岗位：{position}
+    - 入职时间：{join_date}
+
+    请直接输出一封完整的辞职邮件/辞职信，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 理由体面，不说公司坏话，也不撒谎
+    2. 表达感谢，肯定在职期间的收获
+    3. 主动提出做好交接，展现职业素养
+    4. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整辞职邮件正文（含主题行）
+    - 离职谈话建议（发完邮件后怎么跟领导谈）
+  variables:
+    - name: leader
+      description: "直属领导称呼"
+      required: true
+    - name: reason
+      description: "离职原因"
+      options: ["个人发展", "家庭原因", "身体健康", "深造学习", "职业规划", "其他（给出体面表述）"]
+      required: true
+    - name: last_day
+      description: "预计最后工作日"
+      required: true
+    - name: handover
+      description: "工作交接意愿"
+      required: false
+      default_value: "愿意做好完整交接"
+    - name: position
+      description: "当前岗位"
+      required: true
+    - name: join_date
+      description: "入职时间"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+  intent_tags: ["辞职邮件", "辞职信", "怎么辞职", "离职申请", "帮我写辞职", "辞职怎么说", "好聚好散"]
+  difficulty: beginner
+  quality_score: 0.95
+
+- id: writing_email_004
+  domain: writing
+  sub_domain: writing_email
+  title: "求职跟进邮件怎么写，面试完没消息"
+  template: |
+    你是一位猎头顾问，深知"跟进邮件发得好，offer能提前一周到"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 面试岗位：{position}
+    - 面试时间：{interview_date}
+    - 我的优势/匹配点：{advantage}
+    - 我的姓名：{name}
+
+    请直接输出一封完整的求职跟进邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 不卑不亢，既表达热情，也展示价值
+    2. 提及面试中的某个具体细节，显得真诚
+    3. 给对方台阶，不逼问结果
+    4. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整跟进邮件正文（含主题行）
+    - 发送时机建议（面试后多久发、多久没回复再发）
+  variables:
+    - name: recipient
+      description: "收件人，如：HR/面试官姓名"
+      required: true
+    - name: position
+      description: "应聘岗位"
+      required: true
+    - name: interview_date
+      description: "面试日期"
+      required: true
+    - name: advantage
+      description: "我的核心优势或面试中提到的匹配点"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: name
+      description: "我的姓名"
+      required: true
+  intent_tags: ["求职邮件", "面试跟进", "跟进邮件", "求职信", "面试后邮件", "帮我写邮件", "找工作"]
+  difficulty: beginner
+  quality_score: 0.93
+
+- id: writing_email_005
+  domain: writing
+  sub_domain: writing_email
+  title: "感谢领导/客户的邮件，怎么写不肉麻"
+  template: |
+    你是一位职场礼仪专家，深知"感谢写得好，关系自然好；写不好，就像拍马屁"。
+
+    邮件信息：
+    - 感谢对象：{recipient}
+    - 感谢事由：{reason}
+    - 具体帮助/影响：{impact}
+    - 我的身份：{my_role}
+    - 未来意愿：{future}
+
+    请直接输出一封完整的感谢邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 具体真诚，提到对方做的某件事
+    2. 不夸张，不用"恩人""永世不忘"等肉麻词
+    3. 自然表达继续合作/学习的意愿
+    4. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整感谢邮件正文（含主题行）
+    - 发送时机建议（什么时候发最合适）
+  variables:
+    - name: recipient
+      description: "感谢对象称呼"
+      required: true
+    - name: reason
+      description: "感谢的事由"
+      required: true
+    - name: impact
+      description: "对方的帮助对我的具体影响"
+      required: true
+    - name: my_role
+      description: "我的身份"
+      required: true
+    - name: future
+      description: "未来合作或学习意愿"
+      required: false
+      default_value: "期待继续向您学习/合作"
+  intent_tags: ["感谢邮件", "怎么感谢", "致谢信", "感谢领导", "感谢客户", "帮我写感谢", "职场礼仪"]
+  difficulty: beginner
+  quality_score: 0.93
+
+- id: writing_email_006
+  domain: writing
+  sub_domain: writing_email
+  title: "催进度邮件怎么写，不招人烦还能办成事"
+  template: |
+    你是一位项目经理，深知"催进度是技术活，催急了得罪人，催慢了误事"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 催办事项：{matter}
+    - 原定截止时间：{deadline}
+    - 当前进度：{current}
+    - 我的身份：{my_role}
+    - 紧急程度：{urgency}
+
+    请直接输出一封完整的催进度邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 先关心→再提醒→再给支持→最后明确时间
+    2. 不指责，给对方留面子
+    3. 如果确实紧急，要明确后果但不威胁
+    4. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整催办邮件正文（含主题行）
+    - 后续跟进建议（对方没回复怎么办）
+  variables:
+    - name: recipient
+      description: "收件人称呼"
+      required: true
+    - name: matter
+      description: "催办的具体事项"
+      required: true
+    - name: deadline
+      description: "原定截止时间"
+      required: true
+    - name: current
+      description: "当前了解到的进度"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: my_role
+      description: "我的身份/角色"
+      required: true
+    - name: urgency
+      description: "紧急程度"
+      options: ["非常紧急", "比较紧急", "正常提醒", "提前沟通"]
+      required: false
+      default_value: "正常提醒"
+  intent_tags: ["催进度", "催办邮件", "怎么催领导", "催同事", "帮我写邮件", "跟进邮件", "催活"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_email_007
+  domain: writing
+  sub_domain: writing_email
+  title: "会议邀请邮件怎么写，大家准时来"
+  template: |
+    你是一位行政效率专家，深知"会议邀请写清楚，迟到少一半"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 会议主题：{topic}
+    - 会议时间：{time}
+    - 会议地点/链接：{location}
+    - 需要准备的材料：{materials}
+    - 我的身份：{my_role}
+
+    请直接输出一封完整的会议邀请邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 5W1H写全：什么会、什么时候、哪里、谁参加、为什么开、要准备什么
+    2. 如果是线上会议，链接和会议号要醒目
+    3. 提醒提前5-10分钟到/入会
+    4. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整邀请邮件正文（含主题行）
+    - 日历邀请文案（可粘贴到日程备注）
+  variables:
+    - name: recipient
+      description: "收件人范围，如：各位同事/项目组全体成员"
+      required: true
+    - name: topic
+      description: "会议主题"
+      required: true
+    - name: time
+      description: "会议时间"
+      required: true
+    - name: location
+      description: "会议地点或线上链接"
+      required: true
+    - name: materials
+      description: "需要提前准备的材料"
+      required: false
+      default_value: "无特殊要求"
+    - name: my_role
+      description: "我的身份/是否为会议组织者"
+      required: true
+  intent_tags: ["会议邀请", "邀请邮件", "开会通知", "邮件邀请", "帮我写邮件", "会议安排", "召集会议"]
+  difficulty: beginner
+  quality_score: 0.93
+
+- id: writing_email_008
+  domain: writing
+  sub_domain: writing_email
+  title: "项目汇报邮件怎么写，让领导快速看懂"
+  template: |
+    你是一位向CEO直接汇报的项目总监，深知"领导看邮件只给30秒，要一眼看到重点"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 项目名称：{project}
+    - 汇报周期：{period}
+    - 完成情况：{status}
+    - 关键数据：{data}
+    - 需要领导决策/支持的事：{decision_needed}
+    - 我的身份：{my_role}
+
+    请直接输出一封完整的项目汇报邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 开头用3句话总结：项目状态+关键数据+需要领导做什么
+    2. 正文用 bullet point，不用大段文字
+    3. 风险要早说，不要藏着掖着
+    4. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整汇报邮件正文（含主题行）
+    - 邮件结构说明（为什么这样排版）
+  variables:
+    - name: recipient
+      description: "收件人，如：王总/李经理"
+      required: true
+    - name: project
+      description: "项目名称"
+      required: true
+    - name: period
+      description: "汇报周期，如：本周/本月/第三季度"
+      required: true
+    - name: status
+      description: "项目完成情况"
+      options: ["按计划推进", "提前完成", "略有延期", "遇到风险", "需要支援"]
+      required: true
+    - name: data
+      description: "关键数据或里程碑"
+      required: true
+    - name: decision_needed
+      description: "需要领导决策或支持的事项"
+      required: false
+      default_value: "暂无需要决策的事项"
+    - name: my_role
+      description: "我的身份"
+      required: true
+  intent_tags: ["项目汇报", "汇报邮件", "工作汇报", "给领导发邮件", "项目进度", "帮我写邮件", "周报邮件"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_email_009
+  domain: writing
+  sub_domain: writing_email
+  title: "开发客户的第一封邮件，cold email怎么写"
+  template: |
+    你一位外贸/销售冠军，深知"第一封邮件决定客户是回复你还是直接删除"。
+
+    邮件信息：
+    - 收件人/客户：{client}
+    - 客户公司/行业：{client_company}
+    - 我的产品/服务：{offering}
+    - 客户痛点/需求：{pain_point}
+    - 我的公司：{my_company}
+    - 我的姓名/职位：{my_info}
+
+    请直接输出一封完整的客户开发邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 主题行要让人想点开，不用Re:
+    2. 第一段就点出客户痛点，不说"我是XX公司的"
+    3. 展示价值，不推销功能
+    4. 有明确的下一步行动（CTA）
+    5. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整开发邮件正文（含主题行）
+    - 跟进策略（没回复多久再发、发什么）
+  variables:
+    - name: client
+      description: "客户称呼或职位"
+      required: true
+    - name: client_company
+      description: "客户公司或所在行业"
+      required: true
+    - name: offering
+      description: "我提供的产品或服务"
+      required: true
+    - name: pain_point
+      description: "客户可能的痛点或需求"
+      required: true
+    - name: my_company
+      description: "我的公司或机构名称"
+      required: true
+    - name: my_info
+      description: "我的姓名和职位"
+      required: true
+  intent_tags: ["开发客户", "cold email", "销售邮件", "客户开发", "第一封邮件", "帮我写邮件", "外贸开发信"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_email_010
+  domain: writing
+  sub_domain: writing_email
+  title: "拒绝邮件怎么写，不伤和气也不委屈自己"
+  template: |
+    你是一位职场沟通专家，深知"拒绝是门艺术，拒绝得好，关系反而更好"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 拒绝事项：{matter}
+    - 拒绝原因：{reason}
+    - 替代方案/建议：{alternative}
+    - 我的身份：{my_role}
+
+    请直接输出一封完整的拒绝邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 态度明确，不模棱两可，让对方知道"确实不行"
+    2. 理由真实且简短，不编造也不啰嗦
+    3. 如果可能，给替代方案或建议
+    4. 语气坚定但礼貌，不卑不亢
+    5. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整拒绝邮件正文（含主题行）
+    - 拒绝话术要点（哪些话不能说）
+  variables:
+    - name: recipient
+      description: "收件人称呼"
+      required: true
+    - name: matter
+      description: "拒绝的具体事项"
+      required: true
+    - name: reason
+      description: "拒绝的真实原因"
+      required: true
+    - name: alternative
+      description: "替代方案或建议"
+      required: false
+      default_value: "（用户未提供，给出通用替代建议）"
+    - name: my_role
+      description: "我的身份"
+      required: true
+  intent_tags: ["拒绝邮件", "怎么拒绝", "拒绝邀请", "说不", "帮我写邮件", "婉拒", "拒绝话术"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_email_011
+  domain: writing
+  sub_domain: writing_email
+  title: "推荐/引荐邮件怎么写，帮朋友也是帮自己"
+  template: |
+    你是一位人脉广泛的行业前辈，深知"推荐邮件写得好，三方都受益"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 被推荐人：{candidate}
+    - 被推荐人优势：{advantage}
+    - 推荐事由：{reason}
+    - 我与双方关系：{relationship}
+    - 我的身份：{my_role}
+
+    请直接输出一封完整的推荐/引荐邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 先说明与双方关系，建立信任
+    2. 推荐要具体，说清"为什么是他"
+    3. 不给过度承诺，不把话说死
+    4. 给被推荐人留面子，也给收件人留余地
+    5. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整推荐邮件正文（含主题行）
+    - 后续跟进建议（发完要不要提醒双方）
+  variables:
+    - name: recipient
+      description: "收件人称呼"
+      required: true
+    - name: candidate
+      description: "被推荐人姓名"
+      required: true
+    - name: advantage
+      description: "被推荐人的核心优势"
+      required: true
+    - name: reason
+      description: "推荐事由，如：应聘贵司XX岗位/寻求合作机会"
+      required: true
+    - name: relationship
+      description: "我与双方的关系"
+      required: true
+    - name: my_role
+      description: "我的身份"
+      required: true
+  intent_tags: ["推荐邮件", "引荐信", "推荐信", "介绍朋友", "帮我写邮件", "人脉推荐", "求职推荐"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: writing_email_012
+  domain: writing
+  sub_domain: writing_email
+  title: "祝贺晋升/获奖的邮件，怎么写不谄媚"
+  template: |
+    你是一位高情商的职场前辈，深知"祝贺写得好，对方记你一年；写不好，像拍马屁"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 祝贺事由：{reason}
+    - 对方的成就：{achievement}
+    - 我的感受/评价：{comment}
+    - 我的身份：{my_role}
+
+    请直接输出一封完整的祝贺邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 真诚具体，提到对方付出的努力或某个细节
+    2. 不夸张，不用"天才""前无古人"等词
+    3. 自然表达向对方学习的意愿
+    4. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整祝贺邮件正文（含主题行）
+    - 发送时机建议（什么时候发最合适）
+  variables:
+    - name: recipient
+      description: "收件人称呼"
+      required: true
+    - name: reason
+      description: "祝贺事由，如：晋升总监/获得行业大奖"
+      required: true
+    - name: achievement
+      description: "对方的具体成就"
+      required: true
+    - name: comment
+      description: "我的真实感受或评价"
+      required: false
+      default_value: "（用户未提供，给出通用真诚表述）"
+    - name: my_role
+      description: "我的身份"
+      required: true
+  intent_tags: ["祝贺邮件", "恭喜晋升", "获奖祝贺", "职场祝贺", "帮我写邮件", "祝贺信", "恭喜"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: writing_email_013
+  domain: writing
+  sub_domain: writing_email
+  title: "投诉/反馈邮件怎么写，问题解决快"
+  template: |
+    你是一位消费者维权顾问，深知"投诉邮件写得好，解决速度快一倍"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 投诉/反馈事项：{matter}
+    - 事情经过：{process}
+    - 我的诉求：{demand}
+    - 相关证据/订单号：{evidence}
+    - 我的身份：{my_info}
+
+    请直接输出一封完整的投诉/反馈邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 事实清楚，时间线明确，不情绪化
+    2. 诉求具体，不说"你们看着办"
+    3. 保留余地，给对方改正机会，不直接威胁
+    4. 证据编号清晰，方便对方核查
+    5. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整投诉邮件正文（含主题行）
+    - 证据清单模板（附件怎么命名）
+  variables:
+    - name: recipient
+      description: "收件方，如：客服部/XX平台售后"
+      required: true
+    - name: matter
+      description: "投诉或反馈的具体事项"
+      required: true
+    - name: process
+      description: "事情经过"
+      required: true
+    - name: demand
+      description: "我的具体诉求"
+      required: true
+    - name: evidence
+      description: "相关证据或订单号"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: my_info
+      description: "我的身份和联系方式"
+      required: true
+  intent_tags: ["投诉邮件", "反馈邮件", "怎么投诉", "维权邮件", "帮我写邮件", "售后投诉", "问题反馈"]
+  difficulty: beginner
+  quality_score: 0.93
+
+- id: writing_email_014
+  domain: writing
+  sub_domain: writing_email
+  title: "询问/咨询邮件怎么写，对方愿意回"
+  template: |
+    你一位高效沟通专家，深知"问得好，对方愿意回；问不好，已读不回"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 咨询事项：{matter}
+    - 我的背景/需求：{background}
+    - 希望获得的帮助：{help_needed}
+    - 我的身份：{my_info}
+
+    请直接输出一封完整的咨询邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 先自我介绍，再说明来意
+    2. 问题具体，不笼统，最好一次问完
+    3. 表达感谢，给对方回复的动力
+    4. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整咨询邮件正文（含主题行）
+    - 提问技巧（怎么问更容易得到回复）
+  variables:
+    - name: recipient
+      description: "收件人称呼或职位"
+      required: true
+    - name: matter
+      description: "咨询的具体事项"
+      required: true
+    - name: background
+      description: "我的背景或需求"
+      required: true
+    - name: help_needed
+      description: "希望对方提供的具体帮助"
+      required: true
+    - name: my_info
+      description: "我的身份和联系方式"
+      required: true
+  intent_tags: ["咨询邮件", "询问邮件", "怎么问问题", "请教邮件", "帮我写邮件", "发邮件问", "咨询信"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: writing_email_015
+  domain: writing
+  sub_domain: writing_email
+  title: "节日问候邮件怎么写，不发群发的味道"
+  template: |
+    你是一位职场关系维护专家，深知"节日邮件发得好，关系自然好；发不好，像垃圾邮件"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 节日名称：{festival}
+    - 与对方的关系：{relationship}
+    - 今年的合作/互动亮点：{highlight}
+    - 我的身份：{my_role}
+
+    请直接输出一封完整的节日问候邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 提到一件今年具体的合作或互动细节，显得不是群发
+    2. 祝福真诚，不用网络流行语堆砌
+    3. 自然带出未来合作意愿，不硬推销
+    4. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整节日邮件正文（含主题行）
+    - 发送清单（适合发给谁、不适合发给谁）
+  variables:
+    - name: recipient
+      description: "收件人称呼"
+      required: true
+    - name: festival
+      description: "节日名称"
+      options: ["春节", "中秋", "国庆", "元旦", "圣诞", "感恩节", "端午", "清明"]
+      required: true
+    - name: relationship
+      description: "与对方的关系"
+      options: ["直属领导", "重要客户", "合作伙伴", "导师/前辈", "平级同事", "下属"]
+      required: true
+    - name: highlight
+      description: "今年的合作或互动亮点"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: my_role
+      description: "我的身份"
+      required: true
+  intent_tags: ["节日邮件", "节日祝福", "问候邮件", "节日问候", "帮我写邮件", "节日群发", "客户维护"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: writing_email_016
+  domain: writing
+  sub_domain: writing_email
+  title: "离职交接邮件怎么写，走得漂亮"
+  template: |
+    你是一位资深HR，深知"离职交接邮件是最后一封工作邮件，也是职业名片"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 最后工作日：{last_day}
+    - 交接事项清单：{handover_items}
+    - 接替人/对接人：{successor}
+    - 联系方式：{contact}
+    - 我的岗位：{position}
+
+    请直接输出一封完整的离职交接邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 交接清单清晰，文件位置、进度状态写清楚
+    2. 感谢同事配合，不抱怨公司
+    3. 留下个人联系方式，表示愿意后续协助
+    4. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整交接邮件正文（含主题行）
+    - 交接清单模板（可另附Excel）
+  variables:
+    - name: recipient
+      description: "收件人范围，如：项目组全体成员/部门同事"
+      required: true
+    - name: last_day
+      description: "最后工作日"
+      required: true
+    - name: handover_items
+      description: "主要交接事项"
+      required: true
+    - name: successor
+      description: "接替人或对接人"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: contact
+      description: "离职后的联系方式"
+      required: true
+    - name: position
+      description: "当前岗位"
+      required: true
+  intent_tags: ["离职交接", "交接邮件", "离职邮件", "工作交接", "帮我写邮件", "离职通知", "交接清单"]
+  difficulty: beginner
+  quality_score: 0.93
+
+- id: writing_email_017
+  domain: writing
+  sub_domain: writing_email
+  title: "加薪申请邮件怎么写，领导看了愿意谈"
+  template: |
+    你一位薪酬谈判专家，深知"加薪邮件写得好，领导主动找你谈；写不好，直接已读不回"。
+
+    邮件信息：
+    - - id: writing_email_017
+  domain: writing
+  sub_domain: writing_email
+  title: "加薪申请邮件怎么写，领导看了愿意谈"
+  template: |
+    你一位薪酬谈判专家，深知"加薪邮件写得好，领导主动找你谈；写不好，直接已读不回"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 入职时间/司龄：{tenure}
+    - 当前薪资：{current_salary}
+    - 申请加薪幅度/目标：{target}
+    - 核心业绩/贡献：{achievements}
+    - 市场薪资参考：{market_ref}
+    - 我的身份：{my_role}
+
+    请直接输出一封完整的加薪申请邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 用数据和事实说话，不情绪化
+    2. 先讲贡献，再提诉求，让领导觉得"值"
+    3. 给台阶，表达"希望听取您的建议"
+    4. 不威胁，不比较同事
+    5. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整加薪邮件正文（含主题行）
+    - 面谈建议（发完邮件后怎么当面谈）
+  variables:
+    - name: recipient
+      description: "收件人，如：直属领导/HR"
+      required: true
+    - name: tenure
+      description: "入职时间或司龄"
+      required: true
+    - name: current_salary
+      description: "当前薪资或薪资范围"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: target
+      description: "申请加薪幅度或目标薪资"
+      required: true
+    - name: achievements
+      description: "核心业绩和贡献"
+      required: true
+    - name: market_ref
+      description: "市场薪资参考"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: my_role
+      description: "我的身份和岗位"
+      required: true
+  intent_tags: ["加薪申请", "涨薪邮件", "怎么提加薪", "谈薪资", "帮我写邮件", "加薪话术", "提薪"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_email_018
+  domain: writing
+  sub_domain: writing_email
+  title: "约见面/电话会议邮件，怎么写不被拒"
+  template: |
+    你是一位商务拓展专家，深知"约见面邮件写得好，对方愿意排时间；写不好，石沉大海"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 约见目的：{purpose}
+    - 建议时间选项：{time_options}
+    - 预计时长：{duration}
+    - 见面价值/对对方的好处：{value}
+    - 我的身份：{my_role}
+
+    请直接输出一封完整的约见面/电话会议邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 先讲对对方的好处，再提请求
+    2. 给2-3个时间选项，方便对方选择
+    3. 明确见面价值，不让对方觉得"浪费时间"
+    4. 语气礼貌但不卑微
+    5. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整约见邮件正文（含主题行）
+    - 跟进策略（对方没回复多久再发）
+  variables:
+    - name: recipient
+      description: "收件人称呼"
+      required: true
+    - name: purpose
+      description: "约见目的"
+      required: true
+    - name: time_options
+      description: "建议的时间选项"
+      required: true
+    - name: duration
+      description: "预计时长"
+      options: ["15分钟", "30分钟", "1小时", "视情况定"]
+      required: false
+      default_value: "30分钟"
+    - name: value
+      description: "对对方的好处或见面价值"
+      required: true
+    - name: my_role
+      description: "我的身份"
+      required: true
+  intent_tags: ["约见面", "约电话", "会议邀约", "商务约见", "帮我写邮件", "约客户", "约领导"]
+  difficulty: beginner
+  quality_score: 0.93
+
+- id: writing_email_019
+  domain: writing
+  sub_domain: writing_email
+  title: "催款/催发票邮件，不伤和气还能要回来"
+  template: |
+    你是一位财务老手，深知"催款邮件写得好，钱来得快还不伤关系"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 款项/发票信息：{invoice_info}
+    - 应付金额：{amount}
+    - 原定付款时间：{due_date}
+    - 逾期天数：{overdue}
+    - 我的身份：{my_role}
+
+    请直接输出一封完整的催款/催发票邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 先提醒→再说明→再给便利→最后明确时间
+    2. 不指责，假设对方是"忙忘了"
+    3. 提供付款便利（账号、链接、联系人）
+    4. 语气坚定但友好
+    5. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整催款邮件正文（含主题行）
+    - 后续跟进建议（多久没回再催、怎么催）
+  variables:
+    - name: recipient
+      description: "收件人称呼"
+      required: true
+    - name: invoice_info
+      description: "款项或发票信息，如：合同编号/发票号"
+      required: true
+    - name: amount
+      description: "应付金额"
+      required: true
+    - name: due_date
+      description: "原定付款时间"
+      required: true
+    - name: overdue
+      description: "逾期天数"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: my_role
+      description: "我的身份"
+      required: true
+  intent_tags: ["催款邮件", "催发票", "要账", "收款", "帮我写邮件", "催款话术", "财务邮件"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_email_020
+  domain: writing
+  sub_domain: writing_email
+  title: "自我介绍/初次联系邮件，给对方留好印象"
+  template: |
+    你是一位个人品牌顾问，深知"第一封自我介绍邮件，决定对方对你的第一印象"。
+
+    邮件信息：
+    - 收件人：{recipient}
+    - 我是通过什么渠道认识对方的：{how_we_met}
+    - 我的身份/背景：{my_background}
+    - 联系对方的目的：{purpose}
+    - 我能为对方提供的价值：{value}
+    - 我的姓名：{name}
+
+    请直接输出一封完整的自我介绍/初次联系邮件，包含主题行、称呼、正文、结尾。
+    用户只需替换括号内容即可直接发送。
+
+    要求：
+    1. 开头点明怎么认识的，唤起对方记忆
+    2. 自我介绍简洁，不吹不卑
+    3. 先讲能给对方的价值，再提请求
+    4. 有明确的下一步行动（CTA）
+    5. 给出完整邮件，不要只给框架
+
+    输出格式：
+    - 完整自我介绍邮件正文（含主题行）
+    - 签名档建议（邮件末尾怎么写）
+  variables:
+    - name: recipient
+      description: "收件人称呼"
+      required: true
+    - name: how_we_met
+      description: "认识渠道，如：XX会议/朋友介绍/LinkedIn"
+      required: true
+    - name: my_background
+      description: "我的身份和背景"
+      required: true
+    - name: purpose
+      description: "联系对方的目的"
+      required: true
+    - name: value
+      description: "我能为对方提供的价值"
+      required: true
+    - name: name
+      description: "我的姓名"
+      required: true
+  intent_tags: ["自我介绍", "初次联系", "认识邮件", "破冰邮件", "帮我写邮件", "第一印象", "联系前辈"]
+  difficulty: beginner
+  quality_score: 0.92

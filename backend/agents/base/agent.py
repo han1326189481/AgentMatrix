@@ -2,6 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 from pydantic import BaseModel
 from core.llm.client import get_llm_client
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class AgentInput(BaseModel):
@@ -20,15 +23,42 @@ class AgentOutput(BaseModel):
 
 
 class BaseAgent(ABC):
-    def __init__(self, agent_id: str, name: str):
+    def __init__(self, agent_id: str, name: str, settings: Any = None):
         self.agent_id = agent_id
         self.name = name
         self.status = "idle"
         self.current_task = None
         self.last_error = None
-        self.local_model = "qwen2.5:1.5b"
-        self.cloud_model = "deepseek-r1-distill"
+        # 从 ModelRegistry 读取模型配置（单一数据源）
+        from core.model_registry import get_model, get_cloud_model
+        self.local_model = get_model(self.agent_id)
+        self.cloud_model = get_cloud_model()
         self.llm_client = get_llm_client()
+        self._settings = settings
+        self._system_prompt: Optional[str] = None
+
+    def _load_system_prompt(self) -> str:
+        """从 PromptManager 加载系统提示模板，失败时返回空字符串"""
+        if self._system_prompt is not None:
+            return self._system_prompt
+        try:
+            from prompts.template_manager import get_prompt_manager
+            pm = get_prompt_manager()
+            template = pm.get_template(self.agent_id, "system")
+            if template:
+                self._system_prompt = template.template
+                return self._system_prompt
+        except Exception as e:
+            logger.warning(f"Failed to load system prompt for {self.agent_id}: {e}")
+        self._system_prompt = ""
+        return self._system_prompt
+
+    def _get_settings(self):
+        """获取配置，优先使用注入的 settings，否则回退到全局"""
+        if self._settings is not None:
+            return self._settings
+        from app.config import settings
+        return settings
 
     @abstractmethod
     async def execute(self, input_data: AgentInput) -> AgentOutput:
@@ -64,8 +94,7 @@ class BaseAgent(ABC):
         """调用真实的 LLM 生成内容"""
         try:
             system_prompt = kwargs.get("system_prompt", None)
-            
-            # 如果使用云端，确保使用运行时配置的 API Key
+
             if use_cloud:
                 try:
                     from api.v1.config.router import _runtime_config

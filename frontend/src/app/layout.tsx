@@ -4,6 +4,11 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'AgentMatrix - 多智能体动态协同与国产算力优化平台',
   description: '基于多Agent协同 + 动态算力路由的AI系统',
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
@@ -19,7 +24,7 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  var theme = localStorage.getItem('neuroflow-theme');
+                  var theme = localStorage.getItem('agentmatrix-theme');
                   if (theme === 'light') {
                     document.documentElement.classList.remove('dark');
                   } else {

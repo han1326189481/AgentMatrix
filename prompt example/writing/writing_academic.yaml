@@ -1,0 +1,1038 @@
+- id: writing_academic_001
+  domain: writing
+  sub_domain: writing_academic
+  title: "文献综述怎么写，导师说像流水账"
+  template: |
+    你是一位博士生导师，深知"文献综述写得好，论文地基牢；写不好，整篇垮掉"。
+
+    综述信息：
+    - 研究主题：{topic}
+    - 时间范围：{time_range}
+    - 核心文献：{key_papers}
+    - 研究脉络：{timeline}
+    - 研究空白：{gaps}
+    - 我的研究定位：{my_position}
+
+    请直接输出一份完整的文献综述，3000-5000字，可直接放入论文。
+
+    要求：
+    1. 不是罗列文献，是"讲故事"——谁做了什么、为什么重要、还有什么没做
+    2. 按主题或时间线组织，不按作者姓氏排列
+    3. 批判性评价，不盲目崇拜
+    4. 自然引出我的研究问题
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整文献综述正文
+    - 文献分类表（主题+代表文献+核心观点+局限）
+  variables:
+    - name: topic
+      description: "研究主题"
+      required: true
+    - name: time_range
+      description: "文献时间范围，如：近五年/近十年"
+      required: true
+    - name: key_papers
+      description: "核心文献"
+      required: true
+    - name: timeline
+      description: "研究发展脉络"
+      required: true
+    - name: gaps
+      description: "研究空白或不足"
+      required: true
+    - name: my_position
+      description: "我的研究定位"
+      required: true
+  intent_tags:
+  - id: writing_academic_001
+  domain: writing
+  sub_domain: writing_academic
+  title: "文献综述怎么写，导师说像流水账"
+  template: |
+    你是一位博士生导师，深知"文献综述写得好，论文地基牢；写不好，整篇垮掉"。
+
+    综述信息：
+    - 研究主题：{topic}
+    - 时间范围：{time_range}
+    - 核心文献：{key_papers}
+    - 研究脉络：{timeline}
+    - 研究空白：{gaps}
+    - 我的研究定位：{my_position}
+
+    请直接输出一份完整的文献综述，3000-5000字，可直接放入论文。
+
+    要求：
+    1. 不是罗列文献，是"讲故事"——谁做了什么、为什么重要、还有什么没做
+    2. 按主题或时间线组织，不按作者姓氏排列
+    3. 批判性评价，不盲目崇拜
+    4. 自然引出我的研究问题
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整文献综述正文
+    - 文献分类表（主题+代表文献+核心观点+局限）
+  variables:
+    - name: topic
+      description: "研究主题"
+      required: true
+    - name: time_range
+      description: "文献时间范围，如：近五年/近十年"
+      required: true
+    - name: key_papers
+      description: "核心文献"
+      required: true
+    - name: timeline
+      description: "研究发展脉络"
+      required: true
+    - name: gaps
+      description: "研究空白或不足"
+      required: true
+    - name: my_position
+      description: "我的研究定位"
+      required: true
+  intent_tags: ["文献综述", "综述怎么写", "帮我写综述", "论文综述", "文献回顾", "Literaturereview", "学术写作"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_academic_002
+  domain: writing
+  sub_domain: writing_academic
+  title: "论文摘要怎么写，审稿人第一眼就看这个"
+  template: |
+    你是一位期刊主编，深知"摘要写得好，审稿人愿意往下看；写不好，直接拒稿"。
+
+    论文信息：
+    - 论文标题：{title}
+    - 研究背景：{background}
+    - 研究方法：{method}
+    - 核心发现：{findings}
+    - 研究意义：{significance}
+    - 字数要求：{word_limit}
+
+    请直接输出一份完整的论文摘要（中英文），可直接投稿。
+
+    要求：
+    1. 结构完整：背景→目的→方法→结果→结论
+    2. 不引用文献，不缩写，不自夸
+    3. 数据具体，不说"显著提高"而说"提高了23%"
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 中文摘要
+    - 英文摘要（Abstract）
+    - 关键词（中英文）
+  variables:
+    - name: title
+      description: "论文标题"
+      required: true
+    - name: background
+      description: "研究背景"
+      required: true
+    - name: method
+      description: "研究方法"
+      required: true
+    - name: findings
+      description: "核心发现"
+      required: true
+    - name: significance
+      description: "研究意义"
+      required: true
+    - name: word_limit
+      description: "字数限制"
+      options: ["200字", "300字", "500字", "800字"]
+      required: false
+      default_value: "300字"
+  intent_tags: ["论文摘要", "摘要怎么写", "Abstract", "帮我写摘要", "投稿摘要", "学术摘要", "论文写作"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_academic_003
+  domain: writing
+  sub_domain: writing_academic
+  title: "论文引言怎么写，开头就要抓住人"
+  template: |
+    你一位学术写作教练，深知"引言写得好，审稿人一口气看到方法部分"。
+
+    论文信息：
+    - 研究主题：{topic}
+    - 研究背景：{background}
+    - 现有研究不足：{gaps}
+    - 研究问题：{question}
+    - 研究贡献：{contribution}
+    - 论文结构：{structure}
+
+    请直接输出一份完整的论文引言，可直接用于期刊投稿。
+
+    要求：
+    1. 从大到小：领域→子领域→具体问题→我的研究
+    2. 现有研究不足要具体，不笼统说"研究较少"
+    3. 研究问题明确，一句话能说清
+    4. 贡献要实在，不说"首次""填补空白"等大话
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整引言正文
+    - 引言结构拆解（每段功能说明）
+  variables:
+    - name: topic
+      description: "研究主题"
+      required: true
+    - name: background
+      description: "研究背景"
+      required: true
+    - name: gaps
+      description: "现有研究不足"
+      required: true
+    - name: question
+      description: "研究问题"
+      required: true
+    - name: contribution
+      description: "研究贡献"
+      required: true
+    - name: structure
+      description: "论文结构概述"
+      required: false
+      default_value: "（用户未提供，给出通用结构）"
+  intent_tags: ["论文引言", "Introduction", "引言怎么写", "帮我写引言", "论文开头", "学术写作", "投稿"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_academic_004
+  domain: writing
+  sub_domain: writing_academic
+  title: "研究方法怎么写，让别人能复现"
+  template: |
+    你是一位方法论专家，深知"方法写得好，审稿人不质疑；写不好，整篇论文可信度打折"。
+
+    方法信息：
+    - 研究设计：{design}
+    - 数据来源：{data_source}
+    - 样本/实验对象：{sample}
+    - 变量定义：{variables}
+    - 分析工具：{tools}
+    - 伦理审批：{ethics}
+
+    请直接输出一份完整的研究方法部分，可直接放入论文。
+
+    要求：
+    1. 详细到别人能复现，不省略关键参数
+    2. 为什么选这个方法，简要说明理由
+    3. 样本量计算有依据
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整方法部分正文
+    - 方法流程图（文字版）
+  variables:
+    - name: design
+      description: "研究设计，如：实验/问卷/案例/混合"
+      required: true
+    - name: data_source
+      description: "数据来源"
+      required: true
+    - name: sample
+      description: "样本或实验对象"
+      required: true
+    - name: variables
+      description: "变量定义和测量"
+      required: true
+    - name: tools
+      description: "分析工具或软件"
+      required: true
+    - name: ethics
+      description: "伦理审批情况"
+      required: false
+      default_value: "已通过伦理审查"
+  intent_tags: ["研究方法", "Methodology", "方法怎么写", "帮我写方法", "论文方法", "实验设计", "学术写作"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_academic_005
+  domain: writing
+  sub_domain: writing_academic
+  title: "研究结果怎么写，数据会说话"
+  template: |
+    你是一位统计学教授，深知"结果写得好，发现一目了然；写不好，好数据也浪费"。
+
+    结果信息：
+    - 主要发现：{findings}
+    - 统计结果：{statistics}
+    - 图表说明：{figures}
+    - 显著性水平：{significance}
+    - 效应量：{effect_size}
+
+    请直接输出一份完整的研究结果部分，可直接放入论文。
+
+    要求：
+    1. 客观呈现，不解释（解释放在讨论部分）
+    2. 统计结果完整：F值/t值/χ²值、p值、效应量
+    3. 图表自明，不重复文字
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整结果部分正文
+    - 统计结果汇总表
+  variables:
+    - name: findings
+      description: "主要发现"
+      required: true
+    - name: statistics
+      description: "统计结果"
+      required: true
+    - name: figures
+      description: "图表说明"
+      required: false
+      default_value: "（用户未提供，给出通用图表描述）"
+    - name: significance
+      description: "显著性水平"
+      required: false
+      default_value: "p<0.05"
+    - name: effect_size
+      description: "效应量"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+  intent_tags: ["研究结果", "Results", "结果怎么写", "帮我写结果", "论文结果", "数据分析", "学术写作"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_academic_006
+  domain: writing
+  sub_domain: writing_academic
+  title: "论文讨论怎么写，把发现讲出价值"
+  template: |
+    你一位学术大牛，深知"讨论写得好，论文升一个档次；写不好，结果白做"。
+
+    讨论信息：
+    - 核心发现：{findings}
+    - 与现有研究对比：{comparison}
+    - 理论贡献：{theory}
+    - 实践意义：{practice}
+    - 研究局限：{limitations}
+    - 未来方向：{future}
+
+    请直接输出一份完整的论文讨论部分，可直接用于投稿。
+
+    要求：
+    1. 先总结发现→再对比文献→再讲贡献→再谈局限→最后展望
+    2. 与文献对比要具体，不笼统说"与XX一致"
+    3. 局限要诚恳，但不致命
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整讨论部分正文
+    - 讨论结构图（发现→对比→贡献→局限→展望）
+  variables:
+    - name: findings
+      description: "核心发现"
+      required: true
+    - name: comparison
+      description: "与现有研究的对比"
+      required: true
+    - name: theory
+      description: "理论贡献"
+      required: true
+    - name: practice
+      description: "实践意义"
+      required: true
+    - name: limitations
+      description: "研究局限"
+      required: true
+    - name: future
+      description: "未来研究方向"
+      required: true
+  intent_tags: ["论文讨论", "Discussion", "讨论怎么写", "帮我写讨论", "学术讨论", "论文写作", "投稿"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_academic_007
+  domain: writing
+  sub_domain: writing_academic
+  title: "论文结论怎么写，收尾要有力"
+  template: |
+    你是一位资深审稿人，深知"结论写得好，审稿人记住你；写不好，前面全白写"。
+
+    结论信息：
+    - 研究问题：{question}
+    - 核心发现：{findings}
+    - 主要贡献：{contribution}
+    - 实践建议：{recommendations}
+    - 研究局限：{limitations}
+
+    请直接输出一份完整的论文结论部分，可直接放入论文。
+
+    要求：
+    1. 不引入新内容，只总结前面有的
+    2. 贡献要提炼，不重复讨论部分
+    3. 建议具体，不说"需要更多研究"之类的空话
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整结论正文
+    - 一句话总结（可用于投稿信）
+  variables:
+    - name: question
+      description: "研究问题"
+      required: true
+    - name: findings
+      description: "核心发现"
+      required: true
+    - name: contribution
+      description: "主要贡献"
+      required: true
+    - name: recommendations
+      description: "实践建议"
+      required: true
+    - name: limitations
+      description: "研究局限"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+  intent_tags: ["论文结论", "Conclusion", "结论怎么写", "帮我写结论", "论文结尾", "学术写作", "投稿"]
+  difficulty: beginner
+  quality_score: 0.93
+
+- id: writing_academic_008
+  domain: writing
+  sub_domain: writing_academic
+  title: "开题报告怎么写，答辩一次过"
+  template: |
+    你是一位答辩委员会主席，深知"开题报告写得好，答辩像走过场；写不好，被问到哭"。
+
+    开题信息：
+    - 论文题目：{title}
+    - 研究背景：{background}
+    - 文献综述：{literature}
+    - 研究问题：{question}
+    - 研究方法：{method}
+    - 技术路线：{roadmap}
+    - 预期成果：{expected}
+    - 进度安排：{schedule}
+
+    请直接输出一份完整的开题报告，可直接用于开题答辩。
+
+    要求：
+    1. 研究问题明确，一句话能说清
+    2. 方法可行，不画大饼
+    3. 技术路线清晰，有流程图描述
+    4. 进度安排合理，留有余地
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整开题报告正文
+    - 技术路线描述（文字版流程）
+  variables:
+    - name: title
+      description: "论文题目"
+      required: true
+    - name: background
+      description: "研究背景"
+      required: true
+    - name: literature
+      description: "文献综述要点"
+      required: true
+    - name: question
+      description: "研究问题"
+      required: true
+    - name: method
+      description: "研究方法"
+      required: true
+    - name: roadmap
+      description: "技术路线"
+      required: true
+    - name: expected
+      description: "预期成果"
+      required: true
+    - name: schedule
+      description: "进度安排"
+      required: true
+  intent_tags: ["开题报告", "开题答辩", "论文开题", "帮我写开题", "研究生开题", "学术写作", "开题材料"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_academic_009
+  domain: writing
+  sub_domain: writing_academic
+  title: "论文降重改写，查重率太高了"
+  template: |
+    你是一位论文润色专家，深知"降重不是换词，是换一种说法讲同一件事"。
+
+    原文段落：
+    {original_text}
+
+    请直接输出改写后的段落，保持原意不变，但查重系统识别为不同表述。
+
+    要求：
+    1. 不改变原意和专业术语
+    2. 句式结构重组，不只是同义词替换
+    3. 逻辑流畅，不生硬
+    4. 给出完整改写后的段落
+
+    输出格式：
+    - 改写后正文
+    - 改写说明（哪里改了、为什么这样改）
+  variables:
+    - name: original_text
+      description: "需要降重的原文段落"
+      required: true
+  intent_tags: ["论文降重", "查重改写", "降重技巧", "帮我降重", "论文修改", "查重率", "学术写作"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: writing_academic_010
+  domain: writing
+  sub_domain: writing_academic
+  title: "论文致谢怎么写，真诚不套路"
+  template: |
+    你是一位毕业多年的学长，深知"致谢是论文最有人情味的部分"。
+
+    致谢信息：
+    - 导师：{advisor}
+    - 同门/同学：{peers}
+    - 家人：{family}
+    - 其他帮助者：{others}
+    - 特别经历：{special}
+    - 我的风格：{style}
+
+    请直接输出一份完整的论文致谢，200-800字，可直接放入论文。
+
+    要求：
+    1. 真诚具体，提到具体帮助，不笼统说"感谢所有帮助过我的人"
+    2. 导师放在前面，但不用过度赞美
+    3. 可以有个性，但不过分煽情
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整致谢正文
+    - 致谢礼仪提醒（哪些人一定要谢、哪些人可省略）
+  variables:
+    - name: advisor
+      description: "导师姓名和具体帮助"
+      required: true
+    - name: peers
+      description: "同门或同学的帮助"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: family
+      description: "家人的支持"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: others
+      description: "其他帮助者"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: special
+      description: "特别经历或感悟"
+      required: false
+      default_value: "（用户未提供）"
+    - name: style
+      description: "写作风格"
+      options: ["真诚朴实", "文艺抒情", "幽默轻松", "简洁明了"]
+      required: false
+      default_value: "真诚朴实"
+  intent_tags: ["论文致谢", "致谢怎么写", "Acknowledgements", "帮我写致谢", "毕业论文", "学术写作", "毕业"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: writing_academic_011
+  domain: writing
+  sub_domain: writing_academic
+  title: "投稿信/Cover Letter怎么写，让编辑感兴趣"
+  template: |
+    你是一位期刊编辑，深知"投稿信写得好，编辑送外审；写不好， desk reject"。
+
+    投稿信息：
+    - 期刊名称：{journal}
+    - 论文标题：{title}
+    - 研究亮点：{highlights}
+    - 与期刊匹配度：{fit}
+    - 通讯作者：{corresponding}
+    - 建议审稿人：{reviewers}
+    - 回避审稿人：{avoid}
+
+    请直接输出一封完整的投稿信（Cover Letter），可直接发送。
+
+    要求：
+    1. 第一段点明投稿意向和论文核心贡献
+    2. 说明为什么适合这个期刊（匹配度）
+    3. 声明原创性和无利益冲突
+    4. 礼貌简洁，不超过1页
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整投稿信正文
+    - 投稿检查清单（发之前再核对一遍）
+  variables:
+    - name: journal
+      description: "投稿期刊名称"
+      required: true
+    - name: title
+      description: "论文标题"
+      required: true
+    - name: highlights
+      description: "研究亮点"
+      required: true
+    - name: fit
+      description: "与期刊的匹配度"
+      required: true
+    - name: corresponding
+      description: "通讯作者信息"
+      required: true
+    - name: reviewers
+      description: "建议审稿人"
+      required: false
+      default_value: "（用户未提供）"
+    - name: avoid
+      description: "需要回避的审稿人"
+      required: false
+      default_value: "无"
+  intent_tags: ["投稿信", "CoverLetter", "论文投稿", "帮我写投稿信", "期刊投稿", "学术发表", "论文写作"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_academic_012
+  domain: writing
+  sub_domain: writing_academic
+  title: "审稿回复信怎么写，让审稿人改主意"
+  template: |
+    你是一位发表过50篇论文的教授，深知"回复信写得好，大修变小修；写不好，小修变拒稿"。
+
+    回复信息：
+    - 审稿意见：{comments}
+    - 我的修改：{revisions}
+    - 无法修改的部分及理由：{unable}
+    - 论文标题：{title}
+    - 期刊名称：{journal}
+
+    请直接输出一份完整的审稿回复信（Response to Reviewers），可直接提交。
+
+    要求：
+    1. 逐条回复，不遗漏任何意见
+    2. 态度谦逊，即使审稿人错了也礼貌解释
+    3. 修改处标注行号，方便审稿人核对
+    4. 无法修改的要给出充分理由
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整回复信正文
+    - 逐条回复表（审稿意见+我的回复+修改位置）
+  variables:
+    - name: comments
+      description: "审稿意见"
+      required: true
+    - name: revisions
+      description: "我的修改内容"
+      required: true
+    - name: unable
+      description: "无法修改的部分及理由"
+      required: false
+      default_value: "（用户未提供）"
+    - name: title
+      description: "论文标题"
+      required: true
+    - name: journal
+      description: "期刊名称"
+      required: true
+  intent_tags: ["审稿回复", "ResponseLetter", "论文修改", "帮我写回复", "审稿意见", "学术发表", "论文返修"]
+  difficulty: advanced
+  quality_score: 0.95
+
+- id: writing_academic_013
+  domain: writing
+  sub_domain: writing_academic
+  title: "研究计划书/RP怎么写，申请基金或留学"
+  template: |
+    你是一位基金评审专家，深知"RP写得好，经费到手；写不好，想法再好也没用"。
+
+    RP信息：
+    - 研究主题：{topic}
+    - 研究背景：{background}
+    - 研究问题：{question}
+    - 研究方法：{method}
+    - 预期成果：{expected}
+    - 时间安排：{schedule}
+    - 预算：{budget}
+    - 我的资质：{qualification}
+
+    请直接输出一份完整的研究计划书（Research Proposal），可直接用于申请。
+
+    要求：
+    1. 问题要"小"而"深"，不贪大求全
+    2. 方法要具体可行，不画大饼
+    3. 预期成果可衡量，不空泛
+    4. 体现我的独特优势
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整RP正文
+    - 时间甘特图（文字版）
+  variables:
+    - name: topic
+      description: "研究主题"
+      required: true
+    - name: background
+      description: "研究背景"
+      required: true
+    - name: question
+      description: "研究问题"
+      required: true
+    - name: method
+      description: "研究方法"
+      required: true
+    - name: expected
+      description: "预期成果"
+      required: true
+    - name: schedule
+      description: "时间安排"
+      required: true
+    - name: budget
+      description: "预算（如适用）"
+      required: false
+      default_value: "（用户未提供）"
+    - name: qualification
+      description: "我的资质和前期基础"
+      required: true
+  intent_tags: ["研究计划书", "RP", "ResearchProposal", "基金申请", "留学申请", "帮我写RP", "学术写作"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: writing_academic_014
+  domain: writing
+  sub_domain: writing_academic
+  title: "学术海报怎么写，会议展示要吸睛"
+  template: |
+    你是一位学术会议组织者，深知"海报写得好，人来围观；写不好，无人问津"。
+
+    海报信息：
+    - 研究标题：{title}
+    - 作者单位：{affiliation}
+    - 研究背景：{background}
+    - 研究方法：{method}
+    - 核心结果：{results}
+    - 结论：{conclusion}
+    - 海报尺寸：{size}
+
+    请直接输出一份完整的学术海报文字内容，可直接用于排版制作。
+
+    要求：
+    1. 标题醒目，一句话抓住人
+    2. 图文比例6:4，文字精简
+    3. 结果部分用图表+ bullet point
+    4. 联系方式醒目，方便交流
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 海报完整文字内容（分区块）
+    - 排版建议（字体大小、配色、布局）
+  variables:
+    - name: title
+      description: "研究标题"
+      required: true
+    - name: affiliation
+      description: "作者和单位"
+      required: true
+    - name: background
+      description: "研究背景（1-2句话）"
+      required: true
+    - name: method
+      description: "研究方法（精简版）"
+      required: true
+    - name: results
+      description: "核心结果"
+      required: true
+    - name: conclusion
+      description: "结论"
+      required: true
+    - name: size
+      description: "海报尺寸"
+      options: ["A0", "A1", "90x120cm", "自定义"]
+      required: false
+      default_value: "A0"
+  intent_tags: ["学术海报", "Poster", "会议海报", "帮我写海报", "学术会议", "论文展示", "学术写作"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: writing_academic_015
+  domain: writing
+  sub_domain: writing_academic
+  title: "学位论文致谢前的前言/序言怎么写"
+  template: |
+    你是一位人文教授，深知"前言是论文的'脸'，写得好让人想读下去"。
+
+    论文信息：
+    - 论文题目：{title}
+    - 选题缘起：{origin}
+    - 研究历程：{journey}
+    - 核心观点：{core_argument}
+    - 论文结构：{structure}
+
+    请直接输出一份完整的学位论文前言/序言，可直接放入论文。
+
+    要求：
+    1. 有个人色彩，但不煽情
+    2. 说明为什么选这个题，有什么个人经历或观察
+    3. 简要介绍论文结构和各章内容
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整前言正文
+    - 各章内容预告
+  variables:
+    - name: title
+      description: "论文题目"
+      required: true
+    - name: origin
+      description: "选题缘起"
+      required: true
+    - name: journey
+      description: "研究历程"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: core_argument
+      description: "核心观点"
+      required: true
+    - name: structure
+      description: "论文结构"
+      required: true
+  intent_tags: ["论文前言", "序言", "Preface", "学位论文", "帮我写前言", "学术写作", "毕业论文"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: writing_academic_016
+  domain: writing
+  sub_domain: writing_academic
+  title: "案例分析怎么写，论文里的案例部分"
+  template: |
+    你一位案例研究专家，深知"案例写得好，理论活起来；写不好，像讲故事"。
+
+    案例信息：
+    - 案例对象：{case}
+    - 案例背景：{background}
+    - 分析框架：{framework}
+    - 关键事件：{events}
+    - 分析发现：{findings}
+    - 理论启示：{implications}
+
+    请直接输出一份完整的案例分析部分，可直接放入论文。
+
+    要求：
+    1. 案例描述客观，不加入主观评价
+    2. 分析有理论框架支撑，不是就事论事
+    3. 关键事件有时间线，逻辑清晰
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整案例分析正文
+    - 案例时间线
+  variables:
+    - name: case
+      description: "案例对象"
+      required: true
+    - name: background
+      description: "案例背景"
+      required: true
+    - name: framework
+      description: "分析框架或理论"
+      required: true
+    - name: events
+      description: "关键事件"
+      required: true
+    - name: findings
+      description: "分析发现"
+      required: true
+    - name: implications
+      description: "理论启示"
+      required: true
+  intent_tags: ["案例分析", "CaseStudy", "案例研究", "帮我写案例", "论文案例", "学术写作", "质性研究"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_academic_017
+  domain: writing
+  sub_domain: writing_academic
+  title: "理论框架怎么写，让论文有根基"
+  template: |
+    你是一位理论物理学家转行的社科教授，深知"理论框架是论文的骨架，骨架不稳，血肉再多也站不住"。
+
+    框架信息：
+    - 核心概念：{concepts}
+    - 理论基础：{theories}
+    - 变量关系：{relationships}
+    - 研究假设：{hypotheses}
+    - 框架图描述：{diagram}
+
+    请直接输出一份完整的理论框架部分，可直接放入论文。
+
+    要求：
+    1. 概念定义清晰，操作化明确
+    2. 理论选择有依据，不堆砌
+    3. 变量关系有逻辑，能推出假设
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整理论框架正文
+    - 框架图文字描述（方便画图）
+  variables:
+    - name: concepts
+      description: "核心概念"
+      required: true
+    - name: theories
+      description: "理论基础"
+      required: true
+    - name: relationships
+      description: "变量关系"
+      required: true
+    - name: hypotheses
+      description: "研究假设"
+      required: true
+    - name: diagram
+      description: "框架图描述"
+      required: false
+      default_value: "（用户未提供，给出通用框架描述）"
+  intent_tags: ["理论框架", "TheoreticalFramework", "概念框架", "帮我写框架", "论文理论", "学术写作", "研究设计"]
+  difficulty: advanced
+  quality_score: 0.93
+
+- id: writing_academic_018
+  domain: writing
+  sub_domain: writing_academic
+  title: "毕业论文格式调整，学校要求很严"
+  template: |
+    你是一位教务秘书，深知"格式调得好，答辩老师心情好；格式乱，第一印象就差"。
+
+    论文信息：
+    - 学校要求：{requirements}
+    - 论文内容：{content}
+    - 当前格式问题：{issues}
+    - 引用格式：{citation_style}
+
+    请直接输出调整后的论文格式说明和示例，可直接按此调整。
+
+    要求：
+    1. 封面、目录、页眉页脚、页码、图表编号全部符合规范
+    2. 引用格式统一（GB/T 7714/APA/MLA）
+    3. 图表有编号、有标题、有来源
+    4. 给出完整格式模板，不要只列要求
+
+    输出格式：
+    - 格式调整清单（逐项核对）
+    - 示例段落（展示正确格式）
+  variables:
+    - name: requirements
+      description: "学校格式要求"
+      required: true
+    - name: content
+      description: "论文主要内容"
+      required: false
+      default_value: "（用户未提供）"
+    - name: issues
+      description: "当前格式问题"
+      required: false
+      default_value: "（用户未提供，给出常见问题）"
+    - name: citation_style
+      description: "引用格式"
+      options: ["GB/T 7714", "APA", "MLA", "Chicago"]
+      required: false
+      default_value: "GB/T 7714"
+  intent_tags: ["论文格式", "毕业论文", "格式调整", "排版", "帮我调格式", "学术写作", "论文规范"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: writing_academic_019
+  domain: writing
+  sub_domain: writing_academic
+  title: "学术会议摘要/投稿摘要怎么写"
+  template: |
+    你是一位国际会议程序委员会主席，深知"会议摘要写得好，口头报告机会来"。
+
+    摘要信息：
+    - 会议名称：{conference}
+    - 论文标题：{title}
+    - 研究背景：{background}
+    - 方法：{method}
+    - 初步结果：{results}
+    - 字数限制：{word_limit}
+
+    请直接输出一份完整的会议投稿摘要，可直接提交。
+
+    要求：
+    1. 符合会议主题和格式要求
+    2. 突出新意，让人想听你的报告
+    3. 结果即使 preliminary 也要具体
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整会议摘要正文
+    - 投稿注意事项（截止日期、格式要求提醒）
+  variables:
+    - name: conference
+      description: "会议名称"
+      required: true
+    - name: title
+      description: "论文标题"
+      required: true
+    - name: background
+      description: "研究背景"
+      required: true
+    - name: method
+      description: "方法"
+      required: true
+    - name: results
+      description: "初步结果"
+      required: true
+    - name: word_limit
+      description: "字数限制"
+      options: ["150词", "250词", "300词", "500词"]
+      required: false
+      default_value: "250词"
+  intent_tags: ["会议摘要", "学术会议", "投稿摘要", "帮我写摘要", "会议投稿", "学术发表", "学术写作"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_academic_020
+  domain: writing
+  sub_domain: writing_academic
+  title: "学位论文创新点怎么写，别再说填补空白"
+  template: |
+    你是一位资深博导，深知"创新点写得好，盲审专家点头；写不好，被说没创新"。
+
+    论文信息：
+    - 研究主题：{topic}
+    - 理论创新：{theory_innovation}
+    - 方法创新：{method_innovation}
+    - 实证发现：{empirical}
+    - 应用价值：{application}
+    - 与现有研究对比：{comparison}
+
+    请直接输出一份完整的创新点阐述，可直接放入论文或答辩PPT。
+
+    要求：
+    1. 创新点具体，不说"首次""填补空白"等大话
+    2. 与现有研究对比，说明"新"在哪里
+    3. 分理论、方法、实证、应用四个维度
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整创新点阐述
+    - 创新点对比表（本研究vs现有研究）
+  variables:
+    - name: topic
+      description: "研究主题"
+      required: true
+    - name: theory_innovation
+      description: "理论创新"
+      required: true
+    - name: method_innovation
+      description: "方法创新"
+      required: true
+    - name: empirical
+      description: "实证发现的新东西"
+      required: true
+    - name: application
+      description: "应用价值"
+      required: true
+    - name: comparison
+      description: "与现有研究的对比"
+      required: true
+  intent_tags: ["创新点", "论文创新", "学位论文", "帮我写创新点", "学术写作", "论文亮点", "盲审"]
+  difficulty: intermediate
+  quality_score: 0.93

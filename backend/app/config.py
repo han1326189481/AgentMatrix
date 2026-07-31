@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List, Dict, Optional
 import httpx
+from shared.platform import get_log_file_path, get_env_file_path
 
 
 async def detect_ollama_port() -> str:
@@ -41,17 +42,28 @@ class Settings(BaseSettings):
     server_reload: bool = True
 
     log_level: str = "INFO"
-    log_file: str = "logs/system.log"
+    log_file: str = get_log_file_path()
 
-    database_url: str = "sqlite:///./agentmatrix.db"
+    # 默认使用 SQLite（零配置，打开即用），用户可通过 .env 覆盖为 MySQL
+    database_url: str = ""  # 空字符串表示使用 SQLite 默认路径
 
     ollama_host: str = "http://localhost:11434"
-    ollama_model: str = "qwen2.5:1.5b"
-    ollama_review_model: str = "phi4-mini:3.8b"
+    ollama_model: str = "qwen2.5:7b"
+    # 按 Agent 分配模型（可选，格式: "writer:qwen2.5:14b,review:deepseek-r1:7b"）
+    ollama_agent_models: str = ""
+    # V3.2: 视觉模型（MiniCPM-V，插件式加载，与主模型互斥）
+    # 遵循规则十一：8GB VRAM 只能用 q4_0，禁止 q6_K/q8_0
+    ollama_vision_model: str = "minicpm-v:latest"
 
     deepseek_api_key: str = ""
     deepseek_api_base: str = "https://api.deepseek.com/v1"
-    deepseek_model: str = "deepseek-r1-distill"
+    deepseek_model: str = "deepseek-v4-pro"
+
+    # V3.5 (2026-07-31): Web Search 插件 — 时效性知识库（地点/美食/天气/旅行/评价）
+    # 启用后 Knowledge Agent 检测到时效性场景时调用 DuckDuckGo + DeepSeek 摘要
+    deepseek_search_enabled: bool = True
+    # 时效性知识库 TTL（天）：默认 30 天，过期标记 is_stale=True，再次提问触发刷新
+    timely_knowledge_ttl_days: int = 30
 
     gemini_api_key: str = ""
     gemini_model: str = "gemini-pro"
@@ -63,7 +75,7 @@ class Settings(BaseSettings):
 
     allowed_origins_list: Optional[str] = "*"
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(env_file=get_env_file_path(), env_file_encoding="utf-8", extra="ignore")
 
     @property
     def allowed_origins(self) -> List[str]:

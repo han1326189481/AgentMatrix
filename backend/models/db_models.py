@@ -79,3 +79,15 @@ class MetricRecord(Base):
     value = Column(Float)
     timestamp = Column(DateTime, default=datetime.utcnow)
     additional_info = Column(Text)
+
+
+class Sandbox(Base):
+    """沙盒元数据 — 存储在全局数据库中，每个沙盒拥有独立的 .db 文件"""
+    __tablename__ = "sandboxes"
+
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String, default="新对话")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    message_count = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)

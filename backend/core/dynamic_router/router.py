@@ -54,7 +54,7 @@ class DynamicRouter:
         if use_cloud:
             response = await self.cloud_client.call(prompt)
             source = "cloud"
-            model_used = "deepseek-r1-distill"
+            model_used = self.cloud_client.model
         else:
             response = None
             source = "local"
@@ -70,16 +70,8 @@ class DynamicRouter:
         }
     
     def _select_local_model(self, agent_id: str) -> str:
-        model_map = {
-            "review": "phi4-mini:3.8b",
-            "writer": "qwen2.5:1.5b",
-            "judge": "qwen2.5:1.5b",
-            "summary": "qwen2.5:1.5b",
-            "knowledge": "qwen2.5:1.5b",
-            "result": "qwen2.5:1.5b",
-        }
-        
-        return model_map.get(agent_id, "qwen2.5:1.5b")
+        from core.model_registry import get_model
+        return get_model(agent_id)
 
 
 _dynamic_router_instance = None

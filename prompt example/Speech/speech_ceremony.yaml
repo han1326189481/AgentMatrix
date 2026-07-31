@@ -1,0 +1,739 @@
+- id: speech_ceremony_001
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "婚礼证婚致辞"
+  template: |
+    你是一位德高望重的证婚人，深知证婚词"不是背书，是给新人最好的祝福"。
+
+    婚礼信息：
+    - 新人姓名：{couple_names}
+    - 与新人关系：{relationship}
+    - 婚礼风格：{style}
+
+    请帮我：
+    1. 按"开场→认识新人→见证爱情→婚姻寄语→宣布证婚→祝福"设计完整证婚词
+    2. 给出"庄重但不古板"的话术，既有仪式感又有温度
+    3. 标出需要停顿、让全场鼓掌、让新人感动的位置
+    4. 给出"3分钟版"和"5分钟版"两个时长版本
+
+    输出格式：
+    - 完整证婚词文稿（含语气/停顿标记）
+    - 两个时长版本对比
+    - 附"证婚禁忌"（讲前任、说教、超时、念错名字、过于煽情失控）
+  variables:
+    - name: couple_names
+      description: "新人姓名"
+      required: true
+    - name: relationship
+      description: "与新人的关系"
+      required: true
+    - name: style
+      description: "婚礼风格"
+      required: false
+      default_value: "温馨"
+  intent_tags: ["证婚", "证婚词", "婚礼致辞", "结婚", "证婚人", "婚礼发言", "证婚稿"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: speech_ceremony_002
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "父母婚礼致辞"
+  template: |
+    你是一位刚把女儿/儿子送出嫁/娶亲的父母，深知这份致辞"是笑中带泪的交代"。
+
+    致辞信息：
+    - 新人身份：{child_role}（儿子/女儿）
+    - 婚礼场合：{occasion}
+    - 想表达的核心情感：{core_emotion}
+
+    请帮我：
+    1. 按"开场→回忆成长→感谢亲家→对新人寄语→祝福"设计完整致辞
+    2. 给出"控制情绪"的3个呼吸和停顿技巧
+    3. 标出"让全场感动但不尴尬"的话术位置
+    4. 给出"父亲版"和"母亲版"的口吻差异
+
+    输出格式：
+    - 完整致辞文稿（含情绪控制提示）
+    - 父母两版对比
+    - 附"父母致辞禁忌"（过度伤感、说教、揭短、比较、超时）
+  variables:
+    - name: child_role
+      description: "新人是你的儿子还是女儿"
+      required: true
+    - name: occasion
+      description: "婚礼场合"
+      required: false
+      default_value: "婚礼现场"
+    - name: core_emotion
+      description: "核心情感，如：不舍、欣慰、祝福、感恩"
+      required: false
+      default_value: "祝福+不舍"
+  intent_tags: ["父母致辞", "婚礼发言", "嫁女", "娶媳", "家长致辞", "婚礼父母", "结婚发言"]
+  difficulty: beginner
+  quality_score: 0.93
+
+- id: speech_ceremony_003
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "伴郎伴娘致辞"
+  template: |
+    你是一位最懂新人的闺蜜/兄弟，深知这份致辞"要搞笑但不失分寸，要感人但不抢戏"。
+
+    致辞信息：
+    - 新人姓名：{couple_names}
+    - 与新人关系：{relationship}
+    - 共同回忆：{shared_memory}
+
+    请帮我：
+    1. 按"开场→爆料（适度）→见证爱情→祝福→举杯"设计致辞结构
+    2. 给出"搞笑与感动平衡"的3个话术技巧
+    3. 标出"全场大笑"和"新人感动"的位置
+    4. 给出"不能说的5件事"清单
+
+    输出格式：
+    - 完整致辞文稿（含笑点/泪点标记）
+    - 附"伴郎伴娘禁忌"（过度爆料、抢新人风头、讲前任、 drunken story、超时）
+  variables:
+    - name: couple_names
+      description: "新人姓名"
+      required: true
+    - name: relationship
+      description: "与新人的关系，如：大学同学、发小、同事"
+      required: true
+    - name: shared_memory
+      description: "一个适合分享的共同回忆"
+      required: false
+      default_value: "（用户未提供，给出通用版本）"
+  intent_tags: ["伴郎致辞", "伴娘致辞", "婚礼发言", "兄弟团", "闺蜜团", "结婚致辞", "婚礼 speech"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: speech_ceremony_004
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "葬礼追悼致辞"
+  template: |
+    你是一位生命礼仪师，深知追悼词"不是总结，是送最后一程"。
+
+    追悼信息：
+    - 逝者姓名：{deceased_name}
+    - 与逝者关系：{relationship}
+    - 逝者生平亮点：{life_highlights}
+
+    请帮我：
+    1. 按"开场→生平回忆→品格赞美→感恩→告别→祝福"设计完整追悼词
+    2. 给出"真诚但不失控"的情绪控制建议
+    3. 标出"让全场共鸣"和"家属感到被理解"的位置
+    4. 给出"3分钟简短版"和"5分钟完整版"
+
+    输出格式：
+    - 完整追悼词文稿（含情绪提示）
+    - 两个时长版本
+    - 附"追悼禁忌"（过度悲伤失控、说缺点、比较、说教、时间过长）
+  variables:
+    - name: deceased_name
+      description: "逝者姓名"
+      required: true
+    - name: relationship
+      description: "与逝者关系"
+      required: true
+    - name: life_highlights
+      description: "逝者生平亮点"
+      required: false
+      default_value: "（用户未提供，给出通用版本）"
+  intent_tags: ["追悼词", "葬礼致辞", "悼词", "追悼会", "告别词", "吊唁", "白事发言"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: speech_ceremony_005
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "满月宴致辞"
+  template: |
+    你是一位喜得贵子/千金的父母，深知满月宴致辞"是感恩，不是炫耀"。
+
+    宴会信息：
+    - 宝宝姓名/小名：{baby_name}
+    - 父母身份：{parents}
+    - 宴会场合：{occasion}
+
+    请帮我：
+    1. 按"感谢来宾→宝宝到来→感恩家人→寄语宝宝→祝福"设计致辞结构
+    2. 给出"温馨不煽情"的话术
+    3. 标出"让长辈开心"和"让朋友共鸣"的位置
+    4. 给出"父亲版"和"母亲版"的口吻差异
+
+    输出格式：
+    - 完整致辞文稿
+    - 父母两版对比
+    - 附"满月宴禁忌"（过度炫耀、忽视长辈、说生育辛苦博同情、超时）
+  variables:
+    - name: baby_name
+      description: "宝宝姓名或小名"
+      required: true
+    - name: parents
+      description: "父母身份简述"
+      required: false
+      default_value: "新手父母"
+    - name: occasion
+      description: "宴会场合"
+      required: false
+      default_value: "满月宴"
+  intent_tags: ["满月宴", "满月致辞", "宝宝满月", "百日宴", "周岁宴", "满月酒", "宝宝宴"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: speech_ceremony_006
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "寿宴祝寿致辞"
+  template: |
+    你是一位孝顺的晚辈，深知寿宴致辞"是让寿星觉得这辈子值了"。
+
+    寿宴信息：
+    - 寿星姓名/称谓：{honoree}
+    - 寿辰岁数：{age}
+    - 与寿星关系：{relationship}
+
+    请帮我：
+    1. 按"祝寿开场→回忆恩情→赞美品格→子孙感恩→祝福长寿→举杯"设计结构
+    2. 给出"庄重但不沉闷"的话术
+    3. 标出"让寿星笑"和"让寿星感动"的位置
+    4. 给出"60/70/80/90岁"不同年龄的侧重点
+
+    输出格式：
+    - 完整祝寿词文稿
+    - 不同年龄版对比
+    - 附"寿宴禁忌"（说老/病/死、比较、揭短、忽视寿星意愿、超时）
+  variables:
+    - name: honoree
+      description: "寿星姓名或称谓"
+      required: true
+    - name: age
+      description: "寿辰岁数"
+      required: true
+    - name: relationship
+      description: "与寿星关系"
+      required: true
+  intent_tags: ["寿宴", "祝寿", "寿词", "大寿", "生日宴", "祝寿词", "寿星致辞"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: speech_ceremony_007
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "乔迁新居致辞"
+  template: |
+    你是一位热情的新居主人，深知乔迁致辞"是分享喜悦，不是炫耀"。
+
+    乔迁信息：
+    - 新居主人：{host}
+    - 乔迁背景：{background}
+    - 来宾构成：{guests}
+
+    请帮我：
+    1. 按"欢迎→感恩→分享→祝福→开席"设计致辞结构
+    2. 给出"热情但不浮夸"的话术
+    3. 标出"感谢帮助过的人"和"展望未来"的位置
+    4. 给出"简短版"（1分钟）和"完整版"（3分钟）
+
+    输出格式：
+    - 完整致辞文稿
+    - 两个时长版本
+    - 附"乔迁禁忌"（炫耀房价、攀比、忽视帮忙的人、让没买房的客人尴尬）
+  variables:
+    - name: host
+      description: "新居主人身份"
+      required: true
+    - name: background
+      description: "乔迁背景，如：第一次买房、换大房子、回老家"
+      required: false
+      default_value: "（用户未提供）"
+    - name: guests
+      description: "来宾构成"
+      required: false
+      default_value: "亲友同事"
+  intent_tags: ["乔迁", "乔迁致辞", "搬家", "新居入伙", "乔迁宴", "暖房", "乔迁之喜"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: speech_ceremony_008
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "开业庆典致辞"
+  template: |
+    你是一位意气风发的创业者，深知开业致辞"是信心展示，不是吹牛"。
+
+    开业信息：
+    - 企业/店铺名：{business_name}
+    - 行业：{industry}
+    - 来宾构成：{guests}
+
+    请帮我：
+    1. 按"欢迎→创业初心→感谢支持→展望未来→优惠宣布→祝福"设计结构
+    2. 给出"真诚且有感染力"的话术
+    3. 标出"让合作伙伴放心"和"让顾客心动"的位置
+    4. 给出"老板版"和"店长版"的口吻差异
+
+    输出格式：
+    - 完整致辞文稿
+    - 两版对比
+    - 附"开业致辞禁忌"（过度吹牛、忽视员工、只感谢领导不感谢顾客、没有优惠）
+  variables:
+    - name: business_name
+      description: "企业或店铺名称"
+      required: true
+    - name: industry
+      description: "所属行业"
+      required: true
+    - name: guests
+      description: "来宾构成"
+      required: false
+      default_value: "亲友、合作伙伴、顾客"
+  intent_tags: ["开业致辞", "开业典礼", "开业发言", "剪彩", "开业庆典", "开张", "创业致辞"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: speech_ceremony_009
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "升学宴谢师致辞"
+  template: |
+    你是一位感恩的学子/家长，深知谢师宴致辞"是感恩，不是炫耀分数"。
+
+    宴会信息：
+    - 学子姓名：{student_name}
+    - 录取学校：{school}
+    - 致辞人身份：{speaker_role}
+
+    请帮我：
+    1. 按"感谢来宾→感恩老师→感谢父母→学子寄语→祝福"设计结构
+    2. 给出"感恩不煽情"的话术
+    3. 标出"让老师觉得值得"和"让父母欣慰"的位置
+    4. 给出"学子自己说"和"家长说"两个版本
+
+    输出格式：
+    - 完整致辞文稿
+    - 学子版/家长版对比
+    - 附"谢师宴禁忌"（炫耀分数、贬低其他学校、忽视老师、过度煽情）
+  variables:
+    - name: student_name
+      description: "学子姓名"
+      required: true
+    - name: school
+      description: "录取学校"
+      required: true
+    - name: speaker_role
+      description: "致辞人身份"
+      required: true
+  intent_tags: ["升学宴", "谢师宴", "升学致辞", "谢师词", "高考", "录取", "毕业宴"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: speech_ceremony_010
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "退休欢送致辞"
+  template: |
+    你是一位敬重的同事/领导，深知退休致辞"是致敬一个时代，不是告别"。
+
+    欢送信息：
+    - 退休者姓名：{retiree}
+    - 工作年限：{years}
+    - 与退休者关系：{relationship}
+
+    请帮我：
+    1. 按"开场→工作回顾→品格赞美→贡献肯定→祝福退休→赠礼/合影"设计结构
+    2. 给出"温暖不伤感"的话术
+    3. 标出"让退休者笑中带泪"和"让年轻人受鼓舞"的位置
+    4. 给出"同事版"和"领导版"的口吻差异
+
+    输出格式：
+    - 完整致辞文稿
+    - 两版对比
+    - 附"退休欢送禁忌"（说老了没用了、过度伤感、翻尴尬旧账、忽视贡献）
+  variables:
+    - name: retiree
+      description: "退休者姓名"
+      required: true
+    - name: years
+      description: "工作年限"
+      required: true
+    - name: relationship
+      description: "与退休者关系"
+      required: false
+      default_value: "同事"
+  intent_tags: ["退休欢送", "退休致辞", "欢送会", "退休仪式", "荣休", "退休发言", "送别"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: speech_ceremony_011
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "颁奖典礼致辞"
+  template: |
+    你是一位颁奖嘉宾，深知颁奖词"是让获奖者觉得努力被看见"。
+
+    颁奖信息：
+    - 奖项名称：{award}
+    - 获奖者：{winner}
+    - 颁奖场合：{occasion}
+
+    请帮我：
+    1. 按"开场→奖项意义→获奖者事迹→颁奖词→祝贺→合影"设计结构
+    2. 给出"庄重且有温度"的话术
+    3. 标出"让全场鼓掌"和"让获奖者感动"的位置
+    4. 给出"个人奖"和"团队奖"的颁奖词差异
+
+    输出格式：
+    - 完整颁奖致辞文稿
+    - 个人版/团队版对比
+    - 附"颁奖禁忌"（念错名字、说错成就、过度调侃、忽视其他候选人）
+  variables:
+    - name: award
+      description: "奖项名称"
+      required: true
+    - name: winner
+      description: "获奖者姓名或团队"
+      required: true
+    - name: occasion
+      description: "颁奖场合"
+      required: false
+      default_value: "年会/表彰大会"
+  intent_tags: ["颁奖", "颁奖词", "颁奖典礼", "表彰", "获奖致辞", "颁奖嘉宾", "领奖"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: speech_ceremony_012
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "奠基动工致辞"
+  template: |
+    你是一位项目负责人，深知奠基致辞"是信心展示，也是承诺"。
+
+    奠基信息：
+    - 项目名称：{project_name}
+    - 项目意义：{significance}
+    - 来宾构成：{guests}
+
+    请帮我：
+    1. 按"欢迎→项目背景→建设意义→感谢支持→质量承诺→祝福"设计结构
+    2. 给出"务实不空泛"的话术
+    3. 标出"让领导放心"和"让民众期待"的位置
+    4. 给出"政府项目版"和"商业项目版"的差异
+
+    输出格式：
+    - 完整致辞文稿
+    - 两版对比
+    - 附"奠基禁忌"（过度承诺工期、忽视环保、只讲政绩不讲民生、数据造假）
+  variables:
+    - name: project_name
+      description: "项目名称"
+      required: true
+    - name: significance
+      description: "项目意义"
+      required: true
+    - name: guests
+      description: "来宾构成"
+      required: false
+      default_value: "领导、合作伙伴、媒体"
+  intent_tags: ["奠基", "开工仪式", "动工致辞", "项目启动", "奠基典礼", "开工", "启动仪式"]
+  difficulty: intermediate
+  quality_score: 0.89
+
+- id: speech_ceremony_013
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "签约仪式致辞"
+  template: |
+    你是一位商务礼仪专家，深知签约致辞"是展示合作诚意，不是单方面宣传"。
+
+    签约信息：
+    - 合作双方：{parties}
+    - 合作内容：{cooperation}
+    - 签约场合：{occasion}
+
+    请帮我：
+    1. 按"欢迎→合作背景→互补优势→合作内容→未来展望→祝贺"设计结构
+    2. 给出"平等尊重"的话术（不喧宾夺主）
+    3. 标出"让合作伙伴舒服"和"让媒体有料"的位置
+    4. 给出"甲方版"和"乙方版"的口吻差异
+
+    输出格式：
+    - 完整致辞文稿
+    - 甲乙两版对比
+    - 附"签约禁忌"（贬低对方、过度强调自己、泄露机密、承诺无法兑现）
+  variables:
+    - name: parties
+      description: "合作双方名称"
+      required: true
+    - name: cooperation
+      description: "合作内容简述"
+      required: true
+    - name: occasion
+      description: "签约场合"
+      required: false
+      default_value: "签约仪式"
+  intent_tags: ["签约仪式", "签约致辞", "合作签约", "商务签约", "签约发言", "合作协议", "战略合作"]
+  difficulty: intermediate
+  quality_score: 0.90
+
+- id: speech_ceremony_014
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "开学典礼致辞"
+  template: |
+    你是一位校长/老师，深知开学典礼致辞"是点燃一学期的希望"。
+
+    典礼信息：
+    - 学校/年级：{school_info}
+    - 致辞人身份：{speaker_role}
+    - 学期主题：{theme}
+
+    请帮我：
+    1. 按"欢迎→回顾成绩→新学期期望→寄语学生→祝福"设计结构
+    2. 给出"有高度又接地气"的话术
+    3. 标出"让学生鼓掌"和"让家长点头"的位置
+    4. 给出"校长版"和"班主任版"的差异
+
+    输出格式：
+    - 完整致辞文稿
+    - 两版对比
+    - 附"开学典礼禁忌"（说教、空洞口号、只讲成绩不讲问题、忽视安全）
+  variables:
+    - name: school_info
+      description: "学校或年级信息"
+      required: true
+    - name: speaker_role
+      description: "致辞人身份"
+      required: true
+    - name: theme
+      description: "学期主题"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["开学典礼", "开学致辞", "校长讲话", "开学发言", "新学期", "开学第一课", "开学"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: speech_ceremony_015
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "毕业典礼致辞"
+  template: |
+    你是一位校长/老师，深知毕业典礼致辞"是送学生走向社会的最后一课"。
+
+    典礼信息：
+    - 学校/届别：{school_info}
+    - 致辞人身份：{speaker_role}
+    - 核心寄语：{message}
+
+    请帮我：
+    1. 按"开场→回忆→感恩→寄语→祝福→告别"设计结构
+    2. 给出"让毕业生带着力量走"的话术
+    3. 标出"让全场起立鼓掌"和"让毕业生流泪"的位置
+    4. 给出"校长版"和"教师代表版"的差异
+
+    输出格式：
+    - 完整致辞文稿
+    - 两版对比
+    - 附"毕业致辞禁忌"（说教、空洞、只讲成绩、忽视就业压力、过于伤感）
+  variables:
+    - name: school_info
+      description: "学校和届别"
+      required: true
+    - name: speaker_role
+      description: "致辞人身份"
+      required: true
+    - name: message
+      description: "核心寄语"
+      required: false
+      default_value: "（用户未提供，给出通用寄语）"
+  intent_tags: ["毕业典礼", "毕业致辞", "校长毕业讲话", "毕业发言", "毕业季", "毕业寄语", "毕业"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: speech_ceremony_016
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "成人礼致辞"
+  template: |
+    你是一位家长/老师，深知成人礼致辞"是告诉孩子：你长大了，我们还在"。
+
+    成人礼信息：
+    - 致辞人身份：{speaker_role}
+    - 孩子姓名：{child_name}
+    - 场合：{occasion}
+
+    请帮我：
+    1. 按"开场→回忆成长→成年意义→责任与权利→父母/老师寄语→祝福"设计结构
+    2. 给出"庄重但不沉重"的话术
+    3. 标出"让孩子觉得被信任"和"让孩子感动"的位置
+    4. 给出"父母版"和"老师版"的差异
+
+    输出格式：
+    - 完整致辞文稿
+    - 两版对比
+    - 附"成人礼禁忌"（说教、翻旧账、过度控制、忽视孩子感受、比较）
+  variables:
+    - name: speaker_role
+      description: "致辞人身份"
+      required: true
+    - name: child_name
+      description: "孩子姓名"
+      required: true
+    - name: occasion
+      description: "场合"
+      required: false
+      default_value: "成人礼仪式"
+  intent_tags: ["成人礼", "成人礼致辞", "18岁", "成年礼", "成人仪式", "成长礼", "成人发言"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: speech_ceremony_017
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "拜师仪式致辞"
+  template: |
+    你是一位德高望重的师父/学徒，深知拜师致辞"是传承，不是形式"。
+
+    拜师信息：
+    - 师徒姓名：{master_and_apprentice}
+    - 行业/技艺：{craft}
+    - 场合：{occasion}
+
+    请帮我：
+    1. 按"开场→技艺传承→师徒缘分→师父寄语→学徒承诺→见证"设计结构
+    2. 给出"传统但不古板"的话术
+    3. 标出"让师父欣慰"和"让学徒敬畏"的位置
+    4. 给出"师父版"和"学徒版"的差异
+
+    输出格式：
+    - 完整致辞文稿
+    - 师徒两版对比
+    - 附"拜师禁忌"（形式大于内容、师父摆架子、学徒空口承诺、忽视传统礼仪）
+  variables:
+    - name: master_and_apprentice
+      description: "师父和学徒姓名"
+      required: true
+    - name: craft
+      description: "行业或技艺"
+      required: true
+    - name: occasion
+      description: "场合"
+      required: false
+      default_value: "拜师仪式"
+  intent_tags: ["拜师", "拜师仪式", "师徒", "拜师致辞", "传统礼仪", "收徒", "拜师礼"]
+  difficulty: intermediate
+  quality_score: 0.89
+
+- id: speech_ceremony_018
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "周年庆典致辞"
+  template: |
+    你是一位企业创始人/负责人，深知周年庆致辞"是回顾过去，更是凝聚未来"。
+
+    庆典信息：
+    - 周年数：{anniversary}
+    - 企业/组织名：{org_name}
+    - 来宾构成：{guests}
+
+    请帮我：
+    1. 按"欢迎→创业回顾→感谢陪伴→成果展示→未来展望→祝福"设计结构
+    2. 给出"感恩不煽情"的话术
+    3. 标出"让员工自豪"和"让客户放心"的位置
+    4. 给出"5/10/20/30周年"不同周年的侧重点
+
+    输出格式：
+    - 完整致辞文稿
+    - 不同周年版对比
+    - 附"周年庆禁忌"（只讲自己不讲团队、忽视客户、数据造假、过度承诺）
+  variables:
+    - name: anniversary
+      description: "周年数"
+      required: true
+    - name: org_name
+      description: "企业或组织名称"
+      required: true
+    - name: guests
+      description: "来宾构成"
+      required: false
+      default_value: "员工、客户、合作伙伴"
+  intent_tags: ["周年庆", "周年致辞", "庆典发言", "周年庆典", "店庆", "司庆", "周年"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: speech_ceremony_019
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "入伍送行致辞"
+  template: |
+    你是一位送子参军的父母/领导，深知送行致辞"是骄傲，也是不舍"。
+
+    送行信息：
+    - 新兵姓名：{recruit_name}
+    - 致辞人身份：{speaker_role}
+    - 场合：{occasion}
+
+    请帮我：
+    1. 按"开场→肯定选择→寄语新兵→感谢部队→祝福→送别"设计结构
+    2. 给出"骄傲不伤感"的话术
+    3. 标出"让新兵有使命感"和"让家长放心"的位置
+    4. 给出"父母版"和"领导版"的差异
+
+    输出格式：
+    - 完整致辞文稿
+    - 两版对比
+    - 附"送行禁忌"（过度伤感、说部队苦吓退新兵、忽视荣誉、当众流泪失控）
+  variables:
+    - name: recruit_name
+      description: "新兵姓名"
+      required: true
+    - name: speaker_role
+      description: "致辞人身份"
+      required: true
+    - name: occasion
+      description: "场合"
+      required: false
+      default_value: "入伍欢送会"
+  intent_tags: ["入伍", "参军", "送行致辞", "新兵入伍", "欢送会", "参军送别", "入伍发言"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: speech_ceremony_020
+  domain: speech
+  sub_domain: speech_ceremony
+  title: "归国欢迎致辞"
+  template: |
+    你是一位迎接亲友/同事归国的人，深知欢迎致辞"是让他觉得：回来真好"。
+
+    欢迎信息：
+    - 归国者姓名：{returnee}
+    - 归国背景：{background}
+    - 致辞人身份：{speaker_role}
+
+    请帮我：
+    1. 按"欢迎→回忆→变化→祝福→融入"设计结构
+    2. 给出"热情不尴尬"的话术
+    3. 标出"让归国者感动"和"让在场人共鸣"的位置
+    4. 给出"亲友版"和"单位版"的差异
+
+    输出格式：
+    - 完整致辞文稿
+    - 两版对比
+    - 附"欢迎禁忌"（过度追问为什么回来、比较国内外、让归国者觉得被可怜、忽视隐私）
+  variables:
+    - name: returnee
+      description: "归国者姓名"
+      required: true
+    - name: background
+      description: "归国背景，如：留学归来、外派回国、移民回流"
+      required: true
+    - name: speaker_role
+      description: "致辞人身份"
+      required: false
+      default_value: "亲友/同事"
+  intent_tags: ["归国欢迎", "回国", "欢迎致辞", "接风", "洗尘", "归国", "留学归国"]
+  difficulty: beginner
+  quality_score: 0.89

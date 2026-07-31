@@ -1,0 +1,76 @@
+# ============================================================
+# AgentMatrix Skill Engine V2 — 创意写作技能书
+# ============================================================
+
+meta:
+  skill_id: "creative"
+  name: "创意写作"
+  version: "1.0.0"
+  parent: "root"
+  model: ""
+
+role:
+  title: "创意写作专家"
+  description: "处理短文、诗歌、故事、文案、广告语等创意写作任务"
+  tone: "creative"
+  language: "zh-CN"
+
+capabilities:
+  - markdown
+  - text_generation
+  - creative_writing
+
+knowledge:
+  keywords:
+    primary:
+      文章: ["文章", "作文", "短文", "写作", "写一篇", "写一个", "写一段", "写一首"]
+      创意: ["创意", "灵感", "头脑风暴", "主题", "故事"]
+      诗歌: ["诗", "诗歌", "诗词", "古诗", "现代诗", "韵律", "押韵"]
+      格式: ["100字", "200字", "300字", "500字", "摘要", "简介", "介绍"]
+      文案: ["文案", "广告", "宣传语", "口号", "标语", "推广"]
+      故事: ["故事", "小说", "情节", "角色", "开头", "结尾"]
+    secondary:
+      - ["生动", "有趣", "感人", "优美", "简洁", "详细"]
+
+  ontology:
+    concepts: []
+
+  examples:
+    - query: "请帮我写一篇100字的短文介绍人工智能的发展历程"
+      response_structure: |
+        ## 人工智能发展历程
+        人工智能（AI）自1956年达特茅斯会议正式诞生以来，经历了多次浪潮...
+        （简洁的100字短文，按时间线组织）
+
+  constraints:
+    - "控制字数，严格按用户要求"
+    - "创意写作以自由生成为主，不要使用模板化结构"
+    - "语言生动自然，有感染力"
+
+  confidence: 0.85
+
+output:
+  format: "markdown"
+  max_length: 2048
+  sections: []
+
+forbidden:
+  - "禁止在创意写作中使用模板化开头"
+  - "禁止对创意内容进行过度分析"
+
+scoring:
+  dimensions:
+    accuracy: 0.10
+    professional: 0.10
+    completeness: 0.15
+    reasoning: 0.10
+    structure: 0.15
+    actionable: 0.10
+    creativity: 0.30
+  pass_threshold: 0.65
+  difficulty_matrix:
+    creative:
+      short_article: { min: 0.20, max: 0.45 }
+      long_article: { min: 0.35, max: 0.55 }
+      poetry: { min: 0.15, max: 0.40 }
+      copywriting: { min: 0.20, max: 0.40 }

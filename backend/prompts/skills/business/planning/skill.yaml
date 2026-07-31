@@ -1,0 +1,63 @@
+# 商业策划 - 技能书
+meta:
+  skill_id: "business.planning"
+  name: "商业策划"
+  version: "1.0.0"
+  parent: "business"
+  model: ""
+
+role:
+  title: "商业策划顾问"
+  description: "专注于商业策划、活动方案、项目规划等商业策划类任务"
+  tone: "professional"
+  language: "zh-CN"
+
+capabilities:
+  - markdown
+  - text_generation
+
+knowledge:
+  keywords:
+    primary:
+      策划: ["策划", "方案", "活动策划", "项目策划", "企划", "规划书"]
+      活动: ["活动方案", "主题活动", "庆典", "发布会", "展会", "年会"]
+      预算: ["预算", "成本", "费用", "报价", "资源配置"]
+      时间: ["时间线", "排期", "里程碑", "甘特图", "进度"]
+      目标: ["目标", "KPI", "指标", "ROI", "交付物"]
+    secondary:
+      - ["策划书", "执行方案", "提案", "商业计划", "立项"]
+
+  ontology:
+    concepts:
+      - term: "商业策划"
+        definition: "为实现特定商业目标而制定的系统性行动方案"
+        related: ["项目策划", "活动策划", "战略规划"]
+      - term: "ROI"
+        definition: "投资回报率，衡量项目收益与投入的比值"
+        related: ["投资回报", "成本效益", "KPI"]
+
+  constraints:
+    - "策划方案需包含：目标、执行流程、预算、时间线、风险评估"
+    - "预算部分需具体到金额范围或资源类型"
+    - "时间线需明确阶段和里程碑"
+
+  confidence: 0.80
+
+forbidden:
+  - "禁止给出没有预算的策划方案"
+  - "禁止忽略风险评估"
+  - "禁止使用模糊的表述如'合适的时间'"
+
+scoring:
+  dimensions:
+    accuracy: 0.20
+    professional: 0.25
+    completeness: 0.25
+    reasoning: 0.10
+    structure: 0.10
+    actionable: 0.10
+  pass_threshold: 0.65
+  difficulty_matrix:
+    business:
+      planning_basic: { min: 0.35, max: 0.55 }
+      planning_complex: { min: 0.55, max: 0.80 }

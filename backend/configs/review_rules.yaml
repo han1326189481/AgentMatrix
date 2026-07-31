@@ -1,0 +1,272 @@
+# Review Agent 评分规则配置
+# 修改此文件即可调整评分逻辑，无需改动源码
+
+# 基础维度评分起点（key 必须与代码中 _DEFAULT_SCORES 的 key 一致）
+dimensions:
+  accuracy: 0.75
+  professional: 0.70
+  completeness: 0.65
+  reasoning: 0.80
+  structure: 0.75
+  actionable: 0.70
+
+# 内容长度评分调整（adjustments 的 key 必须与代码中 dims 的 key 一致）
+length_scoring:
+  - threshold: 50
+    operator: "<"
+    adjustments:
+      completeness: -0.40
+      reasoning: -0.20
+      actionable: -0.20
+    issues: ["内容严重过短（<50字）"]
+  - threshold: 100
+    operator: "<"
+    adjustments:
+      completeness: -0.30
+      reasoning: -0.15
+      structure: -0.10
+    issues: ["内容过短（<100字）"]
+  - threshold: 200
+    operator: "<"
+    adjustments:
+      completeness: -0.15
+      reasoning: -0.05
+    issues: ["内容偏短（<200字）"]
+  - threshold: 500
+    operator: ">"
+    adjustments:
+      completeness: 0.05
+      professional: 0.05
+  - threshold: 800
+    operator: ">"
+    adjustments:
+      completeness: 0.10
+      professional: 0.05
+      structure: 0.05
+
+# 结构检查规则
+structure_checks:
+  - name: "活动流程"
+    keywords: ["活动流程", "流程"]
+    target_tasks: ["活动", "策划"]
+    missing_issues: ["缺少活动流程"]
+    structure_penalty: -0.2
+    actionable_penalty: -0.2
+
+  - name: "预算安排"
+    keywords: ["预算"]
+    target_tasks: ["预算", "活动", "方案"]
+    missing_issues: ["缺少预算安排"]
+    structure_penalty: -0.15
+    actionable_penalty: -0.15
+
+  - name: "时间安排"
+    keywords: ["时间", "日期"]
+    target_tasks: ["活动", "策划"]
+    missing_issues: ["缺少时间安排"]
+    structure_penalty: -0.15
+    actionable_penalty: -0.15
+
+# Markdown 格式评分
+markdown_scoring:
+  - pattern: "# |一、|1\\."
+    structure_bonus: 0.2
+  - pattern: "## |（一）|1\\.1"
+    structure_bonus: 0.1
+
+# 关键词匹配评分
+keyword_matching:
+  task_keywords: ["活动", "策划", "方案", "项目", "报告"]
+  min_match_count: 2
+  relevance_bonus: 0.2
+
+# 内容质量加分
+quality_bonuses:
+  - pattern: "总结|结论"
+    structure_bonus: 0.1
+    professional_bonus: 0.1
+  - pattern: "具体|详细|步骤"
+    actionable_bonus: 0.2
+
+# 难度阈值计算
+difficulty_threshold:
+  # 复杂关键词及权重
+  complex_keywords:
+    - keyword: "方案"
+      weight: 0.03
+    - keyword: "策划"
+      weight: 0.03
+    - keyword: "设计"
+      weight: 0.03
+    - keyword: "架构"
+      weight: 0.03
+    - keyword: "系统"
+      weight: 0.03
+    - keyword: "分析"
+      weight: 0.03
+    - keyword: "报告"
+      weight: 0.03
+    - keyword: "论文"
+      weight: 0.03
+    - keyword: "PPT"
+      weight: 0.03
+    - keyword: "预算"
+      weight: 0.03
+    - keyword: "风险评估"
+      weight: 0.03
+    - keyword: "技术选型"
+      weight: 0.03
+    - keyword: "多智能体"
+      weight: 0.03
+    - keyword: "端云协同"
+      weight: 0.03
+    # 政府领域复杂关键词
+    - keyword: "治理"
+      weight: 0.03
+    - keyword: "政策"
+      weight: 0.03
+    - keyword: "政务"
+      weight: 0.03
+    - keyword: "基层"
+      weight: 0.03
+    - keyword: "数字化"
+      weight: 0.03
+    - keyword: "现代化"
+      weight: 0.03
+    - keyword: "行政许可"
+      weight: 0.03
+    - keyword: "放管服"
+      weight: 0.03
+    - keyword: "监管"
+      weight: 0.03
+    - keyword: "公共服务"
+      weight: 0.03
+    - keyword: "智慧城市"
+      weight: 0.03
+    - keyword: "营商环境"
+      weight: 0.03
+    - keyword: "行政审批"
+      weight: 0.03
+    - keyword: "治理体系"
+      weight: 0.03
+    - keyword: "治理能力"
+      weight: 0.03
+    # 校园/学术领域复杂关键词
+    - keyword: "就业"
+      weight: 0.03
+    - keyword: "教育"
+      weight: 0.03
+    - keyword: "培养"
+      weight: 0.03
+    - keyword: "科研"
+      weight: 0.03
+    - keyword: "课程"
+      weight: 0.03
+    - keyword: "文献"
+      weight: 0.03
+    - keyword: "研究"
+      weight: 0.03
+    - keyword: "学分"
+      weight: 0.03
+    - keyword: "学术"
+      weight: 0.03
+    - keyword: "学位"
+      weight: 0.03
+    - keyword: "导师"
+      weight: 0.03
+    - keyword: "毕业"
+      weight: 0.03
+    - keyword: "招生"
+      weight: 0.03
+    - keyword: "学科建设"
+      weight: 0.03
+    - keyword: "产学研"
+      weight: 0.03
+    - keyword: "答辩"
+      weight: 0.03
+    # 跨领域深度分析信号词（短语级，权重更高）
+    - keyword: "深度分析"
+      weight: 0.06
+    - keyword: "全面分析"
+      weight: 0.06
+    - keyword: "系统论述"
+      weight: 0.06
+    - keyword: "深度评估"
+      weight: 0.06
+    - keyword: "全面评估"
+      weight: 0.06
+    - keyword: "深度对比"
+      weight: 0.06
+    - keyword: "全面对比"
+      weight: 0.06
+    - keyword: "系统对比"
+      weight: 0.06
+    - keyword: "多维度"
+      weight: 0.05
+    - keyword: "发展趋势"
+      weight: 0.05
+    - keyword: "关键路径"
+      weight: 0.05
+    - keyword: "演变"
+      weight: 0.05
+    - keyword: "颠覆性"
+      weight: 0.05
+    - keyword: "深层原因"
+      weight: 0.05
+    - keyword: "多重原因"
+      weight: 0.05
+    - keyword: "顶层设计"
+      weight: 0.05
+    # V2.3: 技术术语/中等难度信号词（权重 0.04，让中等问题进入 polish 区间）
+    - keyword: "应用场景"
+      weight: 0.04
+    - keyword: "工作原理"
+      weight: 0.04
+    - keyword: "典型应用"
+      weight: 0.04
+    - keyword: "检索增强"
+      weight: 0.04
+    - keyword: "技术原理"
+      weight: 0.04
+    - keyword: "具体流程"
+      weight: 0.04
+    - keyword: "工程实践"
+      weight: 0.04
+    - keyword: "实现方式"
+      weight: 0.03
+    - keyword: "原理"
+      weight: 0.03
+    - keyword: "流程"
+      weight: 0.03
+
+  # 内容长度反映复杂度
+  content_length_boost:
+    - threshold: 2000
+      operator: ">"
+      boost: 0.1
+    - threshold: 1000
+      operator: ">"
+      boost: 0.05
+
+  # 多问题/多段落加分
+  multi_question_boost: 0.08
+  multi_paragraph_boost: 0.08
+
+  # 结构/专业性不足时提高难度
+  low_structure_penalty: 0.05
+  low_professional_penalty: 0.05
+  low_threshold: 0.5
+
+# 评审通过阈值
+pass_threshold: 0.65
+
+# 简单对话默认评分
+simple_conversation:
+  review_score: 0.85
+  difficulty_threshold: 0.15
+  dimensions:
+    structure: 0.80
+    relevance: 0.90
+    richness: 0.80
+    professional: 0.85
+    actionable: 0.85

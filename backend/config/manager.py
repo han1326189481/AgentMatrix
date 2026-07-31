@@ -1,8 +1,9 @@
 import json
 import os
 from typing import Dict, Any, Optional
+from shared.platform import get_config_file_path
 
-CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'app_config.json')
+CONFIG_FILE = get_config_file_path()
 
 def load_config() -> Dict[str, Any]:
     """加载配置文件"""

@@ -32,8 +32,10 @@ class PromptTemplate:
 class PromptManager:
     def __init__(self):
         self.templates: Dict[str, Dict[str, PromptTemplate]] = {}
-        self.templates_dir = "prompts/templates"
-        self.rules_dir = "prompts/rules"
+        from shared.platform import get_prompts_dir
+        prompts_dir = get_prompts_dir()
+        self.templates_dir = os.path.join(prompts_dir, "templates")
+        self.rules_dir = os.path.join(prompts_dir, "rules")
         self._load_templates()
 
     def _load_templates(self) -> None:
@@ -69,49 +71,41 @@ class PromptManager:
             "knowledge": {
                 "enhance": PromptTemplate(
                     name="enhance",
-                    template="基于以下知识，请增强用户查询：\n\n知识：\n{knowledge}\n\n用户查询：\n{query}\n\n增强后的查询：",
-                    description="知识增强模板",
+                    template="基于以下知识，请增强用户查询并生成结构化需求摘要：\n\n知识：\n{knowledge}\n\n用户查询：\n{query}\n\n输出格式：\n{{\"task\": \"核心任务\", \"keywords\": [\"关键词1\", \"关键词2\"], \"knowledge_items\": [\"知识条目\"], \"requirements\": [\"需求\"], \"outline\": [\"大纲章节\"], \"task_type\": \"任务类型\", \"summary\": \"需求摘要\"}}",
+                    description="知识检索与需求摘要一体化模板",
                     placeholders=["knowledge", "query"]
-                )
-            },
-            "summary": {
-                "extract": PromptTemplate(
-                    name="extract",
-                    template="请分析以下内容，提取任务目标和关键词：\n\n内容：\n{content}\n\n输出格式：\n{{\"task\": \"任务描述\", \"keywords\": [\"关键词1\", \"关键词2\"]}}",
-                    description="任务提取模板",
-                    placeholders=["content"]
                 )
             },
             "writer": {
                 "generate": PromptTemplate(
                     name="generate",
-                    template="根据以下任务描述和关键词，生成详细的内容：\n\n任务：{task}\n关键词：{keywords}\n\n请生成专业、详细的内容：",
+                    template="根据以下任务描述和知识摘要，生成详细的内容：\n\n任务：{task}\n关键词：{keywords}\n知识条目：{knowledge}\n\n请生成专业、详细的内容，使用Markdown格式：",
                     description="内容生成模板",
-                    placeholders=["task", "keywords"]
+                    placeholders=["task", "keywords", "knowledge"]
                 )
             },
             "review": {
                 "review": PromptTemplate(
                     name="review",
-                    template="请评审以下内容的质量：\n\n内容：\n{content}\n\n请评估：1) 内容完整性 2) 逻辑结构 3) 语言质量\n\n输出格式：\n{{\"score\": 分数, \"issues\": [问题列表], \"suggestions\": [建议列表]}}",
-                    description="质量评审模板",
+                    template="请评审以下内容的质量并评估难度阈值：\n\n内容：\n{content}\n\n评估维度：1) 结构完整性 2) 需求相关性 3) 内容丰富度 4) 专业性 5) 可执行性\n\n输出格式：\n{{\"review_score\": 分数, \"difficulty_threshold\": 难度阈值, \"dimensions\": {{\"structure\": 0.0, \"relevance\": 0.0, \"richness\": 0.0, \"professional\": 0.0, \"actionable\": 0.0}}, \"issues\": [问题列表], \"suggestions\": [建议列表], \"pass\": true/false}}",
+                    description="质量评审与难度评估模板",
                     placeholders=["content"]
                 )
             },
             "judge": {
-                "complexity": PromptTemplate(
-                    name="complexity",
-                    template="请判断以下任务的复杂度（0-1）：\n\n任务：{task}\n内容：{content}\n\n复杂度评分：",
-                    description="复杂度判断模板",
-                    placeholders=["task", "content"]
+                "routing": PromptTemplate(
+                    name="routing",
+                    template="基于Review Agent的评审结果进行路由决策：\n\n难度阈值：{difficulty_threshold}\n质量评分：{review_score}\n\n决策规则：\n- difficulty_threshold < 0.35 → local_output\n- 0.35-0.65 + review_score >= 0.70 → local_output\n- 0.35-0.65 + review_score < 0.70 → cloud_enhance + polish\n- 0.65-0.80 + review_score >= 0.80 → local_output\n- 0.65-0.80 + review_score < 0.80 → cloud_enhance + full_rewrite\n- > 0.80 → cloud_enhance + full_rewrite\n\n输出格式：\n{{\"decision\": \"local_output或cloud_enhance\", \"cloud_mode\": \"none/polish/full_rewrite\", \"difficulty_threshold\": 0.0, \"review_score\": 0.0, \"reason\": [\"理由\"]}}",
+                    description="路由决策模板",
+                    placeholders=["difficulty_threshold", "review_score"]
                 )
             },
             "result": {
                 "format": PromptTemplate(
                     name="format",
-                    template="请格式化以下结果：\n\n执行方式：{execution_type}\n复杂度：{complexity}\n内容：\n{content}\n\n格式化输出：",
+                    template="请格式化以下最终结果：\n\n执行方式：{execution_type}\n内容：\n{content}\n\n格式化输出（Markdown格式）：",
                     description="结果格式化模板",
-                    placeholders=["execution_type", "complexity", "content"]
+                    placeholders=["execution_type", "content"]
                 )
             }
         }

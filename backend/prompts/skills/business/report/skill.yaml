@@ -1,0 +1,63 @@
+# 商业报告 - 技能书
+meta:
+  skill_id: "business.report"
+  name: "商业报告"
+  version: "1.0.0"
+  parent: "business"
+  model: ""
+
+role:
+  title: "商业分析师"
+  description: "专注于商业分析报告、市场调研、数据报告等商业报告类任务"
+  tone: "professional"
+  language: "zh-CN"
+
+capabilities:
+  - markdown
+  - text_generation
+
+knowledge:
+  keywords:
+    primary:
+      报告: ["报告", "调研报告", "分析报告", "研究报告", "白皮书"]
+      分析: ["分析", "SWOT", "PEST", "波特五力", "竞争分析", "市场分析"]
+      数据: ["数据", "统计", "趋势", "图表", "增长率", "市场份额"]
+      行业: ["行业", "产业", "市场", "赛道", "细分市场"]
+      结论: ["结论", "建议", "对策", "展望", "预测"]
+    secondary:
+      - ["年报", "季报", "行业报告", "可行性报告", "尽调"]
+
+  ontology:
+    concepts:
+      - term: "SWOT分析"
+        definition: "优势(Strengths)、劣势(Weaknesses)、机会(Opportunities)、威胁(Threats)分析框架"
+        related: ["竞争分析", "战略分析", "PEST分析"]
+      - term: "市场调研"
+        definition: "系统收集和分析市场信息的过程"
+        related: ["用户调研", "竞品分析", "市场规模"]
+
+  constraints:
+    - "商业报告需包含：摘要、数据来源、分析方法、核心结论、建议"
+    - "数据引用需标注来源"
+    - "结论和建议需要基于数据推导"
+
+  confidence: 0.82
+
+forbidden:
+  - "禁止给出没有数据支撑的结论"
+  - "禁止混淆相关性和因果关系"
+  - "禁止使用过时的数据"
+
+scoring:
+  dimensions:
+    accuracy: 0.30
+    professional: 0.25
+    completeness: 0.20
+    reasoning: 0.15
+    structure: 0.05
+    actionable: 0.05
+  pass_threshold: 0.65
+  difficulty_matrix:
+    business:
+      report_basic: { min: 0.40, max: 0.60 }
+      report_advanced: { min: 0.60, max: 0.85 }

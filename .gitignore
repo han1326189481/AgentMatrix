@@ -31,3 +31,24 @@ backend/logs/*.log
 backend/exports/*
 frontend/public/demos/*
 backend/frontend/index.html
+
+# === IDE 本体（不上传） ===
+TRAE SOLO CN/
+
+# === 数据库文件（用户运行时数据） ===
+*.db
+*.db-shm
+*.db-wal
+backend/storage/backups/
+backend/storage/sandboxes/
+
+# === 构建产物 ===
+frontend/out/
+frontend/src-tauri/target/
+
+# === 打包产物（用 LFS 跟踪） ===
+# backend/agentmatrix-backend.exe  # 取消注释则排除
+
+# === 系统文件 ===
+Thumbs.db
+desktop.ini

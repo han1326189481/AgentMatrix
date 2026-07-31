@@ -1,7 +1,6 @@
 from typing import Dict, Any, Optional
 from .agent import BaseAgent
 from agents.knowledge.agent import KnowledgeAgent
-from agents.summary.agent import SummaryAgent
 from agents.writer.agent import WriterAgent
 from agents.review.agent import ReviewAgent
 from agents.judge.agent import JudgeAgent
@@ -9,8 +8,9 @@ from agents.result.agent import ResultAgent
 
 
 class AgentRegistry:
-    def __init__(self):
+    def __init__(self, settings=None):
         self.agents: Dict[str, BaseAgent] = {}
+        self._settings = settings
 
     def register_agent(self, agent: BaseAgent) -> None:
         self.agents[agent.agent_id] = agent
@@ -22,24 +22,22 @@ class AgentRegistry:
         return self.agents
 
     async def initialize_all_agents(self) -> None:
-        self.register_agent(KnowledgeAgent())
-        self.register_agent(SummaryAgent())
-        self.register_agent(WriterAgent())
-        self.register_agent(ReviewAgent())
-        self.register_agent(JudgeAgent())
-        self.register_agent(ResultAgent())
+        self.register_agent(KnowledgeAgent(settings=self._settings))
+        self.register_agent(WriterAgent(settings=self._settings))
+        self.register_agent(ReviewAgent(settings=self._settings))
+        self.register_agent(JudgeAgent(settings=self._settings))
+        self.register_agent(ResultAgent(settings=self._settings))
 
         for agent in self.agents.values():
             await agent.initialize()
 
     def initialize_all_agents_sync(self) -> None:
         import asyncio
-        self.register_agent(KnowledgeAgent())
-        self.register_agent(SummaryAgent())
-        self.register_agent(WriterAgent())
-        self.register_agent(ReviewAgent())
-        self.register_agent(JudgeAgent())
-        self.register_agent(ResultAgent())
+        self.register_agent(KnowledgeAgent(settings=self._settings))
+        self.register_agent(WriterAgent(settings=self._settings))
+        self.register_agent(ReviewAgent(settings=self._settings))
+        self.register_agent(JudgeAgent(settings=self._settings))
+        self.register_agent(ResultAgent(settings=self._settings))
 
         loop = asyncio.new_event_loop()
         try:

@@ -1,0 +1,136 @@
+# ============================================================
+# Skill Engine V2 — 技术领域评分配置
+# ============================================================
+# 技术领域（tech.*）的评分权重调整和专项检查规则
+# 与 base_scoring.yaml 合并使用，tech 领域覆盖基础权重
+# ============================================================
+
+# 技术领域维度权重覆盖（总和=1.0）
+dimensions:
+  accuracy:
+    weight: 0.30           # 技术内容准确性权重最高
+    description: "技术内容准确性 — 事实、API、代码、配置是否正确"
+  professional:
+    weight: 0.25           # 技术专业性要求更高
+    description: "技术专业性 — 术语使用、技术深度、行业标准"
+  completeness:
+    weight: 0.15
+    description: "技术完整性 — 是否覆盖核心概念、实现细节"
+  reasoning:
+    weight: 0.15           # 技术逻辑推理
+    description: "技术逻辑性 — 推理链条、因果关系的正确性"
+  structure:
+    weight: 0.08
+    description: "技术文档结构性 — 代码块、API文档格式"
+  actionable:
+    weight: 0.07
+    description: "技术可执行性 — 代码可运行、配置可部署"
+
+# 技术领域专项检查
+tech_checks:
+  # 代码块检测
+  code_block:
+    pattern: "```"
+    bonus:
+      accuracy: 0.05
+      structure: 0.10
+    description: "包含代码块"
+
+  # API 路由格式检测
+  api_route:
+    pattern: "(GET|POST|PUT|DELETE|PATCH)\\s+/"
+    bonus:
+      accuracy: 0.08
+      professional: 0.05
+    description: "包含 API 路由定义"
+
+  # 版本号检测
+  version_ref:
+    pattern: "v\\d+\\.\\d+|version\\s*[:=]"
+    bonus:
+      professional: 0.05
+    description: "包含版本号引用"
+
+  # 配置示例检测
+  config_example:
+    pattern: "(yaml|yml|json|toml|ini|env)\\s*[:=]|```(yaml|json|ini|env)"
+    bonus:
+      actionable: 0.08
+      professional: 0.05
+    description: "包含配置文件示例"
+
+  # 性能指标检测
+  performance:
+    pattern: "(延迟|吞吐|QPS|TPS|RT|ms|复杂度|O\\()"
+    bonus:
+      accuracy: 0.05
+      professional: 0.05
+    description: "包含性能指标"
+
+  # 安全考虑检测
+  security:
+    pattern: "(认证|授权|加密|CORS|CSRF|XSS|注入|SQL注入|令牌|token)"
+    bonus:
+      accuracy: 0.05
+      professional: 0.05
+    description: "包含安全考虑"
+
+# 技术领域子域评分调整
+subdomain_adjustments:
+  tech.ai:
+    dimensions:
+      accuracy: 0.05
+      professional: 0.05
+    complexity_boost: 0.05
+    description: "AI领域需要更高准确性"
+  tech.ai.agent:
+    dimensions:
+      completeness: 0.05
+    complexity_boost: 0.08
+    description: "Agent开发需要完整架构方案"
+  tech.ai.rag:
+    dimensions:
+      accuracy: 0.03
+      actionable: 0.05
+    complexity_boost: 0.05
+    description: "RAG系统需要可执行的实现方案"
+  tech.ai.llm:
+    dimensions:
+      professional: 0.05
+    complexity_boost: 0.05
+    description: "LLM需要专业术语准确"
+  tech.ai.prompt:
+    dimensions:
+      actionable: 0.08
+    complexity_boost: 0.03
+    description: "Prompt工程需可执行示例"
+  tech.crypto:
+    dimensions:
+      accuracy: 0.10
+    complexity_boost: 0.10
+    description: "密码学不允许任何事实错误"
+  tech.crypto.quantum:
+    dimensions:
+      accuracy: 0.15
+    complexity_boost: 0.15
+    description: "量子密码学需要极高准确性"
+  tech.network:
+    complexity_boost: 0.05
+    description: "网络领域中等复杂度"
+  tech.compiler:
+    complexity_boost: 0.08
+    description: "编译器需要系统级知识"
+  tech.os:
+    complexity_boost: 0.08
+    description: "操作系统需要系统级知识"
+
+# 技术领域内容质量阈值
+quality_thresholds:
+  factual_error:
+    keywords: ["错误", "不正确", "不准确", "deprecated", "废弃"]
+    penalty: -0.10
+    description: "检测到事实错误标记"
+  outdated:
+    keywords: ["旧版本", "过时", "不再支持", "已移除"]
+    penalty: -0.08
+    description: "检测到过时内容标记"

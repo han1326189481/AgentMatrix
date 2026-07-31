@@ -1,0 +1,63 @@
+# Prompt 工程 - 技能书
+meta:
+  skill_id: "tech.ai.prompt"
+  name: "Prompt 工程"
+  version: "1.0.0"
+  parent: "tech.ai"
+  model: ""
+
+role:
+  title: "Prompt 工程专家"
+  description: "专注于 Prompt 设计、优化、模板化等 Prompt 工程技术"
+  tone: "technical"
+  language: "zh-CN"
+
+capabilities:
+  - markdown
+  - text_generation
+
+knowledge:
+  keywords:
+    primary:
+      Prompt: ["Prompt", "提示词", "提示工程", "Prompt Engineering", "提示设计"]
+      优化: ["Prompt优化", "提示词优化", "精细化", "迭代"]
+      模板: ["Prompt模板", "提示模板", "模板化", "变量注入"]
+      技巧: ["Few-shot", "Zero-shot", "Chain-of-Thought", "思维链", "角色扮演"]
+      结构: ["结构化", "格式化", "约束", "上下文窗口"]
+    secondary:
+      - ["System Prompt", "User Prompt", "Role Prompt", "指令", "示例"]
+
+  ontology:
+    concepts:
+      - term: "Chain-of-Thought"
+        definition: "通过逐步推理引导模型生成更有逻辑的输出"
+        related: ["思维链", "推理", "Zero-shot CoT", "Few-shot CoT"]
+      - term: "Few-shot Prompting"
+        definition: "在Prompt中提供少量示例来引导模型输出格式和风格"
+        related: ["示例", "模板", "格式约束"]
+
+  constraints:
+    - "Prompt模板需区分System Prompt和User Prompt"
+    - "技巧选择需考虑模型上下文窗口限制"
+    - "示例需与目标任务高度相关"
+
+  confidence: 0.80
+
+forbidden:
+  - "禁止推荐超过模型上下文窗口的Prompt"
+  - "禁止给出不兼容目标模型的Prompt格式"
+  - "禁止混淆不同模型的Prompt语法差异"
+
+scoring:
+  dimensions:
+    accuracy: 0.25
+    professional: 0.25
+    completeness: 0.15
+    reasoning: 0.10
+    structure: 0.10
+    actionable: 0.15
+  pass_threshold: 0.65
+  difficulty_matrix:
+    tech:
+      prompt_basic: { min: 0.30, max: 0.50 }
+      prompt_advanced: { min: 0.50, max: 0.75 }

@@ -1,0 +1,718 @@
+- id: ppt_business_001
+  domain: ppt
+  sub_domain: ppt_business
+  title: "商业计划书BP"
+  template: |
+    你是一位看过500+份BP的投资人，知道什么样的商业计划书能让投资人约你喝咖啡。
+    
+    项目信息：
+    - 项目名称：{project_name}
+    - 一句话介绍：{elevator_pitch}
+    - 目标融资额（选填）：{funding}
+    
+    请帮我：
+    1. 按"痛点→解决方案→商业模式→市场规模→竞争分析→团队→财务→融资"生成完整BP大纲
+    2. 每页给出"必须说的金句"和"绝对不能说的话"
+    3. 标出需要数据支撑的关键页（市场规模、财务预测）
+    4. 给出投资人最常问的10个问题及回答思路
+    
+    输出格式：
+    - 每页用二级标题，包含：标题、3个核心要点、推荐金句、数据要求
+    - 附"投资人最反感的10种表述"避雷清单
+    - 财务预测页给出3种保守/中性/乐观方案
+  variables:
+    - name: project_name
+      description: "项目或公司名字"
+      required: true
+    - name: elevator_pitch
+      description: "一句话讲清楚项目是做什么的"
+      required: true
+    - name: funding
+      description: "计划融资金额和用途"
+      required: false
+      default_value: "（用户未提供，请预留融资计划页）"
+  intent_tags: ["商业计划书", "BP", "融资", "创业", "路演", "投资人", "商业计划", "pitch"]
+  difficulty: advanced
+  quality_score: 0.95
+
+- id: ppt_business_002
+  domain: ppt
+  sub_domain: ppt_business
+  title: "年终述职汇报"
+  template: |
+    你是一位帮过1000+职场人做述职的HR总监，深知"述职不是总结，是推销自己"。
+    
+    我的信息：
+    - 岗位：{position}
+    - 今年主要成果：{achievements}
+    - 明年计划（选填）：{next_year_plan}
+    
+    请帮我：
+    1. 按"回顾→成果→反思→规划"设计述职结构
+    2. 每页给出"谦虚但有力量"的话术，避免自夸或自贬
+    3. 标出必须放数据/对比/案例的位置
+    4. 给出3种不同企业文化的述职风格（国企稳重型/互联网结果型/外企数据型）
+    
+    输出格式：
+    - 每页包含：标题、3-5个要点、推荐话术、数据/素材建议
+    - 三种风格用表格对比
+    - 附"述职雷区"（抱怨公司、功劳全是自己的、没有数据、计划空洞）
+  variables:
+    - name: position
+      description: "你的岗位，如：销售经理、产品经理、行政主管"
+      required: true
+    - name: achievements
+      description: "今年主要成果，用大白话列几条"
+      required: true
+    - name: next_year_plan
+      description: "明年工作计划"
+      required: false
+      default_value: "（用户未提供，请预留规划页）"
+  intent_tags: ["年终述职", "述职报告", "年终总结", "工作汇报", "考核", "绩效", "述职PPT"]
+  difficulty: beginner
+  quality_score: 0.94
+
+- id: ppt_business_003
+  domain: ppt
+  sub_domain: ppt_business
+  title: "竞品分析对比"
+  template: |
+    你是一位战略咨询顾问，擅长用一张表让老板看清"我们和对手差在哪"。
+    
+    分析信息：
+    - 我方产品：{our_product}
+    - 竞品列表：{competitors}
+    - 对比维度：{dimensions}
+    
+    请帮我：
+    1. 设计"多竞品对比矩阵"，涵盖功能/价格/服务/品牌等维度
+    2. 给出"我方优势放大+劣势委婉表达"的话术技巧
+    3. 标出需要截图/数据/用户评价的位置
+    4. 给出"差异化定位"的结论页设计
+    
+    输出格式：
+    - 对比矩阵表（我方vs竞品A vs竞品B）
+    - 每页包含：标题、对比表、分析结论、行动建议
+    - 附"竞品分析禁忌"（贬低对手、数据不实、维度不全、没有结论）
+  variables:
+    - name: our_product
+      description: "我方产品或服务名称"
+      required: true
+    - name: competitors
+      description: "竞品名称列表"
+      required: true
+    - name: dimensions
+      description: "对比维度，如：价格、功能、服务、品牌、渠道"
+      required: false
+      default_value: "价格、功能、服务、品牌"
+  intent_tags: ["竞品分析", "对比", "竞争对手", "市场分析", "差异化", "SWOT", "竞争策略"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: ppt_business_004
+  domain: ppt
+  sub_domain: ppt_business
+  title: "销售方案提案"
+  template: |
+    你是一位销售冠军，知道"方案不是介绍产品，是解决客户痛点"。
+    
+    方案信息：
+    - 客户行业：{client_industry}
+    - 客户痛点：{pain_points}
+    - 我方方案：{solution}
+    
+    请帮我：
+    1. 按"客户痛点→行业洞察→解决方案→成功案例→报价→下一步"设计提案结构
+    2. 给出"客户视角"的话术，每页开头都是"您"而不是"我们"
+    3. 标出需要放ROI计算/案例数据/客户logo的位置
+    4. 给出"异议处理"页（客户可能提出的3个反对意见及回应）
+    
+    输出格式：
+    - 每页包含：标题、客户痛点回应、方案要点、数据支撑
+    - 附"销售提案禁忌"（只讲产品不讲价值、报价太早、没有案例、过度承诺）
+  variables:
+    - name: client_industry
+      description: "客户所在行业"
+      required: true
+    - name: pain_points
+      description: "客户的核心痛点"
+      required: true
+    - name: solution
+      description: "我方解决方案概述"
+      required: true
+  intent_tags: ["销售方案", "提案", "客户方案", "销售PPT", "解决方案", "投标", "商务提案"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: ppt_business_005
+  domain: ppt
+  sub_domain: ppt_business
+  title: "市场调研报告"
+  template: |
+    你是一位市场研究总监，擅长把"一堆调研数据"变成"老板能拍板的洞察"。
+    
+    调研信息：
+    - 调研主题：{topic}
+    - 核心发现：{findings}
+    - 样本情况：{sample}
+    
+    请帮我：
+    1. 按"背景→方法→发现→洞察→建议"设计报告结构
+    2. 给出"数据→图表→结论→行动"的每页公式
+    3. 标出需要放数据图表/用户原声/竞品对比的位置
+    4. 给出"3个必须回答的战略问题"页
+    
+    输出格式：
+    - 每页包含：标题、核心数据、图表建议、洞察结论、行动建议
+    - 附"调研报告禁忌"（只有数据没有洞察、样本偏差不提、建议空洞、图表难懂）
+  variables:
+    - name: topic
+      description: "调研主题"
+      required: true
+    - name: findings
+      description: "核心发现或结论"
+      required: true
+    - name: sample
+      description: "样本量和调研方法"
+      required: false
+      default_value: "（用户未提供，请预留方法论页）"
+  intent_tags: ["市场调研", "市场报告", "调研PPT", "市场分析", "用户研究", "行业报告", "洞察"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: ppt_business_006
+  domain: ppt
+  sub_domain: ppt_business
+  title: "品牌介绍手册"
+  template: |
+    你是一位品牌总监，擅长让陌生人在5分钟内爱上一个品牌。
+    
+    品牌信息：
+    - 品牌名：{brand_name}
+    - 行业：{industry}
+    - 核心卖点：{usp}
+    
+    请帮我：
+    1. 按"品牌故事→核心价值→产品服务→客户见证→合作方式"设计介绍结构
+    2. 给出"情感共鸣+理性说服"的话术搭配
+    3. 标出需要放品牌色/logo/产品图/客户证言的位置
+    4. 给出"不同受众版本"（客户版/投资人版/合作伙伴版）
+    
+    输出格式：
+    - 每页包含：标题、品牌话术、视觉建议、情感锚点
+    - 三种受众版本用表格对比
+    - 附"品牌介绍禁忌"（自说自话、没有差异化、数据造假、视觉不统一）
+  variables:
+    - name: brand_name
+      description: "品牌名称"
+      required: true
+    - name: industry
+      description: "所属行业"
+      required: true
+    - name: usp
+      description: "核心卖点或独特价值"
+      required: true
+  intent_tags: ["品牌介绍", "品牌宣传", "品牌手册", "企业介绍", "品牌故事", "宣传册", "品牌推广"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: ppt_business_007
+  domain: ppt
+  sub_domain: ppt_business
+  title: "财务数据分析"
+  template: |
+    你是一位财务总监，擅长把"枯燥的数字"变成"管理层能听懂的故事"。
+    
+    财务信息：
+    - 分析主题：{topic}
+    - 关键数据：{key_data}
+    - 对比周期：{period}
+    
+    请帮我：
+    1. 按"概览→收入→成本→利润→现金流→建议"设计分析结构
+    2. 给出"同比环比+趋势+结构"三种分析视角
+    3. 标出需要放图表/预警/对标数据的位置
+    4. 给出"问题诊断+改进建议"的结论页
+    
+    输出格式：
+    - 每页包含：标题、核心指标、图表建议、解读话术、风险提示
+    - 附"财务PPT禁忌"（只有数字没有故事、不对比、不提风险、预测太乐观）
+  variables:
+    - name: topic
+      description: "分析主题，如：Q3财务分析、年度预算执行、成本管控"
+      required: true
+    - name: key_data
+      description: "关键财务数据"
+      required: true
+    - name: period
+      description: "对比周期，如：同比去年、环比上季度"
+      required: false
+      default_value: "同比去年"
+  intent_tags: ["财务分析", "数据分析", "财务报表", "经营分析", "预算", "利润", "成本", "财务汇报"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: ppt_business_008
+  domain: ppt
+  sub_domain: ppt_business
+  title: "招商加盟方案"
+  template: |
+    你是一位招商总监，深知加盟商最关心"能不能赚钱"和"靠不靠谱"。
+    
+    品牌信息：
+    - 品牌名：{brand_name}
+    - 加盟政策：{policy}
+    - 盈利模型（选填）：{profit_model}
+    
+    请帮我：
+    1. 按"市场机会→品牌实力→加盟支持→盈利分析→加盟流程"设计结构
+    2. 给出"加盟商视角"的话术，每页都在回答"我能得到什么"
+    3. 标出需要放门店照片/营收数据/加盟商证言的位置
+    4. 给出"常见问题解答"页和"投资回报测算表"
+    
+    输出格式：
+    - 每页包含：标题、加盟商关切点、数据支撑、行动号召
+    - 附FAQ页（10个高频问题及回答）
+    - 附"招商禁忌"（过度承诺、数据造假、政策不清晰、没有案例）
+  variables:
+    - name: brand_name
+      description: "品牌名称"
+      required: true
+    - name: policy
+      description: "加盟政策要点"
+      required: true
+    - name: profit_model
+      description: "盈利方式或投资回报周期"
+      required: false
+      default_value: "（用户未提供，请预留盈利分析页）"
+  intent_tags: ["招商加盟", "加盟方案", "招商PPT", "代理", "合伙人", "加盟政策", "招商会"]
+  difficulty: intermediate
+  quality_score: 0.90
+
+- id: ppt_business_009
+  domain: ppt
+  sub_domain: ppt_business
+  title: "产品发布方案"
+  template: |
+    你是一位产品发布会导演，懂得"悬念→高潮→行动"的节奏把控。
+    
+    产品信息：
+    - 产品名：{product_name}
+    - 目标用户：{target_users}
+    - 核心卖点：{key_features}
+    
+    请帮我：
+    1. 按"预热→痛点→产品亮相→功能详解→价格→行动号召"设计发布结构
+    2. 给出"台上怎么说"和"PPT上怎么放"的对照脚本
+    3. 标出需要Demo视频/动效/实物图的位置
+    4. 设计一个让人记住的"一句话口号"
+    
+    输出格式：
+    - 分"演讲脚本"和"PPT页面内容"两栏对照
+    - 每页包含：标题、演讲词（100字内）、PPT视觉建议
+    - 附"发布会节奏时间表"
+  variables:
+    - name: product_name
+      description: "产品名称"
+      required: true
+    - name: target_users
+      description: "目标用户群体"
+      required: true
+    - name: key_features
+      description: "最核心的3个卖点"
+      required: true
+  intent_tags: ["产品发布", "发布会", "新品上市", "产品推广", "路演", "宣讲", "产品PPT"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: ppt_business_010
+  domain: ppt
+  sub_domain: ppt_business
+  title: "战略规划汇报"
+  template: |
+    你是一位战略顾问，擅长让"三年后的目标"看起来"今年就能动手干"。
+    
+    战略信息：
+    - 公司/部门：{org_name}
+    - 当前状况：{current_status}
+    - 战略目标：{strategic_goal}
+    
+    请帮我：
+    1. 按"现状分析→战略定位→目标拆解→实施路径→资源需求→风险管控"设计结构
+    2. 给出"宏大叙事+具体抓手"的话术搭配
+    3. 标出需要放数据/对标案例/里程碑的位置
+    4. 给出"三年滚动规划"的时间轴设计
+    
+    输出格式：
+    - 每页包含：标题、战略要点、数据支撑、执行抓手
+    - 附"战略汇报禁忌"（目标空洞、路径模糊、没有资源需求、忽视风险）
+  variables:
+    - name: org_name
+      description: "公司或部门名称"
+      required: true
+    - name: current_status
+      description: "当前业务状况"
+      required: true
+    - name: strategic_goal
+      description: "战略目标，如：3年营收翻倍、市场份额第一"
+      required: true
+  intent_tags: ["战略规划", "战略汇报", "三年规划", "战略PPT", "规划方案", "顶层设计", "战略"]
+  difficulty: advanced
+  quality_score: 0.93
+
+- id: ppt_business_011
+  domain: ppt
+  sub_domain: ppt_business
+  title: "团队介绍展示"
+  template: |
+    你是一位HR品牌专家，擅长让"一群人"变成"一支让人想加入的梦之队"。
+    
+    团队信息：
+    - 团队名称：{team_name}
+    - 核心成员：{key_members}
+    - 团队文化：{culture}
+    
+    请帮我：
+    1. 按"团队概览→核心成员→团队文化→成果展示→加入我们"设计结构
+    2. 给出"专业但不冰冷"的成员介绍话术
+    3. 标出需要放照片/数据/获奖/办公环境的位置
+    4. 给出"客户版"和"招聘版"两个版本差异
+    
+    输出格式：
+    - 每页包含：标题、内容要点、视觉建议、情感锚点
+    - 两种版本用表格对比
+    - 附"团队介绍禁忌"（照片太随意、只讲头衔不讲价值、没有团队照、文化空洞）
+  variables:
+    - name: team_name
+      description: "团队或部门名称"
+      required: true
+    - name: key_members
+      description: "核心成员及简介"
+      required: true
+    - name: culture
+      description: "团队文化关键词"
+      required: false
+      default_value: "（用户未提供，请预留文化页）"
+  intent_tags: ["团队介绍", "团队展示", "成员介绍", "团队文化", "招聘", "团队PPT", "关于我们"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: ppt_business_012
+  domain: ppt
+  sub_domain: ppt_business
+  title: "客户成功案例"
+  template: |
+    你是一位案例营销专家，深知"客户说好，胜过自己说一万句"。
+    
+    案例信息：
+    - 客户名称：{client_name}
+    - 客户行业：{client_industry}
+    - 解决的问题：{problem_solved}
+    
+    请帮我：
+    1. 按"客户背景→面临挑战→解决方案→实施过程→量化成果→客户证言"设计结构
+    2. 给出"故事化叙述"的话术，避免干巴巴的数据罗列
+    3. 标出需要放数据对比/客户logo/现场照片/证言截图的位置
+    4. 给出"可复制的成功要素"总结页
+    
+    输出格式：
+    - 每页包含：标题、故事节点、数据支撑、视觉建议
+    - 附"案例PPT禁忌"（泄露客户机密、数据造假、只讲自己不讲客户、没有量化结果）
+  variables:
+    - name: client_name
+      description: "客户名称（可脱敏）"
+      required: true
+    - name: client_industry
+      description: "客户所在行业"
+      required: true
+    - name: problem_solved
+      description: "帮客户解决的核心问题"
+      required: true
+  intent_tags: ["客户案例", "成功案例", "案例分享", "客户故事", " testimonial", "案例PPT", "成果展示"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: ppt_business_013
+  domain: ppt
+  sub_domain: ppt_business
+  title: "招投标方案"
+  template: |
+    你是一位投标专家，深知"标书不是写给自己看，是写给评标专家打分的"。
+    
+    项目信息：
+    - 招标项目：{project_name}
+    - 我方优势：{advantages}
+    - 技术方案概要：{tech_solution}
+    
+    请帮我：
+    1. 按"投标函→公司资质→技术方案→实施计划→服务承诺→报价"设计结构
+    2. 给出"响应招标文件评分点"的逐条对应话术
+    3. 标出需要放资质证书/案例/团队/承诺函的位置
+    4. 给出"差异化亮点"和"风险规避"页
+    
+    输出格式：
+    - 每页包含：标题、评分点对应、内容要点、证明材料
+    - 附"投标禁忌"（偏离招标要求、资质过期、报价策略失误、承诺过度）
+  variables:
+    - name: project_name
+      description: "招标项目名称"
+      required: true
+    - name: advantages
+      description: "我方核心竞争优势"
+      required: true
+    - name: tech_solution
+      description: "技术方案核心思路"
+      required: false
+      default_value: "（用户未提供，请预留技术方案页）"
+  intent_tags: ["投标", "招标", "标书", "招投标", "投标方案", "竞标", "应标", "标书PPT"]
+  difficulty: advanced
+  quality_score: 0.92
+
+- id: ppt_business_014
+  domain: ppt
+  sub_domain: ppt_business
+  title: "年会庆典方案"
+  template: |
+    你是一位企业活动策划师，擅长把年会变成"员工发朋友圈的素材库"。
+    
+    年会信息：
+    - 年会主题：{theme}
+    - 参与人数：{attendees}
+    - 预算范围（选填）：{budget}
+    
+    请帮我：
+    1. 按"回顾→表彰→节目→互动→展望→晚宴"设计年会流程PPT
+    2. 给出"主持人串词+大屏幕内容"的对照脚本
+    3. 标出需要放视频/音乐/照片/抽奖环节的位置
+    4. 给出"颁奖词"和"领导发言"模板
+    
+    输出格式：
+    - 每页包含：环节名称、屏幕内容、主持词、时间控制
+    - 附"年会PPT禁忌"（领导照片太随意、颁奖词太长、没有互动环节、视频放不出）
+  variables:
+    - name: theme
+      description: "年会主题"
+      required: true
+    - name: attendees
+      description: "大概多少人参加"
+      required: true
+    - name: budget
+      description: "预算范围"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["年会", "庆典", "年会PPT", "活动策划", "晚会", "企业年会", "表彰大会"]
+  difficulty: beginner
+  quality_score: 0.88
+
+- id: ppt_business_015
+  domain: ppt
+  sub_domain: ppt_business
+  title: "企业培训方案"
+  template: |
+    你是一位企业培训总监，深知"培训PPT不是教材，是激发行动的催化剂"。
+    
+    培训信息：
+    - 培训主题：{topic}
+    - 培训对象：{audience}
+    - 培训时长：{duration}
+    
+    请帮我：
+    1. 按"破冰→理论→案例→练习→总结→行动"设计课件结构
+    2. 给出"每20分钟一个互动"的节奏设计
+    3. 标出需要放视频/案例/练习/测试的位置
+    4. 给出"课后作业"和"效果评估"页
+    
+    输出格式：
+    - 每页包含：标题、内容要点、互动设计、时间分配
+    - 附"培训PPT禁忌"（字太多像课本、没有互动、案例不接地气、没有行动号召）
+  variables:
+    - name: topic
+      description: "培训主题"
+      required: true
+    - name: audience
+      description: "培训对象"
+      required: true
+    - name: duration
+      description: "培训时长"
+      required: true
+  intent_tags: ["企业培训", "培训方案", "培训PPT", "内训", "课件", "员工培训", "培训计划"]
+  difficulty: intermediate
+  quality_score: 0.89
+
+- id: ppt_business_016
+  domain: ppt
+  sub_domain: ppt_business
+  title: "危机公关应对"
+  template: |
+    你是一位危机公关专家，深知"危机PPT不是辩解，是重建信任的第一步"。
+    
+    危机信息：
+    - 危机事件：{crisis_event}
+    - 影响范围：{impact}
+    - 应对措施：{measures}
+    
+    请帮我：
+    1. 按"事件概述→影响评估→应对措施→整改方案→预防机制→承诺"设计结构
+    2. 给出"诚恳但不卑微"的话术，避免推卸责任或过度承诺
+    3. 标出需要放数据/时间线/责任人的位置
+    4. 给出"对内"和"对外"两个版本的话术差异
+    
+    输出格式：
+    - 每页包含：标题、核心信息、话术建议、视觉提示
+    - 附"危机公关禁忌"（推卸责任、数据造假、态度傲慢、没有具体措施）
+  variables:
+    - name: crisis_event
+      description: "危机事件简述"
+      required: true
+    - name: impact
+      description: "影响范围和程度"
+      required: true
+    - name: measures
+      description: "已采取或计划采取的应对措施"
+      required: false
+      default_value: "（用户未提供，请预留措施页）"
+  intent_tags: ["危机公关", "危机应对", "公关方案", "危机处理", "舆情", "声明", "道歉"]
+  difficulty: advanced
+  quality_score: 0.93
+
+- id: ppt_business_017
+  domain: ppt
+  sub_domain: ppt_business
+  title: "并购重组方案"
+  template: |
+    你是一位并购顾问，擅长让"复杂的交易"变成"清晰的增值故事"。
+    
+    交易信息：
+    - 收购方：{acquirer}
+    - 目标公司：{target}
+    - 交易目的：{purpose}
+    
+    请帮我：
+    1. 按"战略逻辑→标的公司→估值分析→协同效应→整合计划→风险提示"设计结构
+    2. 给出"投资人听得懂"的话术，避免过多财务术语
+    3. 标出需要放财务数据/估值模型/整合时间线的位置
+    4. 给出"监管审批"和"员工安置"的专项页
+    
+    输出格式：
+    - 每页包含：标题、核心论点、数据支撑、风险提醒
+    - 附"并购PPT禁忌"（估值不合理、协同效应夸大、忽视监管、文化冲突不提）
+  variables:
+    - name: acquirer
+      description: "收购方名称"
+      required: true
+    - name: target
+      description: "目标公司名称"
+      required: true
+    - name: purpose
+      description: "并购目的，如：技术获取、市场扩张、产业链整合"
+      required: true
+  intent_tags: ["并购", "重组", "收购", "M&A", "投资", "尽职调查", "商业计划", "资本运作"]
+  difficulty: advanced
+  quality_score: 0.91
+
+- id: ppt_business_018
+  domain: ppt
+  sub_domain: ppt_business
+  title: "供应链优化方案"
+  template: |
+    你是一位供应链专家，擅长把"复杂的物流网络"变成"成本下降的故事"。
+    
+    供应链信息：
+    - 行业：{industry}
+    - 当前痛点：{pain_points}
+    - 优化目标：{optimization_goal}
+    
+    请帮我：
+    1. 按"现状诊断→瓶颈分析→优化方案→实施路径→预期收益→风险管控"设计结构
+    2. 给出"流程图+数据对比"的展示建议
+    3. 标出需要放流程图/成本结构/供应商地图的位置
+    4. 给出"短期速赢"和"长期布局"两阶段方案
+    
+    输出格式：
+    - 每页包含：标题、分析要点、数据支撑、行动建议
+    - 附"供应链PPT禁忌"（流程太复杂一页放不下、成本数据不实、忽视风险、没有量化收益）
+  variables:
+    - name: industry
+      description: "所属行业"
+      required: true
+    - name: pain_points
+      description: "当前供应链痛点"
+      required: true
+    - name: optimization_goal
+      description: "优化目标，如：降本20%、缩短交期30%"
+      required: true
+  intent_tags: ["供应链", "物流", "优化", "降本增效", "供应链PPT", "采购", "仓储", "供应商"]
+  difficulty: intermediate
+  quality_score: 0.89
+
+- id: ppt_business_019
+  domain: ppt
+  sub_domain: ppt_business
+  title: "数字化转型方案"
+  template: |
+    你是一位数字化转型顾问，擅长让"老板听不懂的技术"变成"看得见的效益"。
+    
+    转型信息：
+    - 企业现状：{current_status}
+    - 转型目标：{digital_goal}
+    - 预算范围（选填）：{budget}
+    
+    请帮我：
+    1. 按"现状诊断→转型蓝图→实施路径→技术架构→组织变革→预期收益"设计结构
+    2. 给出"业务语言+技术支撑"的话术搭配
+    3. 标出需要放系统架构图/实施时间线/ROI计算的位置
+    4. 给出"速赢项目"和"长期建设"的优先级排序
+    
+    输出格式：
+    - 每页包含：标题、业务价值、技术方案、数据支撑
+    - 附"数字化转型PPT禁忌"（技术术语堆砌、没有业务价值、实施路径模糊、忽视变革管理）
+  variables:
+    - name: current_status
+      description: "企业当前数字化水平"
+      required: true
+    - name: digital_goal
+      description: "转型目标，如：智能制造、线上营销、数据中台"
+      required: true
+    - name: budget
+      description: "预算范围"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["数字化转型", "数字化", "信息化", "智能制造", "中台", "数字化方案", "IT规划"]
+  difficulty: advanced
+  quality_score: 0.92
+
+- id: ppt_business_020
+  domain: ppt
+  sub_domain: ppt_business
+  title: "企业文化建设"
+  template: |
+    你是一位企业文化顾问，擅长让"挂在墙上的标语"变成"员工心里的信仰"。
+    
+    文化信息：
+    - 企业名称：{company_name}
+    - 现有文化（选填）：{current_culture}
+    - 建设目标：{culture_goal}
+    
+    请帮我：
+    1. 按"文化诊断→核心理念→行为准则→落地机制→典型案例→未来展望"设计结构
+    2. 给出"有温度不肉麻"的话术，避免空洞口号
+    3. 标出需要放员工故事/活动照片/文化墙/价值观图解的位置
+    4. 给出"管理层/员工/新人"三个群体的文化落地页
+    
+    输出格式：
+    - 每页包含：标题、文化要点、故事案例、行动机制
+    - 附"文化PPT禁忌"（口号空洞、没有故事、领导一言堂、与制度脱节）
+  variables:
+    - name: company_name
+      description: "企业名称"
+      required: true
+    - name: current_culture
+      description: "现有文化现状"
+      required: false
+      default_value: "（用户未提供，请做通用设计）"
+    - name: culture_goal
+      description: "文化建设目标"
+      required: true
+  intent_tags: ["企业文化", "文化建设", "价值观", "文化落地", "企业使命", "愿景", "文化宣导"]
+  difficulty: beginner
+  quality_score: 0.88

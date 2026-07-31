@@ -40,30 +40,30 @@ models:
 agent_mappings:
   - agent_id: knowledge
     local_model: qwen2.5:1.5b
-    cloud_model: deepseek-r1-distill
+    cloud_model: deepseek-chat
     description: 知识检索与增强
 
   - agent_id: summary
     local_model: qwen2.5:1.5b
-    cloud_model: deepseek-r1-distill
+    cloud_model: deepseek-chat
     description: 需求摘要提取
 
   - agent_id: writer
     local_model: qwen2.5:1.5b
-    cloud_model: deepseek-r1-distill
+    cloud_model: deepseek-chat
     description: 内容生成与文档撰写
 
   - agent_id: review
     local_model: phi4-mini:3.8b
-    cloud_model: deepseek-r1-distill
+    cloud_model: deepseek-chat
     description: 质量评审与检查
 
   - agent_id: judge
     local_model: qwen2.5:1.5b
-    cloud_model: deepseek-r1-distill
+    cloud_model: deepseek-chat
     description: 复杂度判断与路由决策
 
   - agent_id: result
     local_model: qwen2.5:1.5b
-    cloud_model: deepseek-r1-distill
+    cloud_model: deepseek-chat
     description: 结果导出与格式转换

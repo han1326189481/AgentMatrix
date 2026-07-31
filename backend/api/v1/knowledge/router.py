@@ -1,40 +1,33 @@
-import sys
-import os
-
-backend_dir = os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-if backend_dir not in sys.path:
-    sys.path.insert(0, backend_dir)
-
-knowledge_service_path = os.path.join(backend_dir, 'knowledge', 'service.py')
-if os.path.exists(knowledge_service_path):
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("knowledge.service", knowledge_service_path)
-    knowledge_service = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(knowledge_service)
-    KnowledgeService = knowledge_service.KnowledgeService
-else:
-    from knowledge.service import KnowledgeService
-
-from fastapi import APIRouter, Depends, HTTPException
-from typing import Dict, Any, List
+"""知识库 API 路由 - MySQL 持久化版本"""
+from fastapi import APIRouter, HTTPException
+from typing import List
 from pydantic import BaseModel
+from knowledge.mysql_service import get_knowledge_service
 
 router = APIRouter()
 
-_knowledge_service = KnowledgeService()
+_knowledge_service = get_knowledge_service()
 
 
-class KnowledgeItem(BaseModel):
+class KnowledgeItemModel(BaseModel):
     keyword: str
     content: List[str]
+
+
+class KnowledgeAddModel(BaseModel):
+    keyword: str
+    content: str
+    category: str = "general"
+    confidence: float = 0.8
+    source: str = "system"
 
 
 @router.get("/")
 async def get_all_knowledge():
     stats = _knowledge_service.get_knowledge_stats()
+    keywords = _knowledge_service.get_all_keywords()
     return {
-        "knowledge_base": _knowledge_service.knowledge_base,
-        "keywords": _knowledge_service.get_all_keywords(),
+        "keywords": keywords,
         "stats": stats
     }
 
@@ -56,13 +49,15 @@ async def get_knowledge_by_keyword(keyword: str):
 
 
 @router.post("/")
-async def add_knowledge(item: KnowledgeItem):
-    _knowledge_service.add_knowledge(item.keyword, item.content)
-    return {"status": "success", "keyword": item.keyword}
+async def add_knowledge(item: KnowledgeAddModel):
+    kid = _knowledge_service.add_knowledge(
+        item.keyword, item.content, item.category, item.confidence, item.source
+    )
+    return {"status": "success", "keyword": item.keyword, "id": kid}
 
 
 @router.put("/keyword/{keyword}")
-async def update_knowledge(keyword: str, content: List[str]):
+async def update_knowledge(keyword: str, content: str):
     success = _knowledge_service.update_knowledge(keyword, content)
     if not success:
         raise HTTPException(status_code=404, detail=f"Keyword {keyword} not found")
@@ -71,10 +66,10 @@ async def update_knowledge(keyword: str, content: List[str]):
 
 @router.delete("/keyword/{keyword}")
 async def delete_knowledge(keyword: str):
-    success = _knowledge_service.delete_knowledge(keyword)
-    if not success:
+    count = _knowledge_service.delete_knowledge(keyword)
+    if count == 0:
         raise HTTPException(status_code=404, detail=f"Keyword {keyword} not found")
-    return {"status": "success", "keyword": keyword}
+    return {"status": "success", "keyword": keyword, "deleted": count}
 
 
 @router.get("/search")
@@ -95,3 +90,8 @@ async def enhance_content(content: str, keywords: List[str]):
         "enhanced": enhanced,
         "keywords": keywords
     }
+
+
+@router.get("/categories")
+async def get_categories():
+    return {"categories": _knowledge_service.get_all_categories()}

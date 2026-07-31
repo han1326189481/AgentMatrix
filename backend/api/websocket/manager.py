@@ -64,5 +64,76 @@ class WebSocketManager:
         }
         await self.send_message(message)
 
+    async def broadcast_vision_progress(self, progress: Dict[str, Any]) -> None:
+        """V3.2: 推送视觉识别进度（前端用于更新缩略图弹窗的进度条）
+
+        progress 结构:
+        {
+            "current": int,       # 当前第几张（0=切换模型中，1..total=识别中）
+            "total": int,         # 总图片数
+            "status": str,        # 状态描述（如"正在识别第 1/3 张图片..."）
+            "phase": str,         # 阶段: "switching" | "recognizing" | "completed"
+        }
+        """
+        message = {
+            "type": "vision_progress",
+            "data": progress
+        }
+        await self.send_message(message)
+
+    async def broadcast_audit_progress(self, progress: Dict[str, Any]) -> None:
+        """V3.3: 推送知识库质检进度（前端用于显示质检弹窗）
+
+        progress 结构:
+        {
+            "phase": str,         # 阶段: "start" | "processing" | "completed" | "error"
+            "current": int,       # 当前已处理数量
+            "total": int,         # 总数量
+            "message": str,       # 进度描述
+            "stats": dict,        # 质检统计（filtered/replaced/removed/...）
+            "timestamp": str,     # ISO 8601 时间戳
+        }
+        """
+        message = {
+            "type": "audit_progress",
+            "data": progress
+        }
+        logger.info(
+            f"[WebSocket] broadcast_audit_progress: phase={progress.get('phase')}, "
+            f"current={progress.get('current')}/{progress.get('total')}, "
+            f"connections={len(self.active_connections)}"
+        )
+        await self.send_message(message)
+
+    async def broadcast_clarify_request(self, clarify_data: Dict[str, Any]) -> None:
+        """V3.4: 推送抱怨澄清请求（前端用于显示澄清弹窗，让用户选择理解方向）
+
+        clarify_data 结构:
+        {
+            "questions": [
+                {
+                    "id": "q1",
+                    "question": "请问您真正想了解的是哪方面？",
+                    "options": ["A: ...", "B: ..."]
+                },
+                ...
+            ],
+            "complaint_type": str,            # 抱怨类型
+            "user_input_summary": str,        # 用户输入摘要（前80字）
+            "timestamp": str                  # ISO 8601 时间戳
+        }
+        """
+        message = {
+            "type": "clarify_request",
+            "data": clarify_data
+        }
+        logger.info(
+            f"[WebSocket] broadcast_clarify_request: "
+            f"questions={len(clarify_data.get('questions', []))}, "
+            f"type={clarify_data.get('complaint_type')}, "
+            f"connections={len(self.active_connections)}"
+        )
+        await self.send_message(message)
+
     def get_connection_count(self) -> int:
         return len(self.active_connections)

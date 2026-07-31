@@ -6,6 +6,13 @@ from api.v1.metrics.router import router as metrics_router
 from api.v1.knowledge.router import router as knowledge_router
 from api.v1.export.router import router as export_router
 from api.v1.config.router import router as config_router
+from api.v1.recommend.router import router as recommend_router
+from api.v1.graph.router import router as graph_router
+from api.v1.brain.router import router as brain_router
+from api.v1.reasoning.router import router as reasoning_router
+from api.v1.learning.router import router as learning_router
+from api.v1.sandbox.router import router as sandbox_router
+from api.v1.settings.router import router as settings_router
 
 router = APIRouter()
 
@@ -16,3 +23,10 @@ router.include_router(metrics_router, prefix="/metrics", tags=["metrics"])
 router.include_router(knowledge_router, prefix="/knowledge", tags=["knowledge"])
 router.include_router(export_router, prefix="/export", tags=["export"])
 router.include_router(config_router, prefix="/config", tags=["config"])
+router.include_router(recommend_router, prefix="/recommend", tags=["recommend"])
+router.include_router(graph_router, prefix="/graph", tags=["graph"])
+router.include_router(brain_router, prefix="/brain", tags=["brain"])
+router.include_router(reasoning_router, prefix="/reasoning", tags=["reasoning"])
+router.include_router(learning_router, prefix="/learning", tags=["learning"])
+router.include_router(sandbox_router, prefix="/sandbox", tags=["sandbox"])
+router.include_router(settings_router, prefix="/settings", tags=["settings"])

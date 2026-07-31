@@ -1,0 +1,1096 @@
+- id: writing_report_001
+  domain: writing
+  sub_domain: writing_report
+  title: "调研报告怎么写，领导要听真话"
+  template: |
+    你是一位资深调研员，深知"调研报告写得好，决策不跑偏；写不好，白跑一趟"。
+
+    调研信息：
+    - 调研主题：{topic}
+    - 调研对象/范围：{scope}
+    - 调研方法：{method}
+    - 主要发现：{findings}
+    - 存在问题：{problems}
+    - 对策建议：{suggestions}
+    - 报告单位：{department}
+
+    请直接输出一份完整的调研报告，3000-5000字，可直接提交。
+
+    要求：
+    1. 用{style}风格，适合{audience}阅读
+    2. 数据真实，不编造
+    3. 问题要尖锐但客观，建议要可操作
+    4. 结构：背景→方法→现状→问题→建议→附录
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整调研报告正文
+    - 调研问卷/访谈提纲模板（如有）
+  variables:
+    - name: topic
+      description: "调研主题"
+      required: true
+    - name: scope
+      description: "调研对象和范围"
+      required: true
+    - name: method
+      description: "调研方法"
+      options: ["问卷调查", "深度访谈", "实地走访", "数据分析", "文献研究", "混合方法"]
+      required: true
+    - name: findings
+      description: "主要发现"
+      required: true
+    - name: problems
+      description: "发现的问题"
+      required: true
+    - name: suggestions
+      description: "对策建议"
+      required: true
+    - name: department
+      description: "报告单位"
+      required: true
+    - name: style
+      description: "写作风格"
+      options: ["务实客观", "问题导向", "数据驱动", "政策建议"]
+      required: false
+      default_value: "务实客观"
+    - name: audience
+      description: "阅读对象"
+      options: ["党政机关", "企业管理层", "学术评审", "社会公众"]
+      required: false
+      default_value: "党政机关"
+  intent_tags: ["调研报告", "调查报告", "怎么写调研", "帮我写报告", "调研材料", "实地考察", "调研汇报"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_report_002
+  domain: writing
+  sub_domain: writing_report
+  title: "可行性研究报告怎么写，项目能不能干"
+  template: |
+    你是一位投资决策顾问，深知"可研报告写得好，钱投得准；写不好，血本无归"。
+
+    项目信息：
+    - 项目名称：{project_name}
+    - 项目背景：{background}
+    - 市场分析：{market}
+    - 技术方案：{tech}
+    - 投资估算：{investment}
+    - 风险分析：{risks}
+    - 经济效益：{benefits}
+
+    请直接输出一份完整的可行性研究报告，可直接用于立项或融资。
+
+    要求：
+    1. 数据有据可查，不拍脑袋
+    2. 风险不回避，也不夸大
+    3. 包含市场、技术、财务、风险、组织五个维度
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整可研报告正文
+    - 财务测算表模板
+  variables:
+    - name: project_name
+      description: "项目名称"
+      required: true
+    - name: background
+      description: "项目背景和必要性"
+      required: true
+    - name: market
+      description: "市场分析"
+      required: true
+    - name: tech
+      description: "技术方案或实施路径"
+      required: true
+    - name: investment
+      description: "投资估算"
+      required: true
+    - name: risks
+      description: "风险分析"
+      required: true
+    - name: benefits
+      description: "经济效益或社会效益"
+      required: true
+  intent_tags: ["可行性研究", "可研报告", "项目立项", "投资决策", "帮我写报告", "项目报告", "可行性分析"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: writing_report_003
+  domain: writing
+  sub_domain: writing_report
+  title: "事故分析报告怎么写，出了事要复盘"
+  template: |
+    你是一位安全管理专家，深知"事故报告写得好，同样的错误不再犯"。
+
+    事故信息：
+    - 事故时间地点：{time_location}
+    - 事故经过：{process}
+    - 直接原因：{direct_cause}
+    - 根本原因：{root_cause}
+    - 责任认定：{responsibility}
+    - 整改措施：{measures}
+    - 报告单位：{department}
+
+    请直接输出一份完整的事故分析报告，可直接提交监管部门或内部存档。
+
+    要求：
+    1. 事实清楚，时间线精确到分钟
+    2. 原因分析用"鱼骨图"思维，不甩锅
+    3. 整改措施具体、可验证、有时限
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整事故分析报告正文
+    - 整改措施清单（责任人+完成时限）
+  variables:
+    - name: time_location
+      description: "事故时间和地点"
+      required: true
+    - name: process
+      description: "事故经过"
+      required: true
+    - name: direct_cause
+      description: "直接原因"
+      required: true
+    - name: root_cause
+      description: "根本原因"
+      required: true
+    - name: responsibility
+      description: "责任认定"
+      required: true
+    - name: measures
+      description: "整改措施"
+      required: true
+    - name: department
+      description: "报告单位"
+      required: true
+  intent_tags: ["事故报告", "事故分析", "安全报告", "事故复盘", "帮我写报告", "事故调查", "事故通报"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_report_004
+  domain: writing
+  sub_domain: writing_report
+  title: "财务分析报告怎么写，数字会说话"
+  template: |
+    你是一位财务总监，深知"财务报告写得好，老板看得懂；写不好，一堆数字没人看"。
+
+    分析信息：
+    - 分析周期：{period}
+    - 分析对象：{subject}
+    - 核心财务数据：{data}
+    - 同比/环比变化：{changes}
+    - 异常项说明：{anomalies}
+    - 建议措施：{suggestions}
+
+    请直接输出一份完整的财务分析报告，非财务人员也能看懂。
+
+    要求：
+    1. 用通俗语言解释财务术语
+    2. 图表结合，数据可视化
+    3. 不仅说"是什么"，还说"为什么"和"怎么办"
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整财务分析报告正文
+    - 关键指标解读（用大白话解释）
+  variables:
+    - name: period
+      description: "分析周期"
+      required: true
+    - name: subject
+      description: "分析对象，如：公司整体/某部门/某项目"
+      required: true
+    - name: data
+      description: "核心财务数据"
+      required: true
+    - name: changes
+      description: "同比或环比变化"
+      required: true
+    - name: anomalies
+      description: "异常项说明"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: suggestions
+      description: "建议措施"
+      required: true
+  intent_tags: ["财务报告", "财务分析", "怎么写财务", "帮我写报告", "经营分析", "财务报表", "财务汇报"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_report_005
+  domain: writing
+  sub_domain: writing_report
+  title: "市场分析报告怎么写，看清行业趋势"
+  template: |
+    你是一位行业研究专家，深知"市场报告写得好，战略不跑偏"。
+
+    分析信息：
+    - 分析行业/市场：{market}
+    - 分析目的：{purpose}
+    - 市场规模数据：{size}
+    - 竞争格局：{competition}
+    - 趋势判断：{trends}
+    - 机会与威胁：{swot}
+    - 建议：{suggestions}
+
+    请直接输出一份完整的市场分析报告，可直接用于战略决策。
+
+    要求：
+    1. 数据来源标注，不编造
+    2. 竞争分析客观，不贬低对手
+    3. 趋势判断有依据，不拍脑袋
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整市场分析报告正文
+    - 竞争对手对比表
+  variables:
+    - name: market
+      description: "分析的行业或市场"
+      required: true
+    - name: purpose
+      description: "分析目的"
+      required: true
+    - name: size
+      description: "市场规模数据"
+      required: true
+    - name: competition
+      description: "竞争格局"
+      required: true
+    - name: trends
+      description: "趋势判断"
+      required: true
+    - name: swot
+      description: "机会与威胁分析"
+      required: true
+    - name: suggestions
+      description: "战略建议"
+      required: true
+  intent_tags: ["市场分析", "行业报告", "市场研究", "帮我写报告", "行业分析", "市场调研", "竞争分析"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_report_006
+  domain: writing
+  sub_domain: writing_report
+  title: "风险评估报告怎么写，把风险讲清楚"
+  template: |
+    你一位风险管理专家，深知"风险报告写得好，决策有底气"。
+
+    评估信息：
+    - 评估对象：{subject}
+    - 评估范围：{scope}
+    - 识别出的风险：{risks}
+    - 风险等级：{levels}
+    - 应对措施：{measures}
+    - 应急预案：{contingency}
+    - 报告单位：{department}
+
+    请直接输出一份完整的风险评估报告，可直接用于决策参考。
+
+    要求：
+    1. 风险描述具体，不笼统
+    2. 等级划分有标准（高/中/低+概率+影响）
+    3. 措施对应到具体风险，一一对应
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整风险评估报告正文
+    - 风险矩阵表（风险+概率+影响+等级+措施）
+  variables:
+    - name: subject
+      description: "评估对象"
+      required: true
+    - name: scope
+      description: "评估范围"
+      required: true
+    - name: risks
+      description: "识别出的风险"
+      required: true
+    - name: levels
+      description: "风险等级划分"
+      required: true
+    - name: measures
+      description: "应对措施"
+      required: true
+    - name: contingency
+      description: "应急预案"
+      required: false
+      default_value: "（用户未提供，给出通用预案）"
+    - name: department
+      description: "报告单位"
+      required: true
+  intent_tags: ["风险评估", "风险报告", "风险管理", "帮我写报告", "安全评估", "项目风险", "风险分析"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_report_007
+  domain: writing
+  sub_domain: writing_report
+  title: "项目验收报告怎么写，顺利结项"
+  template: |
+    你是一位项目管理专家，深知"验收报告写得好，尾款来得快"。
+
+    验收信息：
+    - 项目名称：{project}
+    - 合同要求：{requirements}
+    - 实际完成情况：{completion}
+    - 测试/验收结果：{test_results}
+    - 遗留问题：{issues}
+    - 交付物清单：{deliverables}
+    - 验收单位：{department}
+
+    请直接输出一份完整的项目验收报告，可直接用于正式验收。
+
+    要求：
+    1. 对照合同，逐条验收
+    2. 遗留问题不隐瞒，但给出解决计划
+    3. 交付物清单完整，编号清晰
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整验收报告正文
+    - 验收检查表（合同条款vs实际完成）
+  variables:
+    - name: project
+      description: "项目名称"
+      required: true
+    - name: requirements
+      description: "合同或任务书要求"
+      required: true
+    - name: completion
+      description: "实际完成情况"
+      required: true
+    - name: test_results
+      description: "测试或验收结果"
+      required: true
+    - name: issues
+      description: "遗留问题"
+      required: false
+      default_value: "无遗留问题"
+    - name: deliverables
+      description: "交付物清单"
+      required: true
+    - name: department
+      description: "验收单位"
+      required: true
+  intent_tags: ["验收报告", "项目验收", "结项报告", "帮我写报告", "项目总结", "验收材料", "项目交付"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_report_008
+  domain: writing
+  sub_domain: writing_report
+  title: "环境影响评价报告怎么写，合规不踩雷"
+  template: |
+    你是一位环评工程师，深知"环评报告写得好，项目审批快；写不好，直接被退"。
+
+    项目信息：
+    - 项目名称：{project}
+    - 项目地点：{location}
+    - 项目内容：{content}
+    - 环境现状：{environment}
+    - 潜在影响：{impact}
+    - 环保措施：{measures}
+    - 监测计划：{monitoring}
+
+    请直接输出一份完整的环境影响评价报告章节，可直接用于环评申报。
+
+    要求：
+    1. 符合环评技术导则要求
+    2. 数据真实，预测有依据
+    3. 环保措施具体、可落实
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整环评报告正文（重点章节）
+    - 环保措施清单
+  variables:
+    - name: project
+      description: "项目名称"
+      required: true
+    - name: location
+      description: "项目地点"
+      required: true
+    - name: content
+      description: "项目主要内容"
+      required: true
+    - name: environment
+      description: "环境现状"
+      required: true
+    - name: impact
+      description: "潜在环境影响"
+      required: true
+    - name: measures
+      description: "环保措施"
+      required: true
+    - name: monitoring
+      description: "环境监测计划"
+      required: false
+      default_value: "（用户未提供，给出通用监测方案）"
+  intent_tags: ["环评报告", "环境影响", "环保报告", "帮我写报告", "项目环评", "环境评估", "环保材料"]
+  difficulty: advanced
+  quality_score: 0.92
+
+- id: writing_report_009
+  domain: writing
+  sub_domain: writing_report
+  title: "用户调研报告怎么写，产品改进有依据"
+  template: |
+    你是一位用户研究专家，深知"用户报告写得好，产品不跑偏"。
+
+    调研信息：
+    - 调研目标：{goal}
+    - 调研对象：{users}
+    - 调研方法：{method}
+    - 核心发现：{findings}
+    - 用户痛点：{pain_points}
+    - 改进建议：{suggestions}
+    - 产品/业务方：{team}
+
+    请直接输出一份完整的用户调研报告，可直接用于产品迭代讨论。
+
+    要求：
+    1. 用用户原话（quote）支撑观点
+    2.  personas 清晰，不笼统
+    3. 建议对应到具体发现，可追溯
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整用户调研报告正文
+    - 用户画像模板
+  variables:
+    - name: goal
+      description: "调研目标"
+      required: true
+    - name: users
+      description: "调研对象"
+      required: true
+    - name: method
+      description: "调研方法"
+      options: ["用户访谈", "可用性测试", "问卷调查", "焦点小组", "行为数据分析"]
+      required: true
+    - name: findings
+      description: "核心发现"
+      required: true
+    - name: pain_points
+      description: "用户痛点"
+      required: true
+    - name: suggestions
+      description: "改进建议"
+      required: true
+    - name: team
+      description: "产品或业务团队"
+      required: true
+  intent_tags: ["用户调研", "调研报告", "用户研究", "帮我写报告", "产品调研", "用户体验", "UX报告"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_report_010
+  domain: writing
+  sub_domain: writing_report
+  title: "竞品分析报告怎么写，知己知彼"
+  template: |
+    你是一位战略分析师，深知"竞品分析写得好，差异化策略自然来"。
+
+    分析信息：
+    - 自家产品：{our_product}
+    - 竞品名称：{competitor}
+    - 分析维度：{dimensions}
+    - 竞品优势：{competitor_advantages}
+    - 竞品劣势：{competitor_weaknesses}
+    - 我们的机会：{opportunities}
+    - 应对策略：{strategy}
+
+    请直接输出一份完整的竞品分析报告，可直接用于战略会议。
+
+    要求：
+    1. 客观公正，不贬低对手，也不过度抬高
+    2. 对比维度一致， apples to apples
+    3. 结论有数据支撑，不空泛
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整竞品分析报告正文
+    - 竞品对比矩阵表
+  variables:
+    - name: our_product
+      description: "自家产品或服务"
+      required: true
+    - name: competitor
+      description: "竞品名称"
+      required: true
+    - name: dimensions
+      description: "分析维度，如：功能/价格/用户体验/渠道"
+      required: true
+    - name: competitor_advantages
+      description: "竞品优势"
+      required: true
+    - name: competitor_weaknesses
+      description: "竞品劣势"
+      required: true
+    - name: opportunities
+      description: "我们的机会点"
+      required: true
+    - name: strategy
+      description: "应对策略"
+      required: true
+  intent_tags: ["竞品分析", "竞争分析", "竞品报告", "帮我写报告", "市场分析", "竞争对手", "战略分析"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_report_011
+  domain: writing
+  sub_domain: writing_report
+  title: "年度经营报告怎么写，给股东/上级交卷"
+  template: |
+    你是一位上市公司董秘，深知"年报写得好，投资者有信心"。
+
+    经营信息：
+    - 报告年度：{year}
+    - 公司/单位：{company}
+    - 主要经营数据：{data}
+    - 业务回顾：{review}
+    - 行业环境：{industry}
+    - 未来展望：{outlook}
+    - 风险因素：{risks}
+
+    请直接输出一份完整的年度经营报告，可直接发布或上报。
+
+    要求：
+    1. 业绩数据准确，同比环比清晰
+    2. 不回避挑战，但展示应对能力
+    3. 展望务实，不画大饼
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整年度经营报告正文
+    - 关键数据摘要（方便快速阅读）
+  variables:
+    - name: year
+      description: "报告年度"
+      required: true
+    - name: company
+      description: "公司或单位名称"
+      required: true
+    - name: data
+      description: "主要经营数据"
+      required: true
+    - name: review
+      description: "业务回顾"
+      required: true
+    - name: industry
+      description: "行业环境分析"
+      required: true
+    - name: outlook
+      description: "未来展望"
+      required: true
+    - name: risks
+      description: "风险因素"
+      required: false
+      default_value: "（用户未提供，给出通用风险表述）"
+  intent_tags: ["年度报告", "经营报告", "年报", "帮我写报告", "经营分析", "年度总结", "股东报告"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: writing_report_012
+  domain: writing
+  sub_domain: writing_report
+  title: "安全评估报告怎么写，排查隐患"
+  template: |
+    你是一位注册安全工程师，深知"安全报告写得好，事故少发生"。
+
+    评估信息：
+    - 评估对象：{subject}
+    - 评估范围：{scope}
+    - 检查方法：{method}
+    - 发现的隐患：{hazards}
+    - 风险等级：{levels}
+    - 整改建议：{suggestions}
+    - 评估单位：{department}
+
+    请直接输出一份完整的安全评估报告，可直接用于安全检查。
+
+    要求：
+    1. 隐患描述具体，有位置、有照片编号
+    2. 风险等级划分标准明确
+    3. 整改建议分"立即整改"和"限期整改"
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整安全评估报告正文
+    - 隐患整改清单（位置+问题+等级+建议+时限）
+  variables:
+    - name: subject
+      description: "评估对象"
+      required: true
+    - name: scope
+      description: "评估范围"
+      required: true
+    - name: method
+      description: "检查方法"
+      options: ["现场检查", "资料审查", "设备检测", "人员访谈", "综合评估"]
+      required: true
+    - name: hazards
+      description: "发现的隐患"
+      required: true
+    - name: levels
+      description: "风险等级"
+      required: true
+    - name: suggestions
+      description: "整改建议"
+      required: true
+    - name: department
+      description: "评估单位"
+      required: true
+  intent_tags: ["安全评估", "安全报告", "隐患排查", "帮我写报告", "安全检查", "安全生产", "风险评估"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_report_013
+  domain: writing
+  sub_domain: writing_report
+  title: "尽职调查报告怎么写，投资前摸底"
+  template: |
+    你是一位投行尽调专家，深知"尽调报告写得好，投资不踩雷"。
+
+    尽调信息：
+    - 目标公司：{target}
+    - 尽调范围：{scope}
+    - 业务尽调发现：{business}
+    - 财务尽调发现：{financial}
+    - 法律尽调发现：{legal}
+    - 主要风险：{risks}
+    - 投资建议：{recommendation}
+
+    请直接输出一份完整的尽职调查报告，可直接用于投资决策。
+
+    要求：
+    1. 事实准确，有据可查
+    2. 风险不隐瞒，但也不危言耸听
+    3. 建议明确，投或不投，条件是什么
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整尽调报告正文
+    - 风险清单（风险+影响+概率+缓释措施）
+  variables:
+    - name: target
+      description: "目标公司或项目"
+      required: true
+    - name: scope
+      description: "尽调范围"
+      options: ["全面尽调", "业务尽调", "财务尽调", "法律尽调", "人力资源尽调"]
+      required: true
+    - name: business
+      description: "业务尽调发现"
+      required: true
+    - name: financial
+      description: "财务尽调发现"
+      required: true
+    - name: legal
+      description: "法律尽调发现"
+      required: true
+    - name: risks
+      description: "主要风险"
+      required: true
+    - name: recommendation
+      description: "投资建议"
+      required: true
+  intent_tags: ["尽职调查", "尽调报告", "投资尽调", "帮我写报告", "投资分析", "并购尽调", "风控报告"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: writing_report_014
+  domain: writing
+  sub_domain: writing_report
+  title: "培训效果评估报告怎么写，培训有没有用"
+  template: |
+    你是一位培训评估专家，深知"培训报告写得好，下次预算批得快"。
+
+    评估信息：
+    - 培训主题：{topic}
+    - 参训人员：{attendees}
+    - 培训方式：{method}
+    - 满意度数据：{satisfaction}
+    - 知识测试成绩：{test_scores}
+    - 行为改变观察：{behavior}
+    - 业务结果影响：{results}
+
+    请直接输出一份完整的培训效果评估报告，可直接用于HR汇报。
+
+    要求：
+    1. 用柯氏四级评估模型（反应→学习→行为→结果）
+    2. 数据说话，满意度、测试分、业绩变化都要有
+    3. 不足不回避，改进建议具体
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整培训评估报告正文
+    - 培训ROI分析
+  variables:
+    - name: topic
+      description: "培训主题"
+      required: true
+    - name: attendees
+      description: "参训人员"
+      required: true
+    - name: method
+      description: "培训方式"
+      options: ["线上课程", "线下授课", "工作坊", "导师制", "混合式"]
+      required: true
+    - name: satisfaction
+      description: "满意度数据"
+      required: true
+    - name: test_scores
+      description: "知识测试成绩"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: behavior
+      description: "行为改变观察"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: results
+      description: "业务结果影响"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+  intent_tags: ["培训评估", "培训报告", "效果评估", "帮我写报告", "培训总结", "HR报告", "学习发展"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: writing_report_015
+  domain: writing
+  sub_domain: writing_report
+  title: "IT系统运维报告怎么写，系统稳不稳"
+  template: |
+    你一位IT运维总监，深知"运维报告写得好，领导知道你没闲着"。
+
+    运维信息：
+    - 报告周期：{period}
+    - 系统名称：{system}
+    - 可用性数据：{availability}
+    - 故障记录：{incidents}
+    - 处理措施：{measures}
+    - 优化建议：{suggestions}
+    - 运维团队：{team}
+
+    请直接输出一份完整的IT运维报告，可直接提交技术管理层。
+
+    要求：
+    1. 可用性数据精确到小数点后两位
+    2. 故障记录有时间、影响、根因、解决时长
+    3. 建议有优先级，分紧急/重要/一般
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整运维报告正文
+    - 故障统计表（时间+系统+影响+根因+解决时长）
+  variables:
+    - name: period
+      description: "报告周期"
+      required: true
+    - name: system
+      description: "系统名称"
+      required: true
+    - name: availability
+      description: "可用性数据，如：99.95%"
+      required: true
+    - name: incidents
+      description: "故障记录"
+      required: true
+    - name: measures
+      description: "处理措施"
+      required: true
+    - name: suggestions
+      description: "优化建议"
+      required: true
+    - name: team
+      description: "运维团队"
+      required: true
+  intent_tags: ["运维报告", "IT报告", "系统运维", "帮我写报告", "技术报告", "运维总结", "可用性报告"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: writing_report_016
+  domain: writing
+  sub_domain: writing_report
+  title: "审计报告怎么写，审计完要出结论"
+  template: |
+    你是一位注册会计师，深知"审计报告写得好，各方都服气"。
+
+    审计信息：
+    - 审计对象：{subject}
+    - 审计期间：{period}
+    - 审计范围：{scope}
+    - 审计发现：{findings}
+    - 问题分类：{categories}
+    - 整改建议：{suggestions}
+    - 审计意见：{opinion}
+    - 审计单位：{department}
+
+    请直接输出一份完整的审计报告，可直接出具。
+
+    要求：
+    1. 事实清楚，证据充分
+    2. 问题定性准确，不夸大不缩小
+    3. 审计意见明确（无保留/保留/否定/无法表示）
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整审计报告正文
+    - 审计发现清单（问题+证据+影响+建议）
+  variables:
+    - name: subject
+      description: "审计对象"
+      required: true
+    - name: period
+      description: "审计期间"
+      required: true
+    - name: scope
+      description: "审计范围"
+      required: true
+    - name: findings
+      description: "审计发现"
+      required: true
+    - name: categories
+      description: "问题分类"
+      required: true
+    - name: suggestions
+      description: "整改建议"
+      required: true
+    - name: opinion
+      description: "审计意见"
+      options: ["无保留意见", "保留意见", "否定意见", "无法表示意见"]
+      required: true
+    - name: department
+      description: "审计单位"
+      required: true
+  intent_tags: ["审计报告", "财务审计", "内部审计", "帮我写报告", "审计结论", "审计意见", "审计材料"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: writing_report_017
+  domain: writing
+  sub_domain: writing_report
+  title: "客户满意度调查报告怎么写，客户声音要听见"
+  template: |
+    你是一位客户体验专家，深知"满意度报告写得好，客户流失能减少"。
+
+    调查信息：
+    - 调查周期：{period}
+    - 调查对象：{customers}
+    - 调查方式：{method}
+    - 满意度得分：{scores}
+    - 主要反馈：{feedback}
+    - 不满意原因：{complaints}
+    - 改进计划：{plan}
+    - 负责部门：{department}
+
+    请直接输出一份完整的客户满意度调查报告，可直接用于管理层汇报。
+
+    要求：
+    1. NPS/CSAT 数据清晰，分维度展示
+    2. 客户原话引用，增强说服力
+    3. 改进计划对应到具体反馈，闭环管理
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整满意度报告正文
+    - 客户反馈分类表（主题+频次+典型原话+改进措施）
+  variables:
+    - name: period
+      description: "调查周期"
+      required: true
+    - name: customers
+      description: "调查对象"
+      required: true
+    - name: method
+      description: "调查方式"
+      options: ["电话回访", "在线问卷", "面对面访谈", "APP内评价", "混合方式"]
+      required: true
+    - name: scores
+      description: "满意度得分"
+      required: true
+    - name: feedback
+      description: "主要反馈"
+      required: true
+    - name: complaints
+      description: "不满意原因"
+      required: true
+    - name: plan
+      description: "改进计划"
+      required: true
+    - name: department
+      description: "负责部门"
+      required: true
+  intent_tags: ["满意度调查", "客户报告", "满意度报告", "帮我写报告", "客户体验", "NPS报告", "客户反馈"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: writing_report_018
+  domain: writing
+  sub_domain: writing_report
+  title: "质量检测报告怎么写，产品合格吗"
+  template: |
+    你一位质量检测工程师，深知"质检报告写得好，质量责任分得清"。
+
+    检测信息：
+    - 产品名称：{product}
+    - 检测标准：{standard}
+    - 检测项目：{items}
+    - 检测结果：{results}
+    - 合格判定：{judgement}
+    - 不合格项处理：{handling}
+    - 检测单位：{department}
+
+    请直接输出一份完整的质量检测报告，可直接用于质量管控。
+
+    要求：
+    1. 检测数据准确，单位规范
+    2. 判定标准引用明确（国标/行标/企标）
+    3. 不合格项有处理建议，不回避
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整质检报告正文
+    - 检测数据汇总表
+  variables:
+    - name: product
+      description: "产品名称"
+      required: true
+    - name: standard
+      description: "检测标准"
+      required: true
+    - name: items
+      description: "检测项目"
+      required: true
+    - name: results
+      description: "检测结果"
+      required: true
+    - name: judgement
+      description: "合格判定"
+      options: ["合格", "不合格", "部分合格", "复检"]
+      required: true
+    - name: handling
+      description: "不合格项处理"
+      required: false
+      default_value: "（用户未提供，给出通用处理方案）"
+    - name: department
+      description: "检测单位"
+      required: true
+  intent_tags: ["质检报告", "质量检测", "检测报告", "帮我写报告", "产品质量", "检验报告", "质量管控"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: writing_report_019
+  domain: writing
+  sub_domain: writing_report
+  title: "活动总结报告怎么写，活动办完了要复盘"
+  template: |
+    你是一位活动策划老手，深知"活动总结写得好，下次活动更成功"。
+
+    活动信息：
+    - 活动名称：{event}
+    - 活动时间地点：{time_location}
+    - 活动目标：{goal}
+    - 实际参与情况：{attendance}
+    - 活动亮点：{highlights}
+    - 存在问题：{problems}
+    - 费用决算：{budget}
+    - 组织单位：{department}
+
+    请直接输出一份完整的活动总结报告，可直接用于复盘会议。
+
+    要求：
+    1. 目标达成度量化，不模糊
+    2. 亮点要具体，有照片/数据支撑
+    3. 问题要坦诚，改进建议可操作
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整活动总结正文
+    - 活动效果评估表（目标vs实际）
+  variables:
+    - name: event
+      description: "活动名称"
+      required: true
+    - name: time_location
+      description: "活动时间和地点"
+      required: true
+    - name: goal
+      description: "活动目标"
+      required: true
+    - name: attendance
+      description: "实际参与情况"
+      required: true
+    - name: highlights
+      description: "活动亮点"
+      required: true
+    - name: problems
+      description: "存在问题"
+      required: true
+    - name: budget
+      description: "费用决算"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: department
+      description: "组织单位"
+      required: true
+  intent_tags: ["活动总结", "活动报告", "活动复盘", "帮我写报告", "活动策划", "活动回顾", "活动评估"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: writing_report_020
+  domain: writing
+  sub_domain: writing_report
+  title: "社会责任报告/ESG报告怎么写，展示企业担当"
+  template: |
+    你是一位ESG咨询专家，深知"社会责任报告写得好，品牌形象加分"。
+
+    报告信息：
+    - 报告年度：{year}
+    - 公司/机构：{company}
+    - 环境维度成果：{environment}
+    - 社会维度成果：{social}
+    - 治理维度成果：{governance}
+    - 关键数据：{data}
+    - 未来承诺：{commitments}
+
+    请直接输出一份完整的社会责任/ESG报告，可直接发布。
+
+    要求：
+    1. 数据真实可验证，不漂绿
+    2. 对标GRI或交易所披露标准
+    3. 案例具体，有故事有数据
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整ESG报告正文
+    - ESG关键绩效指标表
+  variables:
+    - name: year
+      description: "报告年度"
+      required: true
+    - name: company
+      description: "公司或机构名称"
+      required: true
+    - name: environment
+      description: "环境维度成果"
+      required: true
+    - name: social
+      description: "社会维度成果"
+      required: true
+    - name: governance
+      description: "治理维度成果"
+      required: true
+    - name: data
+      description: "关键数据"
+      required: true
+    - name: commitments
+      description: "未来承诺"
+      required: true
+  intent_tags: ["ESG报告", "社会责任", "CSR报告", "帮我写报告", "企业责任", "可持续发展", "ESG披露"]
+  difficulty: advanced
+  quality_score: 0.93

@@ -2,11 +2,7 @@ from typing import Dict, Any, Optional
 import aiohttp
 import logging
 from app.config import settings
-import sys
-import os
 
-# Add parent directory to path for config import
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 try:
     from config.manager import load_config
 except ImportError:
@@ -24,7 +20,7 @@ class LLMClient:
         self.gemini_model = settings.gemini_model
         self.deepseek_api_key = getattr(settings, 'deepseek_api_key', '')
         self.deepseek_api_base = getattr(settings, 'deepseek_api_base', 'https://api.deepseek.com/v1')
-        self.deepseek_model = getattr(settings, 'deepseek_model', 'deepseek-chat')
+        self.deepseek_model = getattr(settings, 'deepseek_model', 'deepseek-v4-pro')
         self.dynamic_ollama_host = None
 
     async def generate_local(self, prompt: str, system_prompt: str = None, model: str = None) -> str:
@@ -35,7 +31,8 @@ class LLMClient:
             "prompt": prompt,
             "stream": False,
             "options": {
-                "num_ctx": 2048,
+                "num_ctx": 8192,
+                "num_predict": 4096,
                 "num_thread": 4
             }
         }
@@ -43,7 +40,7 @@ class LLMClient:
             payload["system"] = system_prompt
 
         try:
-            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60)) as session:
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=180)) as session:
                 async with session.post(url, json=payload) as response:
                     if response.status == 200:
                         data = await response.json()
@@ -65,7 +62,8 @@ class LLMClient:
             "prompt": prompt,
             "stream": True,
             "options": {
-                "num_ctx": 2048,
+                "num_ctx": 8192,
+                "num_predict": 4096,
                 "num_thread": 4,
                 "temperature": 0.3
             }
@@ -100,12 +98,39 @@ class LLMClient:
             logger.error(f"Failed to call Ollama stream: {e}")
             yield f"Error: {str(e)}"
 
-    async def generate_cloud(self, prompt: str, system_prompt: str = None) -> str:
+    async def generate_cloud(self, prompt: str, system_prompt: str = None, model: str = None) -> str:
+        # 优先检查用户配置的模型
+        try:
+            user_config = load_config()
+            user_models = user_config.get("models", [])
+            
+            if user_models:
+                # 如果指定了 model 名称，尝试匹配用户配置的模型
+                if model:
+                    for m in user_models:
+                        if m.get("name") == model or m.get("model") == model:
+                            # .env 中的 key 优先级高于用户配置
+                            if self.deepseek_api_key:
+                                m = dict(m)  # 不修改原始配置
+                                m["api_key"] = self.deepseek_api_key
+                            logger.info(f"[Cloud] 使用用户配置的模型: {m['name']} (provider={m.get('provider')})")
+                            return await self.generate_by_config(prompt, m, system_prompt)
+                
+                # 没有指定 model 或没匹配到，使用第一个用户配置的模型
+                first_model = dict(user_models[0])
+                # .env 中的 key 优先级高于用户配置
+                if self.deepseek_api_key:
+                    first_model["api_key"] = self.deepseek_api_key
+                logger.info(f"[Cloud] 使用第一个用户配置的模型: {first_model['name']} (provider={first_model.get('provider')})")
+                return await self.generate_by_config(prompt, first_model, system_prompt)
+        except Exception as e:
+            logger.warning(f"[Cloud] 读取用户配置失败，回退到默认 DeepSeek: {e}")
+        
+        # 回退：使用默认的 DeepSeek 配置
         if not self.deepseek_api_key:
             logger.error("DeepSeek API key not set")
             return "Error: DeepSeek API Key 未设置"
 
-        # 直接使用正确的 URL
         url = "https://api.deepseek.com/v1/chat/completions"
         
         logger.info(f"[DeepSeek] API URL: {url}")
@@ -116,13 +141,13 @@ class LLMClient:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
 
-        # 使用 deepseek-chat 模型
         payload = {
-            "model": "deepseek-chat",
+            "model": model or self.deepseek_model,
             "messages": messages,
             "temperature": 0.7,
-            "max_tokens": 2048
+            "max_tokens": 4096
         }
+        logger.info(f"[DeepSeek] 使用模型: {model or self.deepseek_model}")
 
         headers = {
             "Authorization": f"Bearer {self.deepseek_api_key}",
@@ -138,7 +163,17 @@ class LLMClient:
                         data = await response.json()
                         choices = data.get("choices", [])
                         if choices:
+                            usage = data.get('usage', {})
+                            prompt_tokens = usage.get('prompt_tokens', 0)
+                            completion_tokens = usage.get('completion_tokens', 0)
+                            total_tokens = usage.get('total_tokens', 0)
+
                             logger.info("[DeepSeek] API调用成功")
+                            logger.info(f"[DeepSeek] Token消耗 - prompt: {prompt_tokens}, completion: {completion_tokens}, total: {total_tokens}")
+
+                            if total_tokens > 0:
+                                logger.info(f"[DeepSeek] 💰 费用计算: {total_tokens} tokens")
+
                             return choices[0].get("message", {}).get("content", "")
                         logger.warning("[DeepSeek] API返回但没有choices")
                         return ""
@@ -165,10 +200,10 @@ class LLMClient:
     async def generate_by_config(self, prompt: str, model_config: dict, system_prompt: str = None) -> str:
         """使用配置好的模型来生成内容"""
         provider = model_config.get("provider", "deepseek")
-        model_name = model_config.get("model", "deepseek-chat")
+        model_name = model_config.get("model", "deepseek-v4-pro")
         api_key = model_config.get("api_key", self.deepseek_api_key)
         temperature = model_config.get("temperature", 0.7)
-        max_tokens = model_config.get("max_tokens", 2048)
+        max_tokens = model_config.get("max_tokens", 4096)
         
         logger.info(f"[ConfigModel] 使用配置模型: provider={provider}, model={model_name}")
         
@@ -203,11 +238,23 @@ class LLMClient:
             async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60)) as session:
                 async with session.post(url, json=payload, headers=headers) as response:
                     logger.info(f"[ConfigModel] Response status: {response.status}")
-                    
+
                     if response.status == 200:
                         data = await response.json()
                         choices = data.get("choices", [])
                         if choices:
+                            # V3.1: 记录 Token 消耗（供云端调用成本分析）
+                            usage = data.get('usage', {})
+                            prompt_tokens = usage.get('prompt_tokens', 0)
+                            completion_tokens = usage.get('completion_tokens', 0)
+                            total_tokens = usage.get('total_tokens', 0)
+                            if total_tokens > 0:
+                                logger.info(
+                                    f"[ConfigModel] Token消耗 - "
+                                    f"prompt: {prompt_tokens}, "
+                                    f"completion: {completion_tokens}, "
+                                    f"total: {total_tokens}"
+                                )
                             logger.info("[ConfigModel] API调用成功")
                             return choices[0].get("message", {}).get("content", "")
                         return ""
@@ -223,13 +270,15 @@ class LLMClient:
         """根据服务商获取API URL"""
         urls = {
             "deepseek": "https://api.deepseek.com/v1/chat/completions",
-            "openai": "https://api.openai.com/v1/chat/completions"
+            "openai": "https://api.openai.com/v1/chat/completions",
+            "gemini": "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
+            "anthropic": "https://api.anthropic.com/v1/messages"
         }
         return urls.get(provider, "https://api.deepseek.com/v1/chat/completions")
 
     async def generate(self, prompt: str, use_cloud: bool = False, system_prompt: str = None, model: str = None) -> str:
         if use_cloud:
-            return await self.generate_cloud(prompt, system_prompt)
+            return await self.generate_cloud(prompt, system_prompt, model=model)
         return await self.generate_local(prompt, system_prompt, model)
 
     async def generate_stream(self, prompt: str, use_cloud: bool = False, system_prompt: str = None, model: str = None):

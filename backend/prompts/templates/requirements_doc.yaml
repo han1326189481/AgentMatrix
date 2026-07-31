@@ -1,0 +1,43 @@
+# 需求文档模板
+# 适用：需求分析/文档类任务
+meta:
+  template_id: "requirements_doc"
+  name: "需求文档"
+  version: "1.0.0"
+  description: "适用于需求分析、功能说明、技术需求等文档类任务"
+
+applicable:
+  task_types: ["planning", "analysis", "coding"]
+  domains: ["tech", "business"]
+  keywords: ["需求文档", "需求分析", "功能需求", "技术需求", "需求规格", "PRD"]
+  min_length: 250
+
+sections:
+  - title: "文档概述"
+    content: "说明文档的目的、范围和目标读者"
+    required: true
+  - title: "业务需求"
+    content: "描述业务背景、用户痛点和业务目标"
+    required: true
+  - title: "功能需求"
+    content: "列出所有功能需求，包含优先级和详细描述"
+    required: true
+  - title: "非功能需求"
+    content: "性能、安全、可用性等非功能性需求"
+    required: false
+  - title: "约束条件"
+    content: "技术限制、时间限制、预算限制等约束"
+    required: false
+  - title: "验收标准"
+    content: "明确各项需求的验收标准和测试方法"
+    required: true
+
+output:
+  format: "markdown"
+  header_level: "##"
+  style: "technical"
+
+constraints:
+  - "需求描述需精确无歧义，可被开发和测试直接使用"
+  - "功能需求需包含优先级（P0/P1/P2）"
+  - "验收标准需可量化、可测试"

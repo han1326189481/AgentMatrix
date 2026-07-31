@@ -1,0 +1,40 @@
+# AgentMatrix Backend Dependencies
+# Python 3.10+ required
+# Generated: 2026-07-16 | Iteration 8 — Phase 9 依赖同步
+
+# Web Framework
+fastapi>=0.100.0
+uvicorn[standard]
+starlette
+
+# Database
+sqlalchemy
+pymysql
+cryptography==3.4.8  # 兼容 Python 3.9.0，更高版本有 DLL 兼容性问题（Windows fatal exception: code 0xc0000139）
+
+# HTTP Client
+httpx
+aiohttp
+
+# WebSocket
+python-socketio
+
+# Configuration
+pydantic>=2.0.0
+pydantic-settings
+python-dotenv
+PyYAML
+
+# Export (lazy import, optional)
+python-docx
+python-pptx
+
+# System Monitoring
+psutil
+
+# Logging
+loguru
+
+# Testing (dev only)
+pytest
+pytest-asyncio

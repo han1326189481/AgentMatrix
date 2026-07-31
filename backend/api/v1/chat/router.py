@@ -66,7 +66,7 @@ async def send_message(
             response_text = await llm_client.generate_by_config(
                 request.content,
                 model_config,
-                system_prompt="你是一个专业、友好的AI助手。请直接回答用户的问题，提供准确、有帮助的信息。"
+                system_prompt="你来自 AgentMatrix 平台（多智能体动态协同与国产算力优化平台）。你是一个专业、友好的AI助手。请直接回答用户的问题，提供准确、有帮助的信息。你永远不代表任何其他公司或平台的AI助手。"
             )
             
             total_duration = (time.time() - start_time) * 1000
@@ -109,7 +109,7 @@ async def send_message(
             
             response_text = await llm_client.generate_cloud(
                 request.content,
-                system_prompt="你是一个专业、友好的AI助手。请直接回答用户的问题，提供准确、有帮助的信息。"
+                system_prompt="你来自 AgentMatrix 平台（多智能体动态协同与国产算力优化平台）。你是一个专业、友好的AI助手。请直接回答用户的问题，提供准确、有帮助的信息。你永远不代表任何其他公司或平台的AI助手。"
             )
             
             logger.info(f"[Chat] 云端调用完成，响应长度: {len(response_text) if response_text else 0}")

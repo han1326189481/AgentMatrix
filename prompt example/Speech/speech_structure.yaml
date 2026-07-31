@@ -1,0 +1,720 @@
+- id: speech_structure_001
+  domain: speech
+  sub_domain: speech_structure
+  title: "年会演讲结构"
+  template: |
+    你是一位企业年会导演，深知年会演讲"不是念稿，是让员工觉得明年值得干"。
+
+    演讲信息：
+    - 演讲者身份：{speaker_role}
+    - 年会主题：{theme}
+    - 演讲时长：{duration}
+
+    请帮我：
+    1. 按"回顾→感谢→亮点→展望→号召"设计完整演讲结构
+    2. 每部分给出具体话术和情绪节奏（哪里该笑、哪里该鼓掌）
+    3. 标出需要放数据/视频/照片/颁奖的位置
+    4. 给出3种不同风格的结尾（稳健/激情/温情）
+
+    输出格式：
+    - 每部分包含：标题、话术要点、时间分配、情绪提示、互动设计
+    - 附"年会演讲禁忌"（只讲成绩不讲困难、忽视基层、时间过长、照稿念）
+  variables:
+    - name: speaker_role
+      description: "演讲者身份，如：CEO、部门代表、优秀员工"
+      required: true
+    - name: theme
+      description: "年会主题"
+      required: true
+    - name: duration
+      description: "演讲时长"
+      required: false
+      default_value: "10分钟"
+  intent_tags: ["年会演讲", "年会致辞", "演讲结构", "年会发言", "年终讲话", "企业年会", "年会稿"]
+  difficulty: beginner
+  quality_score: 0.93
+
+- id: speech_structure_002
+  domain: speech
+  sub_domain: speech_structure
+  title: "婚礼致辞结构"
+  template: |
+    你是一位婚礼司仪总监，深知婚礼致辞"要让新人觉得幸福，让宾客觉得温暖"。
+
+    致辞信息：
+    - 致辞者身份：{speaker_role}
+    - 与新人关系：{relationship}
+    - 婚礼风格：{style}
+
+    请帮我：
+    1. 按"开场→回忆→祝福→寄语→举杯"设计完整致辞结构
+    2. 每部分给出具体话术和情绪控制建议（哪里该笑、哪里该哽咽）
+    3. 标出需要放照片/视频/礼物/惊喜的位置
+    4. 给出"太短不够诚意、太长宾客饿"的时间控制方案
+
+    输出格式：
+    - 每部分包含：标题、话术要点、时间分配、情绪提示
+    - 附"婚礼致辞禁忌"（讲前任、揭短、过于煽情、说教、超时）
+  variables:
+    - name: speaker_role
+      description: "致辞者身份，如：父亲、证婚人、伴郎、闺蜜"
+      required: true
+    - name: relationship
+      description: "与新人的关系"
+      required: true
+    - name: style
+      description: "婚礼风格"
+      required: false
+      default_value: "温馨"
+  intent_tags: ["婚礼致辞", "婚礼发言", "证婚词", "婚礼结构", "结婚讲话", "婚礼演讲", "致辞稿"]
+  difficulty: beginner
+  quality_score: 0.94
+
+- id: speech_structure_003
+  domain: speech
+  sub_domain: speech_structure
+  title: "毕业演讲结构"
+  template: |
+    你是一位毕业典礼策划人，深知毕业演讲"要让毕业生带着力量走向社会"。
+
+    演讲信息：
+    - 演讲者身份：{speaker_role}
+    - 学校/届别：{school_info}
+    - 演讲时长：{duration}
+
+    请帮我：
+    1. 按"开场→回忆→感恩→成长→寄语→告别"设计完整结构
+    2. 每部分给出具体话术和"全场共鸣点"设计
+    3. 标出需要放照片/视频/音乐/礼物交换的位置
+    4. 给出"让全场起立鼓掌"的结尾设计
+
+    输出格式：
+    - 每部分包含：标题、话术要点、时间分配、共鸣设计
+    - 附"毕业演讲禁忌"（过于说教、忽视个体、空洞口号、时间过长）
+  variables:
+    - name: speaker_role
+      description: "演讲者身份，如：毕业生代表、校长、老师、家长"
+      required: true
+    - name: school_info
+      description: "学校和届别"
+      required: true
+    - name: duration
+      description: "演讲时长"
+      required: false
+      default_value: "5分钟"
+  intent_tags: ["毕业演讲", "毕业典礼", "毕业致辞", "演讲结构", "毕业发言", "毕业季", "毕业生"]
+  difficulty: beginner
+  quality_score: 0.93
+
+- id: speech_structure_004
+  domain: speech
+  sub_domain: speech_structure
+  title: "竞聘演讲结构"
+  template: |
+    你是一位晋升教练，深知竞聘演讲"不是述职，是推销自己"。
+
+    竞聘信息：
+    - 竞聘岗位：{target_position}
+    - 当前岗位：{current_position}
+    - 演讲时长：{duration}
+
+    请帮我：
+    1. 按"开场→为什么是我→我能做什么→我打算怎么做→结尾号召"设计结构
+    2. 每部分给出"评委想听什么"的话术设计
+    3. 标出需要放数据/案例/证书/规划图的位置
+    4. 给出"应对质疑"的预埋话术
+
+    输出格式：
+    - 每部分包含：标题、核心论点、话术要点、时间分配、视觉辅助
+    - 附"竞聘演讲禁忌"（只讲过去不讲未来、贬低同事、空口承诺、超时）
+  variables:
+    - name: target_position
+      description: "竞聘岗位"
+      required: true
+    - name: current_position
+      description: "当前岗位"
+      required: true
+    - name: duration
+      description: "演讲时长"
+      required: false
+      default_value: "10分钟"
+  intent_tags: ["竞聘演讲", "岗位竞聘", "晋升答辩", "演讲结构", "竞聘稿", "竞选演讲", "述职"]
+  difficulty: intermediate
+  quality_score: 0.95
+
+- id: speech_structure_005
+  domain: speech
+  sub_domain: speech_structure
+  title: "产品推介结构"
+  template: |
+    你是一位销售冠军，深知产品推介"不是讲功能，是讲客户能得到什么"。
+
+    推介信息：
+    - 产品/服务：{product}
+    - 目标客户：{target_customer}
+    - 演讲时长：{duration}
+
+    请帮我：
+    1. 按"痛点→解决方案→产品→证据→报价→行动"设计推介结构
+    2. 每部分给出"客户视角"的话术（不说"我们有多牛"，说"你能得到什么"）
+    3. 标出需要放案例/数据/演示/对比的位置
+    4. 给出"处理异议"的预埋话术
+
+    输出格式：
+    - 每部分包含：标题、客户痛点、话术要点、证据支撑、时间分配
+    - 附"推介禁忌"（功能罗列、忽视客户、没有证据、逼单太急）
+  variables:
+    - name: product
+      description: "产品或服务名称"
+      required: true
+    - name: target_customer
+      description: "目标客户群体"
+      required: true
+    - name: duration
+      description: "演讲时长"
+      required: false
+      default_value: "15分钟"
+  intent_tags: ["产品推介", "销售演讲", "产品路演", "推销", "销售话术", "推介结构", "产品宣讲"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: speech_structure_006
+  domain: speech
+  sub_domain: speech_structure
+  title: "培训演讲结构"
+  template: |
+    你是一位企业内训师，深知培训演讲"不是灌输知识，是激发行动"。
+
+    培训信息：
+    - 培训主题：{topic}
+    - 学员群体：{audience}
+    - 培训时长：{duration}
+
+    请帮我：
+    1. 按"破冰→痛点→方法→案例→练习→总结→行动"设计培训结构
+    2. 每部分给出"让学员不走神"的互动设计
+    3. 标出需要放视频/案例/练习/工具模板的位置
+    4. 给出"课后行动清单"设计
+
+    输出格式：
+    - 每部分包含：标题、内容要点、互动设计、时间分配、教具准备
+    - 附"培训演讲禁忌"（照本宣科、没有互动、案例不接地气、没有行动号召）
+  variables:
+    - name: topic
+      description: "培训主题"
+      required: true
+    - name: audience
+      description: "学员群体"
+      required: true
+    - name: duration
+      description: "培训时长"
+      required: false
+      default_value: "2小时"
+  intent_tags: ["培训演讲", "内训", "讲课结构", "培训师", "演讲结构", "企业培训", "授课"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: speech_structure_007
+  domain: speech
+  sub_domain: speech_structure
+  title: "竞选演讲结构"
+  template: |
+    你是一位政治演讲顾问，深知竞选演讲"不是许愿，是展示能力和诚意"。
+
+    竞选信息：
+    - 竞选职位：{position}
+    - 竞选场合：{occasion}
+    - 演讲时长：{duration}
+
+    请帮我：
+    1. 按"我是谁→我理解你→我的愿景→我的计划→为什么是我→号召投票"设计结构
+    2. 每部分给出"建立信任+展示能力+激发情感"的话术
+    3. 标出需要放数据/案例/对比/承诺的位置
+    4. 给出"回应质疑"和"拉票"的话术设计
+
+    输出格式：
+    - 每部分包含：标题、核心信息、话术要点、时间分配、互动设计
+    - 附"竞选演讲禁忌"（攻击对手、空口承诺、过度谦卑、忽视选民）
+  variables:
+    - name: position
+      description: "竞选职位"
+      required: true
+    - name: occasion
+      description: "竞选场合"
+      required: true
+    - name: duration
+      description: "演讲时长"
+      required: false
+      default_value: "5分钟"
+  intent_tags: ["竞选演讲", "竞选结构", "学生会竞选", "班干部竞选", "拉票", "竞选稿", "竞选发言"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: speech_structure_008
+  domain: speech
+  sub_domain: speech_structure
+  title: "悼词致辞结构"
+  template: |
+    你是一位生命礼仪师，深知悼词"不是总结生平，是送逝者最后一程"。
+
+    悼词信息：
+    - 逝者姓名：{deceased_name}
+    - 与逝者关系：{relationship}
+    - 致辞时长：{duration}
+
+    请帮我：
+    1. 按"开场→生平回忆→品格赞美→感恩→告别→祝福"设计悼词结构
+    2. 每部分给出"真诚但不失控"的情绪控制建议
+    3. 标出需要放照片/视频/遗物/音乐的位置
+    4. 给出"家属致辞"和"朋友致辞"的不同侧重点
+
+    输出格式：
+    - 每部分包含：标题、内容要点、情绪提示、时间分配
+    - 附"悼词禁忌"（过度悲伤失控、说缺点、比较、说教、时间过长）
+  variables:
+    - name: deceased_name
+      description: "逝者姓名"
+      required: true
+    - name: relationship
+      description: "与逝者关系"
+      required: true
+    - name: duration
+      description: "致辞时长"
+      required: False
+      default_value: "5分钟"
+  intent_tags: ["悼词", "追悼致辞", "葬礼发言", "追思", "告别词", "悼词结构", "白事致辞"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: speech_structure_009
+  domain: speech
+  sub_domain: speech_structure
+  title: " TED式演讲结构"
+  template: |
+    你是一位TED演讲教练，深知"18分钟改变一个观念"的演讲密码。
+
+    演讲信息：
+    - 演讲主题：{topic}
+    - 核心观点：{core_idea}
+    - 演讲时长：{duration}
+
+    请帮我：
+    1. 按"钩子→故事→转折→洞察→行动号召"设计TED式结构
+    2. 每部分给出"让听众记住"的具体技巧
+    3. 标出需要放视频/图片/道具/现场演示的位置
+    4. 给出"一个核心观点"的聚焦设计
+
+    输出格式：
+    - 每部分包含：标题、内容要点、记忆锚点、时间分配、视觉辅助
+    - 附"TED演讲禁忌"（观点太多、没有故事、超时、没有行动号召）
+  variables:
+    - name: topic
+      description: "演讲主题"
+      required: true
+    - name: core_idea
+      description: "核心观点或主张"
+      required: true
+    - name: duration
+      description: "演讲时长"
+      required: False
+      default_value: "18分钟"
+  intent_tags: ["TED演讲", "演讲结构", "演讲技巧", "公众演讲", "TED风格", "演讲稿", "演讲设计"]
+  difficulty: advanced
+  quality_score: 0.95
+
+- id: speech_structure_010
+  domain: speech
+  sub_domain: speech_structure
+  title: "家长会演讲结构"
+  template: |
+    你是一位资深班主任，深知家长会演讲"既要让家长放心，又要让家长配合"。
+
+    家长会信息：
+    - 年级班级：{class_info}
+    - 会议目的：{purpose}
+    - 演讲时长：{duration}
+
+    请帮我：
+    1. 按"欢迎→班级情况→成绩分析→问题与建议→家校合作→结束"设计结构
+    2. 每部分给出"既专业又亲切"的话术
+    3. 标出需要放数据/照片/学生作品/对比表的位置
+    4. 给出"表扬与批评"的话术设计
+
+    输出格式：
+    - 每部分包含：标题、内容要点、话术示例、时间分配、家长互动
+    - 附"家长会禁忌"（只讲问题不讲进步、点名批评、忽视家长感受、超时）
+  variables:
+    - name: class_info
+      description: "年级和班级"
+      required: true
+    - name: purpose
+      description: "会议目的"
+      required: true
+    - name: duration
+      description: "演讲时长"
+      required: False
+      default_value: "30分钟"
+  intent_tags: ["家长会", "家长演讲", "班主任发言", "家校沟通", "家长会结构", "学期总结", "家长致辞"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: speech_structure_011
+  domain: speech
+  sub_domain: speech_structure
+  title: "招商路演结构"
+  template: |
+    你是一位招商专家，深知招商路演"不是讲故事，是算清楚投资回报"。
+
+    路演信息：
+    - 品牌/项目：{project}
+    - 目标加盟商：{target_franchisee}
+    - 演讲时长：{duration}
+
+    请帮我：
+    1. 按"市场机会→品牌实力→盈利模式→加盟支持→成功案例→行动号召"设计结构
+    2. 每部分给出"加盟商视角"的话术（回答"我能赚多少"和"风险多大"）
+    3. 标出需要放数据/门店照片/加盟商证言/合同要点的位置
+    4. 给出"处理疑虑"的预埋话术
+
+    输出格式：
+    - 每部分包含：标题、加盟商关切点、话术要点、证据支撑、时间分配
+    - 附"招商路演禁忌"（过度承诺、数据造假、忽视风险、没有案例）
+  variables:
+    - name: project
+      description: "品牌或项目名称"
+      required: true
+    - name: target_franchisee
+      description: "目标加盟商群体"
+      required: true
+    - name: duration
+      description: "演讲时长"
+      required: False
+      default_value: "20分钟"
+  intent_tags: ["招商路演", "加盟路演", "项目路演", "招商演讲", "加盟会", "招商推介", "路演结构"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: speech_structure_012
+  domain: speech
+  sub_domain: speech_structure
+  title: "学术报告结构"
+  template: |
+    你是一位学术演讲导师，深知学术报告"不是念论文，是讲一个研究故事"。
+
+    报告信息：
+    - 研究主题：{topic}
+    - 研究方法：{method}
+    - 报告时长：{duration}
+
+    请帮我：
+    1. 按"为什么研究→怎么研究→发现了什么→意味着什么→下一步"设计结构
+    2. 每部分给出"让非专业人士也能听懂"的话术技巧
+    3. 标出需要放图表/数据/视频/实物模型的位置
+    4. 给出Q&A环节的预判和应对
+
+    输出格式：
+    - 每部分包含：标题、内容要点、可视化建议、时间分配、过渡话术
+    - 附"学术报告禁忌"（术语轰炸、没有故事、图表太小、超时、回避质疑）
+  variables:
+    - name: topic
+      description: "研究主题"
+      required: true
+    - name: method
+      description: "研究方法"
+      required: true
+    - name: duration
+      description: "报告时长"
+      required: False
+      default_value: "15分钟"
+  intent_tags: ["学术报告", "学术演讲", "论文汇报", "学术结构", "研究报告", "学术汇报", "学术发言"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: speech_structure_013
+  domain: speech
+  sub_domain: speech_structure
+  title: "团建动员结构"
+  template: |
+    你是一位团建教练，深知团建动员"不是下命令，是让员工自愿参与"。
+
+    动员信息：
+    - 团队名称：{team_name}
+    - 团建目的：{purpose}
+    - 演讲时长：{duration}
+
+    请帮我：
+    1. 按"破冰→目的→活动预告→团队意义→安全提醒→号召"设计结构
+    2. 每部分给出"让平时不熟的同事愿意配合"的话术
+    3. 标出需要放视频/照片/游戏规则/分组的位置
+    4. 给出"处理不情愿参与者"的话术
+
+    输出格式：
+    - 每部分包含：标题、内容要点、互动设计、时间分配、情绪引导
+    - 附"团建动员禁忌"（强迫参与、过于正式、忽视安全、时间过长）
+  variables:
+    - name: team_name
+      description: "团队或公司名字"
+      required: true
+    - name: purpose
+      description: "团建目的"
+      required: true
+    - name: duration
+      description: "演讲时长"
+      required: False
+      default_value: "10分钟"
+  intent_tags: ["团建动员", "团队活动", "动员演讲", "团建致辞", "拓展动员", "团队建设", "团建稿"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: speech_structure_014
+  domain: speech
+  sub_domain: speech_structure
+  title: "客户答谢结构"
+  template: |
+    你是一位客户关系专家，深知答谢演讲"要让客户觉得被重视，不是被推销"。
+
+    答谢信息：
+    - 答谢对象：{clients}
+    - 答谢原因：{reason}
+    - 演讲时长：{duration}
+
+    请帮我：
+    1. 按"欢迎→回顾合作→感谢支持→成果分享→未来展望→举杯/祝福"设计结构
+    2. 每部分给出"真诚不推销"的话术
+    3. 标出需要放数据/照片/视频/礼物/客户代表发言的位置
+    4. 给出"让客户代表发言"的引入话术
+
+    输出格式：
+    - 每部分包含：标题、内容要点、话术示例、时间分配、互动设计
+    - 附"答谢演讲禁忌"（借机推销、忽视小客户、数据造假、过于官方）
+  variables:
+    - name: clients
+      description: "答谢客户群体"
+      required: true
+    - name: reason
+      description: "答谢原因"
+      required: true
+    - name: duration
+      description: "演讲时长"
+      required: False
+      default_value: "10分钟"
+  intent_tags: ["客户答谢", "答谢致辞", "客户会", "答谢演讲", "VIP答谢", "感恩致辞", "答谢结构"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: speech_structure_015
+  domain: speech
+  sub_domain: speech_structure
+  title: "晚会主持结构"
+  template: |
+    你是一位晚会导演，深知晚会主持"不是报幕，是串起全场情绪"。
+
+    晚会信息：
+    - 晚会类型：{event_type}
+    - 节目数量：{program_count}
+    - 晚会时长：{duration}
+
+    请帮我：
+    1. 按"开场→串场→互动→高潮→颁奖→结束"设计主持结构
+    2. 每部分给出"让全场不冷场"的串词设计
+    3. 标出需要放视频/音乐/互动游戏/抽奖的位置
+    4. 给出"节目衔接"和"突发状况应对"的话术
+
+    输出格式：
+    - 每部分包含：标题、串词要点、互动设计、时间分配、应急预案
+    - 附"晚会主持禁忌"（念错名字、超时、冷场、忽视嘉宾、设备故障没预案）
+  variables:
+    - name: event_type
+      description: "晚会类型"
+      required: true
+    - name: program_count
+      description: "节目数量"
+      required: true
+    - name: duration
+      description: "晚会时长"
+      required: False
+      default_value: "2小时"
+  intent_tags: ["晚会主持", "主持结构", "联欢会", "文艺晚会", "主持词", "晚会致辞", "主持稿"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: speech_structure_016
+  domain: speech
+  sub_domain: speech_structure
+  title: "新书分享结构"
+  template: |
+    你是一位出版策划人，深知新书分享"不是读书，是让读者爱上这本书"。
+
+    分享信息：
+    - 书名：{book_title}
+    - 作者身份：{author_identity}
+    - 分享时长：{duration}
+
+    请帮我：
+    1. 按"开场→为什么写这本书→书的核心内容→一个打动人的故事→读者能得到什么→互动签售"设计结构
+    2. 每部分给出"让读者产生购买欲"的话术
+    3. 标出需要放书摘/视频/读者评价/互动问答的位置
+    4. 给出"现场签售号召"的话术
+
+    输出格式：
+    - 每部分包含：标题、内容要点、话术示例、时间分配、互动设计
+    - 附"新书分享禁忌"（剧透太多、只讲自己不讲读者、没有互动、签售环节混乱）
+  variables:
+    - name: book_title
+      description: "书名"
+      required: true
+    - name: author_identity
+      description: "作者身份"
+      required: true
+    - name: duration
+      description: "分享时长"
+      required: False
+      default_value: "1小时"
+  intent_tags: ["新书分享", "读书分享", "作者演讲", "签售会", "分享结构", "读书活动", "新书推介"]
+  difficulty: intermediate
+  quality_score: 0.90
+
+- id: speech_structure_017
+  domain: speech
+  sub_domain: speech_structure
+  title: "公益动员结构"
+  template: |
+    你是一位公益领袖，深知动员演讲"不是道德绑架，是激发善意"。
+
+    动员信息：
+    - 公益项目：{project}
+    - 服务对象：{beneficiaries}
+    - 演讲时长：{duration}
+
+    请帮我：
+    1. 按"问题呈现→故事打动→数据支撑→解决方案→行动号召→感谢"设计结构
+    2. 每部分给出"让听众从同情到行动"的话术
+    3. 标出需要放视频/照片/数据/受益人证言的位置
+    4. 给出"现场报名/捐款/转发"的行动设计
+
+    输出格式：
+    - 每部分包含：标题、内容要点、情感触发点、时间分配、行动号召
+    - 附"公益动员禁忌"（道德绑架、数据造假、过度煽情、忽视实际困难）
+  variables:
+    - name: project
+      description: "公益项目名称"
+      required: true
+    - name: beneficiaries
+      description: "服务对象"
+      required: true
+    - name: duration
+      description: "演讲时长"
+      required: False
+      default_value: "15分钟"
+  intent_tags: ["公益动员", "慈善演讲", "志愿者招募", "公益致辞", "募捐演讲", "公益活动", "动员结构"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: speech_structure_018
+  domain: speech
+  sub_domain: speech_structure
+  title: "直播带货结构"
+  template: |
+    你是一位头部主播运营，深知直播带货"不是介绍产品，是制造抢购氛围"。
+
+    直播信息：
+    - 带货产品：{product}
+    - 直播时长：{duration}
+    - 目标销量：{target_sales}
+
+    请帮我：
+    1. 按"预热→痛点→产品介绍→演示→价格揭晓→限时福利→逼单→售后"设计结构
+    2. 每部分给出"让观众扣1/下单/分享"的话术
+    3. 标出需要放演示/对比/用户证言/倒计时/库存提示的位置
+    4. 给出"处理质疑"和"催单"的话术
+
+    输出格式：
+    - 每部分包含：标题、话术要点、互动设计、时间分配、转化技巧
+    - 附"直播带货禁忌"（虚假宣传、库存造假、忽视售后、冷场超过5秒）
+  variables:
+    - name: product
+      description: "带货产品"
+      required: true
+    - name: duration
+      description: "直播时长"
+      required: False
+      default_value: "2小时"
+    - name: target_sales
+      description: "目标销量或销售额"
+      required: False
+      default_value: "（用户未提供）"
+  intent_tags: ["直播带货", "带货演讲", "直播结构", "主播话术", "带货脚本", "直播技巧", "电商直播"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: speech_structure_019
+  domain: speech
+  sub_domain: speech_structure
+  title: "党建宣讲结构"
+  template: |
+    你是一位党建宣讲员，深知党建演讲"既有高度又接地气"。
+
+    宣讲信息：
+    - 宣讲主题：{theme}
+    - 听众群体：{audience}
+    - 演讲时长：{duration}
+
+    请帮我：
+    1. 按"背景意义→核心内容→典型案例→身边故事→实践要求→号召"设计结构
+    2. 每部分给出"既有理论又生动"的话术
+    3. 标出需要放视频/图片/数据/互动问答的位置
+    4. 给出"让听众记住一个金句"的设计
+
+    输出格式：
+    - 每部分包含：标题、内容要点、话术示例、时间分配、互动设计
+    - 附"党建宣讲禁忌"（照本宣科、空话套话、没有案例、脱离实际）
+  variables:
+    - name: theme
+      description: "宣讲主题"
+      required: true
+    - name: audience
+      description: "听众群体"
+      required: true
+    - name: duration
+      description: "演讲时长"
+      required: False
+      default_value: "30分钟"
+  intent_tags: ["党建宣讲", "党课", "党建演讲", "主题教育", "宣讲结构", "党员教育", "党课稿"]
+  difficulty: intermediate
+  quality_score: 0.90
+
+- id: speech_structure_020
+  domain: speech
+  sub_domain: speech_structure
+  title: "生日致辞结构"
+  template: |
+    你是一位派对策划师，深知生日致辞"要让寿星觉得被全世界爱着"。
+
+    致辞信息：
+    - 寿星身份：{birthday_person}
+    - 致辞者身份：{speaker_role}
+    - 致辞时长：{duration}
+
+    请帮我：
+    1. 按"开场→回忆→感恩/赞美→祝福→举杯/送礼"设计结构
+    2. 每部分给出"让寿星笑中带泪"的话术
+    3. 标出需要放照片/视频/礼物/惊喜的位置
+    4. 给出"不同年龄/关系"的致辞侧重点
+
+    输出格式：
+    - 每部分包含：标题、内容要点、话术示例、时间分配、情绪提示
+    - 附"生日致辞禁忌"（揭短、说年龄敏感话题、忽视寿星、过于冗长）
+  variables:
+    - name: birthday_person
+      description: "寿星身份和姓名"
+      required: true
+    - name: speaker_role
+      description: "致辞者身份"
+      required: true
+    - name: duration
+      description: "致辞时长"
+      required: False
+      default_value: "3分钟"
+  intent_tags: ["生日致辞", "生日发言", "祝寿", "生日祝福", "生日演讲", "生日宴会", "致辞结构"]
+  difficulty: beginner
+  quality_score: 0.89

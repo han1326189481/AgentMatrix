@@ -23,7 +23,7 @@ echo   按 Ctrl+C 停止服务
 echo ============================================================
 echo.
 
-python app/main.py
+python -m uvicorn app.main:socket_app --host 0.0.0.0 --port 8000 --reload
 
 if errorlevel 1 (
     echo.

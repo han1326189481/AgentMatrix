@@ -8,7 +8,8 @@ _agent_registry = None
 def get_agent_registry() -> AgentRegistry:
     global _agent_registry
     if _agent_registry is None:
-        _agent_registry = AgentRegistry()
+        from app.config import settings
+        _agent_registry = AgentRegistry(settings=settings)
     return _agent_registry
 
 

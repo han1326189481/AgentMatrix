@@ -91,6 +91,8 @@ interface WorkflowOutput {
   start_time: string;                    // 开始时间
   end_time: string;                      // 结束时间
   complexity_score?: number;             // 复杂度评分（0-1）
+  partial_success: boolean;              // 部分成功（部分Agent失败）
+  error_summary?: string[];              // 错误摘要列表
 }
 ```
 
@@ -133,20 +135,19 @@ interface ChatMessage {
 
 ---
 
-## 五、六大Agent定义
+## 五、五大Agent定义
 
 ```typescript
 const AGENTS: Record<string, string> = {
-  knowledge: 'Knowledge Agent',   // 知识检索 - 从知识库检索相关信息
-  summary: 'Summary Agent',       // 需求摘要 - 提取用户核心需求
+  knowledge: 'Knowledge Agent',   // 知识检索 + 需求摘要 - 检索知识并分析需求
   writer: 'Writer Agent',         // 内容生成 - 根据需求生成内容
-  review: 'Review Agent',         // 质量评审 - 审核内容质量
-  judge: 'Judge Agent',           // 复杂度判断 - 判断任务复杂度
-  result: 'Result Agent'          // 成果导出 - 输出最终结果
+  review: 'Review Agent',         // 质量评审 + 难度评估 - 评审内容并评估难度
+  judge: 'Judge Agent',           // 路由决策 - 决定本地/云端模型
+  result: 'Result Agent'          // 结果格式化 + 云端增强 - 输出最终结果
 };
 
 // Agent执行顺序
-const AGENT_EXECUTION_ORDER = ['knowledge', 'summary', 'writer', 'review', 'judge', 'result'];
+const AGENT_EXECUTION_ORDER = ['knowledge', 'writer', 'review', 'judge', 'result'];
 ```
 
 ---

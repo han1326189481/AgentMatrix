@@ -1,0 +1,739 @@
+- id: speech_persuasion_001
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服老板加薪"
+  template: |
+    你是一位职场谈判专家，深知"要加薪不是求，是展示价值"。
+
+    谈判信息：
+    - 当前薪资：{current_salary}
+    - 期望涨幅：{expected_raise}
+    - 核心业绩：{achievements}
+
+    请帮我：
+    1. 设计"数据开场→价值证明→市场对比→未来承诺→开口请求"的说服结构
+    2. 给出"让老板无法拒绝"的3个话术技巧（不是威胁，是共赢）
+    3. 提供"老板可能说的5句话"及应对策略（再等等/公司困难/你不够格/别人也没加/明年再说）
+    4. 给出"被拒绝后如何体面收场"的话术
+
+    输出格式：
+    - 完整说服话术稿（含停顿和语气提示）
+    - 老板回应应对表（话术+策略）
+    - 附"加薪谈判禁忌"（威胁离职、情绪失控、拿同事比较、没有数据）
+  variables:
+    - name: current_salary
+      description: "当前薪资水平"
+      required: true
+    - name: expected_raise
+      description: "期望涨幅或金额"
+      required: true
+    - name: achievements
+      description: "核心业绩和贡献"
+      required: true
+  intent_tags: ["加薪", "涨工资", "谈薪", "加薪谈判", "说服老板", "提加薪", "薪资谈判"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: speech_persuasion_002
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服客户下单"
+  template: |
+    你是一位销冠教练，深知"说服客户不是推销，是解决他的问题"。
+
+    销售信息：
+    - 产品/服务：{product}
+    - 客户痛点：{pain_point}
+    - 客户犹豫点：{hesitation}
+
+    请帮我：
+    1. 设计"建立信任→挖掘痛点→展示方案→消除顾虑→促成行动"的说服结构
+    2. 给出"让客户自己说服自己"的3个提问技巧
+    3. 提供"客户常见5个拒绝理由"及破解话术（太贵/不需要/再考虑/没预算/找别人）
+    4. 给出"临门一脚"的3种逼单话术（不让人反感）
+
+    输出格式：
+    - 完整销售话术流程
+    - 拒绝破解表（理由+应对+转化）
+    - 附"销售禁忌"（贬低对手、过度承诺、逼单太急、忽视客户感受）
+  variables:
+    - name: product
+      description: "产品或服务"
+      required: true
+    - name: pain_point
+      description: "客户核心痛点"
+      required: true
+    - name: hesitation
+      description: "客户犹豫点"
+      required: False
+      default_value: "（用户未提供，给出通用应对）"
+  intent_tags: ["说服客户", "销售话术", "成单技巧", "推销", "客户沟通", "销售技巧", "逼单"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: speech_persuasion_003
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服孩子听话"
+  template: |
+    你是一位亲子沟通专家，深知"说服孩子不是命令，是让他觉得这是他的主意"。
+
+    沟通信息：
+    - 孩子年龄：{child_age}
+    - 沟通场景：{scene}
+    - 希望达成的目标：{goal}
+
+    请帮我：
+    1. 设计"共情→选择→引导→共识→鼓励"的说服结构
+    2. 给出"让孩子觉得自己有选择权"的3个话术技巧
+    3. 提供"孩子常见5个抗拒反应"及应对（不要/凭什么/等会儿/为什么/我就不）
+    4. 给出"不伤害亲子关系"的底线话术
+
+    输出格式：
+    - 完整沟通话术（含语气提示）
+    - 抗拒应对表（反应+应对+替代方案）
+    - 附"亲子沟通禁忌"（威胁、比较、翻旧账、当众批评、情绪失控）
+  variables:
+    - name: child_age
+      description: "孩子年龄"
+      required: true
+    - name: scene
+      description: "沟通场景，如：写作业、关手机、做家务、上兴趣班"
+      required: true
+    - name: goal
+      description: "希望达成的目标"
+      required: true
+  intent_tags: ["说服孩子", "亲子沟通", "管教孩子", "育儿", "孩子不听话", "家庭教育", "沟通技巧"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: speech_persuasion_004
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服父母支持"
+  template: |
+    你是一位家庭关系顾问，深知"说服父母不是对抗，是让他们觉得安全"。
+
+    说服信息：
+    - 想做的事：{goal}
+    - 父母担忧：{parent_concerns}
+    - 我的优势/准备：{preparation}
+
+    请帮我：
+    1. 设计"理解担忧→展示准备→提供保障→描绘愿景→请求支持"的说服结构
+    2. 给出"让父母感到被尊重"的3个话术技巧
+    3. 提供"父母常见5个反对理由"及应对（不安全/不稳定/别人不这样/我们没能力/你不行）
+    4. 给出"如果父母坚决不同意"的体面回应
+
+    输出格式：
+    - 完整说服话术稿
+    - 反对应对表（理由+理解+回应+替代方案）
+    - 附"说服父母禁忌"（对抗、撒谎、威胁断绝关系、忽视父母感受）
+  variables:
+    - name: goal
+      description: "想做的事，如：换工作、考研、创业、旅行、结婚"
+      required: true
+    - name: parent_concerns
+      description: "父母的主要担忧"
+      required: true
+    - name: preparation
+      description: "你的准备和优势"
+      required: False
+      default_value: "（用户未提供，给出通用话术）"
+  intent_tags: ["说服父母", "父母沟通", "家庭矛盾", "争取支持", "代沟", "亲子沟通", "家庭关系"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: speech_persuasion_005
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服同事配合"
+  template: |
+    你是一位职场协作专家，深知"说服同事不是命令，是让他觉得这事对他也有利"。
+
+    协作信息：
+    - 协作事项：{task}
+    - 同事顾虑：{colleague_concerns}
+    - 共同利益点：{common_benefit}
+
+    请帮我：
+    1. 设计"建立关系→说明价值→消除顾虑→提供支持→确认共识"的说服结构
+    2. 给出"让同事觉得被需要而非被使唤"的3个话术技巧
+    3. 提供"同事常见5个推脱"及应对（我没时间/不归我管/领导没安排/我做不了/凭什么我做）
+    4. 给出"如果对方还是不配合"的升级策略
+
+    输出格式：
+    - 完整沟通话术
+    - 推脱应对表（话术+策略）
+    - 附"职场说服禁忌"（命令口吻、搬出领导、道德绑架、忽视对方利益）
+  variables:
+    - name: task
+      description: "需要协作的事项"
+      required: true
+    - name: colleague_concerns
+      description: "同事可能的顾虑"
+      required: False
+      default_value: "（用户未提供，给出通用应对）"
+    - name: common_benefit
+      description: "共同利益点"
+      required: False
+      default_value: "（用户未提供，给出通用话术）"
+  intent_tags: ["说服同事", "职场沟通", "协作", "同事配合", "团队合作", "跨部门沟通", "职场话术"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: speech_persuasion_006
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服领导批预算"
+  template: |
+    你是一位项目管理专家，深知"要预算不是要钱，是给领导一个投资理由"。
+
+    申请信息：
+    - 申请项目：{project}
+    - 预算金额：{budget}
+    - 预期回报：{roi}
+
+    请帮我：
+    1. 设计"问题紧迫→方案价值→预算明细→风险控制→回报承诺"的说服结构
+    2. 给出"让领导觉得不批就是损失"的3个话术技巧
+    3. 提供"领导常见5个质疑"及应对（太贵/没预算/先缓缓/别的项目更急/你能保证效果吗）
+    4. 给出"分阶段申请"的替代方案话术
+
+    输出格式：
+    - 完整申请话术稿
+    - 质疑应对表（问题+数据回应+情感回应）
+    - 附"要预算禁忌"（只讲需求不讲回报、数据造假、威胁不做、忽视风险）
+  variables:
+    - name: project
+      description: "申请项目名称"
+      required: true
+    - name: budget
+      description: "预算金额"
+      required: true
+    - name: roi
+      description: "预期回报或收益"
+      required: true
+  intent_tags: ["要预算", "申请预算", "说服领导", "预算审批", "项目申请", "职场沟通", "要钱"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: speech_persuasion_007
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服伴侣道歉"
+  template: |
+    你是一位情感沟通专家，深知"让伴侣道歉不是赢，是让关系更好"。
+
+    沟通信息：
+    - 矛盾事由：{conflict}
+    - 我的感受：{my_feelings}
+    - 希望的结果：{desired_outcome}
+
+    请帮我：
+    1. 设计"描述事实→表达感受→说明需求→提出请求"的非暴力沟通结构
+    2. 给出"不让对方防御"的3个话术技巧（不用"你总是"开头）
+    3. 提供"伴侣常见5个反驳"及应对（我没做错/你太敏感/至于吗/你也一样/我不想谈）
+    4. 给出"如果对方还是不道歉"的台阶话术
+
+    输出格式：
+    - 完整沟通话术（含语气提示）
+    - 反驳应对表（话术+情绪管理）
+    - 附"情侣沟通禁忌"（翻旧账、人身攻击、冷战威胁、当众指责）
+  variables:
+    - name: conflict
+      description: "矛盾事由"
+      required: true
+    - name: my_feelings
+      description: "你的真实感受"
+      required: true
+    - name: desired_outcome
+      description: "希望达成的结果"
+      required: false
+      default_value: "对方理解并道歉"
+  intent_tags: ["说服伴侣", "情侣沟通", "吵架和好", "让对象道歉", "情感沟通", "恋爱话术", "道歉"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: speech_persuasion_008
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服房东降租"
+  template: |
+    你是一位租房谈判专家，深知"降租不是求施舍，是展示长期价值"。
+
+    谈判信息：
+    - 当前租金：{current_rent}
+    - 期望租金：{expected_rent}
+    - 我的优势：{my_value}
+
+    请帮我：
+    1. 设计"表达感谢→展示价值→市场对比→提出方案→承诺保障"的说服结构
+    2. 给出"让房东觉得留你比找新人划算"的3个话术技巧
+    3. 提供"房东常见5个拒绝"及应对（不能降/别人都涨了/合同没到期/你找别人吧/最多免物业费）
+    4. 给出"如果房东坚决不降"的替代方案话术（免物业/延长租期/装修抵扣）
+
+    输出格式：
+    - 完整谈判话术稿
+    - 拒绝应对表（话术+策略）
+    - 附"租房谈判禁忌"（威胁搬走、说房子不好、态度强硬、不提前沟通）
+  variables:
+    - name: current_rent
+      description: "当前租金"
+      required: true
+    - name: expected_rent
+      description: "期望租金"
+      required: true
+    - name: my_value
+      description: "你的价值，如：按时交租、爱护房子、长租稳定"
+      required: false
+      default_value: "（用户未提供，给出通用话术）"
+  intent_tags: ["降租", "租房谈判", "房东沟通", "减房租", "租房", "租金谈判", "说服房东"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: speech_persuasion_009
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服老师给分"
+  template: |
+    你是一位学业顾问，深知"要分不是乞讨，是展示努力和诚意"。
+
+    沟通信息：
+    - 课程名称：{course}
+    - 当前成绩：{current_grade}
+    - 希望的成绩：{desired_grade}
+    - 理由：{reason}
+
+    请帮我：
+    1. 设计"表达尊重→说明情况→展示努力→提出请求→接受结果"的沟通结构
+    2. 给出"让老师觉得值得帮"的3个话术技巧
+    3. 提供"老师常见5个回应"及应对（成绩已定/别人也一样/你平时不努力/按规矩办/下次努力）
+    4. 给出"如果被拒绝"的体面回应
+
+    输出格式：
+    - 完整沟通话术（邮件/当面两版）
+    - 回应应对表（话术+态度）
+    - 附"要分禁忌"（威胁投诉、说老师不公平、撒谎、态度傲慢）
+  variables:
+    - name: course
+      description: "课程名称"
+      required: true
+    - name: current_grade
+      description: "当前成绩"
+      required: true
+    - name: desired_grade
+      description: "希望的成绩"
+      required: true
+    - name: reason
+      description: "理由，如：考研需要、计算错误、家庭变故"
+      required: false
+      default_value: "（用户未提供，给出通用话术）"
+  intent_tags: ["要分", "求老师", "成绩复议", "改成绩", "挂科", "老师沟通", "学生话术"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: speech_persuasion_010
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服医生加号"
+  template: |
+    你是一位就医沟通顾问，深知"求加号不是插队，是表达真实需求"。
+
+    就医信息：
+    - 病情简述：{condition}
+    - 为什么必须这位医生：{reason}
+    - 时间紧迫性：{urgency}
+
+    请帮我：
+    1. 设计"表达理解→说明情况→展示诚意→提出请求→接受安排"的沟通结构
+    2. 给出"让医生觉得值得帮"的3个话术技巧（不道德绑架）
+    3. 提供"医生/助理常见5个拒绝"及应对（号满了/按规定/下次早点/去急诊/找别的医生）
+    4. 给出"如果被拒绝"的替代方案（加号费/等退号/预约下次/转诊建议）
+
+    输出格式：
+    - 完整沟通话术（现场版+电话版）
+    - 拒绝应对表（话术+态度）
+    - 附"加号禁忌"（道德绑架、撒谎病情、态度强硬、纠缠不休）
+  variables:
+    - name: condition
+      description: "病情简述"
+      required: true
+    - name: reason
+      description: "为什么必须这位医生"
+      required: true
+    - name: urgency
+      description: "时间紧迫性"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["加号", "医院加号", "看病", "医生沟通", "挂号", "就医", "求医生"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: speech_persuasion_011
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服面试录取"
+  template: |
+    你是一位面试辅导专家，深知"面试不是考试，是双向说服"。
+
+    面试信息：
+    - 岗位名称：{position}
+    - 我的核心优势：{advantages}
+    - 可能的短板：{weakness}
+
+    请帮我：
+    1. 设计"建立连接→展示匹配→消除顾虑→表达热情→确认下一步"的说服结构
+    2. 给出"让面试官觉得非你不可"的3个话术技巧
+    3. 提供"面试官常见5个刁难"及应对（你经验不足/为什么离职/期望薪资太高/有什么缺点/为什么选你）
+    4. 给出"面试结束前"的加分话术
+
+    输出格式：
+    - 完整面试话术框架
+    - 刁难应对表（问题+思路+示例回答）
+    - 附"面试禁忌"（撒谎、贬低前公司、过度谦虚、不问问题、迟到借口）
+  variables:
+    - name: position
+      description: "应聘岗位"
+      required: true
+    - name: advantages
+      description: "核心优势"
+      required: true
+    - name: weakness
+      description: "可能的短板"
+      required: false
+      default_value: "（用户未提供，给出通用应对）"
+  intent_tags: ["面试技巧", "面试话术", "求职", "面试回答", "说服面试官", "面试通过", "找工作"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: speech_persuasion_012
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服投资人投资"
+  template: |
+    你是一位融资顾问，深知"说服投资人不是讲故事，是算清楚账"。
+
+    融资信息：
+    - 项目名：{project}
+    - 融资金额：{funding}
+    - 核心数据：{key_metrics}
+
+    请帮我：
+    1. 设计"痛点→解决方案→市场规模→商业模式→团队→财务→融资用途→回报"的说服结构
+    2. 给出"让投资人觉得不投就是错过"的3个话术技巧
+    3. 提供"投资人常见5个质疑"及应对（市场太小/竞争太大/团队不行/估值太高/怎么退出）
+    4. 给出"路演结束后的跟进"话术
+
+    输出格式：
+    - 完整路演话术框架
+    - 质疑应对表（问题+数据+故事回应）
+    - 附"融资禁忌"（数据造假、贬低对手、过度承诺、不懂财务、没有退出方案）
+  variables:
+    - name: project
+      description: "项目名称"
+      required: true
+    - name: funding
+      description: "融资金额"
+      required: true
+    - name: key_metrics
+      description: "核心数据，如：用户量、营收、增长率"
+      required: true
+  intent_tags: ["融资", "说服投资人", "路演", "创业融资", "投资人沟通", "BP演讲", "找投资"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: speech_persuasion_013
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服员工加班"
+  template: |
+    你是一位团队管理者，深知"让员工加班不是命令，是激发责任感"。
+
+    管理信息：
+    - 加班原因：{reason}
+    - 加班时长：{duration}
+    - 补偿方式：{compensation}
+
+    请帮我：
+    1. 设计"说明原因→表达感谢→明确目标→提供支持→承诺补偿→认可付出"的沟通结构
+    2. 给出"让员工心甘情愿"的3个话术技巧（不是画饼，是真诚）
+    3. 提供"员工常见5个抵触"及应对（凭什么/又不给钱/我家里有事儿/每次都找我/别人怎么不加班）
+    4. 给出"如果员工坚决拒绝"的尊重回应
+
+    输出格式：
+    - 完整沟通话术
+    - 抵触应对表（话术+态度）
+    - 附"加班沟通禁忌"（道德绑架、威胁辞退、只讲奉献不讲补偿、区别对待）
+  variables:
+    - name: reason
+      description: "加班原因"
+      required: true
+    - name: duration
+      description: "预计加班时长"
+      required: true
+    - name: compensation
+      description: "补偿方式，如：调休、加班费、餐补、打车费"
+      required: false
+      default_value: "（用户未提供，给出通用话术）"
+  intent_tags: ["说服加班", "员工沟通", "管理团队", "加班", "领导话术", "职场管理", "团队激励"]
+  difficulty: intermediate
+  quality_score: 0.90
+
+- id: speech_persuasion_014
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服邻居让步"
+  template: |
+    你是一位社区调解员，深知"邻里纠纷不是争对错，是保住面子又解决问题"。
+
+    纠纷信息：
+    - 纠纷事由：{issue}
+    - 我的诉求：{my_request}
+    - 对方可能的立场：{their_position}
+
+    请帮我：
+    1. 设计"寒暄破冰→表达理解→说明影响→提出方案→寻求共赢→给台阶"的沟通结构
+    2. 给出"不让邻居觉得被指责"的3个话术技巧
+    3. 提供"邻居常见5个反驳"及应对（我乐意/关你什么事/一直这样/你先不对/我不改）
+    4. 给出"如果谈不拢"的第三方介入话术
+
+    输出格式：
+    - 完整沟通话术（当面版+微信版）
+    - 反驳应对表（话术+情绪管理）
+    - 附"邻里沟通禁忌"（上门指责、找物业先告状、威胁、翻旧账、当众让对方难堪）
+  variables:
+    - name: issue
+      description: "纠纷事由，如：噪音、占用公共空间、宠物、漏水"
+      required: true
+    - name: my_request
+      description: "你的具体诉求"
+      required: true
+    - name: their_position
+      description: "对方可能的立场"
+      required: false
+      default_value: "（用户未提供，给出通用应对）"
+  intent_tags: ["邻居沟通", "邻里纠纷", "说服邻居", "社区矛盾", "噪音", "物业", "邻里关系"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: speech_persuasion_015
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服退货运费"
+  template: |
+    你是一位消费维权顾问，深知"要运费不是占便宜，是维护合法权益"。
+
+    维权信息：
+    - 商品问题：{product_issue}
+    - 商家态度：{seller_attitude}
+    - 订单金额：{order_amount}
+
+    请帮我：
+    1. 设计"陈述事实→引用规则→表达诉求→给出期限→升级警告"的沟通结构
+    2. 给出"让商家觉得退运费比差评划算"的3个话术技巧
+    3. 提供"商家常见5个推脱"及应对（你自己选的/不影响使用/退货运费自理/超过7天了/找平台吧）
+    4. 给出"平台介入"的话术模板
+
+    输出格式：
+    - 完整维权话术（聊天版+电话版）
+    - 推脱应对表（话术+规则引用）
+    - 附"维权禁忌"（人身攻击、威胁恐吓、伪造证据、过度纠缠）
+  variables:
+    - name: product_issue
+      description: "商品问题描述"
+      required: true
+    - name: seller_attitude
+      description: "商家当前态度"
+      required: false
+      default_value: "拒绝承担运费"
+    - name: order_amount
+      description: "订单金额"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["退货", "运费险", "维权", "客服沟通", "退款", "消费者权益", "退货话术"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: speech_persuasion_016
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服朋友借钱"
+  template: |
+    你是一位人际关系顾问，深知"借钱不是开口要，是给对方安全感"。
+
+    借款信息：
+    - 借款金额：{amount}
+    - 借款用途：{purpose}
+    - 还款计划：{repayment_plan}
+
+    请帮我：
+    1. 设计"说明情况→表达诚意→明确条款→提供保障→给拒绝空间"的沟通结构
+    2. 给出"让朋友觉得借给你放心"的3个话术技巧（借条/利息/抵押）
+    3. 提供"朋友常见5个犹豫"及应对（我也紧/怕你不还/上次还没还/家里不同意/借多少）
+    4. 给出"如果被拒绝"的体面回应（保全面子）
+
+    输出格式：
+    - 完整借款话术（当面版+微信版）
+    - 犹豫应对表（话术+态度）
+    - 附"借钱禁忌"（道德绑架、不说明用途、不提还款、撒谎、借太多）
+  variables:
+    - name: amount
+      description: "借款金额"
+      required: true
+    - name: purpose
+      description: "借款用途"
+      required: true
+    - name: repayment_plan
+      description: "还款计划"
+      required: false
+      default_value: "（用户未提供，给出通用方案）"
+  intent_tags: ["借钱", "朋友借钱", "借款", "借钱话术", "还钱", "借钱的艺术", "开口借钱"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: speech_persuasion_017
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服导师改方向"
+  template: |
+    你是一位学术规划师，深知"换方向不是否定导师，是寻找更好的可能"。
+
+    沟通信息：
+    - 当前方向：{current_direction}
+    - 想换的方向：{new_direction}
+    - 理由：{reason}
+
+    请帮我：
+    1. 设计"肯定现有→展示思考→说明理由→提出方案→请求支持"的沟通结构
+    2. 给出"让导师觉得不是否定他"的3个话术技巧
+    3. 提供"导师常见5个反对"及应对（都做到这了/那个方向没前途/你不行/经费已经批了/再坚持坚持）
+    4. 给出"如果导师不同意"的折中方案
+
+    输出格式：
+    - 完整沟通话术（邮件版+面谈版）
+    - 反对应对表（话术+态度）
+    - 附"师生沟通禁忌"（直接否定导师、态度强硬、没有备选方案、情绪化）
+  variables:
+    - name: current_direction
+      description: "当前研究方向"
+      required: true
+    - name: new_direction
+      description: "想换的研究方向"
+      required: true
+    - name: reason
+      description: "换方向的理由"
+      required: true
+  intent_tags: ["导师沟通", "换方向", "研究生", "学术沟通", "导师关系", "论文方向", "科研"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: speech_persuasion_018
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服对方复合"
+  template: |
+    你是一位情感挽回专家，深知"复合不是求回来，是让对方重新选择你"。
+
+    情感信息：
+    - 分手原因：{breakup_reason}
+    - 我的改变：{my_changes}
+    - 对方现状：{their_status}
+
+    请帮我：
+    1. 设计"承认问题→展示改变→表达理解→重建吸引→给空间→等待回应"的沟通结构
+    2. 给出"不让对方感到压力"的3个话术技巧
+    3. 提供"对方常见5个回应"及应对（不可能了/我已经放下了/你早干嘛去了/做朋友吧/别联系我了）
+    4. 给出"如果对方坚决拒绝"的尊严回应
+
+    输出格式：
+    - 完整沟通话术（初次联系版+深度沟通版）
+    - 回应应对表（话术+情绪管理）
+    - 附"挽回禁忌"（纠缠、威胁、翻旧账、空口承诺、通过共同朋友施压）
+  variables:
+    - name: breakup_reason
+      description: "分手原因"
+      required: true
+    - name: my_changes
+      description: "你做出的实际改变"
+      required: true
+    - name: their_status
+      description: "对方当前状态，如：单身/有新欢/冷淡"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["复合", "挽回", "前任", "分手挽回", "情感挽回", "恋爱话术", "求复合"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: speech_persuasion_019
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服对方离职"
+  template: |
+    你是一位猎头顾问，深知"挖人不是画饼，是展示更好的可能"。
+
+    挖角信息：
+    - 目标人选：{target_person}
+    - 当前痛点：{their_pain}
+    - 我方优势：{our_advantages}
+
+    请帮我：
+    1. 设计"建立信任→了解现状→展示机会→消除顾虑→促成行动"的说服结构
+    2. 给出"不让对方觉得背叛现公司"的3个话术技巧
+    3. 提供"对方常见5个犹豫"及应对（我对现公司有感情/怕不稳定/薪资没高多少/搬家麻烦/再等等）
+    4. 给出"如果对方拒绝"的长期跟进话术
+
+    输出格式：
+    - 完整挖角话术（初次接触版+深度沟通版）
+    - 犹豫应对表（话术+策略）
+    - 附"挖角禁忌"（贬低现公司、过度承诺、施压、泄露隐私、不专业）
+  variables:
+    - name: target_person
+      description: "目标人选及岗位"
+      required: true
+    - name: their_pain
+      description: "对方在现公司的痛点"
+      required: true
+    - name: our_advantages
+      description: "我方优势"
+      required: true
+  intent_tags: ["挖人", "猎头", "说服离职", "跳槽", "招聘", "人才引进", "HR话术"]
+  difficulty: advanced
+  quality_score: 0.90
+
+- id: speech_persuasion_020
+  domain: speech
+  sub_domain: speech_persuasion
+  title: "说服公众投票"
+  template: |
+    你是一位竞选策略师，深知"拉票不是乞讨，是让选民觉得投你是为自己好"。
+
+    竞选信息：
+    - 竞选职位：{position}
+    - 核心主张：{platform}
+    - 目标选民：{target_voters}
+
+    请帮我：
+    1. 设计"我是谁→我理解你→我的计划→为什么是我→行动号召"的说服结构
+    2. 给出"让选民觉得投你有回报"的3个话术技巧
+    3. 提供"选民常见5个质疑"及应对（你行吗/又是空话/凭什么信你/投你有什么好处/反正没用）
+    4. 给出"最后冲刺"的拉票话术
+
+    输出格式：
+    - 完整竞选话术框架
+    - 质疑应对表（话术+情感回应）
+    - 附"竞选禁忌"（攻击对手家人、数据造假、过度承诺、忽视基层、负面竞选）
+  variables:
+    - name: position
+      description: "竞选职位"
+      required: true
+    - name: platform
+      description: "核心主张或政见"
+      required: true
+    - name: target_voters
+      description: "目标选民群体"
+      required: false
+      default_value: "（用户未提供，给出通用话术）"
+  intent_tags: ["拉票", "竞选", "投票", "选举", "竞选演讲", "选民沟通", "政治演讲"]
+  difficulty: intermediate
+  quality_score: 0.91
