@@ -25,7 +25,8 @@ AgentMatrix is a desktop AI assistant built around a 5-Agent responsibility chai
   - [10. Graph-Based Cognitive Architecture](#10-graph-based-cognitive-architecture)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
+- [Quick Start (Desktop App)](#quick-start-desktop-app)
+- [Getting Started (Source Code)](#getting-started-source-code)
 - [Configuration](#configuration)
 - [License](#license)
 
@@ -261,7 +262,50 @@ AgentMatrix/
 
 ---
 
-## Getting Started
+## Quick Start (Desktop App)
+
+The easiest way to get started — no Python or Node.js installation required.
+
+### Step 1: Download the Installer
+
+Download the latest installer from [GitHub Releases](https://github.com/han1326189481/AgentMatrix/releases/latest):
+
+- **[AgentMatrix_0.1.0_x64-setup.exe](https://github.com/han1326189481/AgentMatrix/releases/download/v0.1.0/AgentMatrix_0.1.0_x64-setup.exe)** (Windows x64, ~55 MB)
+
+### Step 2: Install Ollama and Models
+
+1. Install [Ollama](https://ollama.com/download) for Windows.
+2. Open a terminal and pull the required models:
+
+```bash
+# Main model (text generation, ~4.7GB VRAM)
+ollama pull qwen2.5:7b
+
+# Lightweight model (memory extraction, ~1.0GB VRAM)
+ollama pull qwen2.5:1.5b
+
+# Vision model (image recognition, ~5.5GB VRAM)
+ollama pull minicpm-v:latest
+```
+
+### Step 3: Install and Launch
+
+1. Run `AgentMatrix_0.1.0_x64-setup.exe` to install.
+2. Launch **AgentMatrix** from the Start Menu or desktop shortcut.
+3. On first launch, a splash screen will appear while the backend initializes (this may take 30–90 seconds on first run as PyInstaller extracts the bundle).
+4. When prompted, enter your **DeepSeek API Key** (get one at [platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys)). You can skip this to use local-only mode.
+
+### Step 4: Start Chatting
+
+That's it! The app is ready. Type your question and the 5-Agent workflow will handle the rest.
+
+> **System Requirements**: Windows 10/11 (x64), NVIDIA GPU with 8GB+ VRAM recommended, 16GB RAM.
+
+---
+
+## Getting Started (Source Code)
+
+For developers who want to run from source or contribute to the project.
 
 ### Prerequisites
 
@@ -273,16 +317,21 @@ AgentMatrix/
   - `minicpm-v:latest` (vision model, q4_0, ~5.5GB VRAM)
 - **GPU**: NVIDIA RTX 4060 (8GB VRAM) or equivalent
 - **DeepSeek API Key** (optional, for cloud enhancement — get it at [platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys))
+- **Rust + Tauri CLI** (only needed for building the desktop app)
 
 ### Installation
 
 ```bash
-# Backend
+# 1. Clone the repository
+git clone https://github.com/han1326189481/AgentMatrix.git
+cd AgentMatrix
+
+# 2. Install backend dependencies
 cd backend
 pip install -r requirements.txt
 
-# Frontend
-cd frontend
+# 3. Install frontend dependencies
+cd ../frontend
 npm install
 ```
 
@@ -303,12 +352,16 @@ Open http://localhost:3000 in your browser.
 ### Build Desktop Application
 
 ```bash
-# 1. Package backend as EXE
+# 1. Package backend as EXE (requires PyInstaller)
 cd backend
+pip install pyinstaller
 pyinstaller agentmatrix.spec --noconfirm
 
-# 2. Build Tauri desktop app
-cd frontend
+# 2. Copy the EXE to the backend root
+copy dist\agentmatrix-backend.exe .\
+
+# 3. Build Tauri desktop app (requires Rust + Tauri CLI)
+cd ../frontend
 cargo tauri build
 ```
 

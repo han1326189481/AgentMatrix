@@ -1,40 +1,43 @@
 # AgentMatrix Backend Dependencies
 # Python 3.10+ required
-# Generated: 2026-07-16 | Iteration 8 — Phase 9 依赖同步
+# Install: pip install -r requirements.txt
 
-# Web Framework
-fastapi>=0.100.0
-uvicorn[standard]
+# ── Web Framework ──
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
 starlette
-
-# Database
-sqlalchemy
-pymysql
-cryptography==3.4.8  # 兼容 Python 3.9.0，更高版本有 DLL 兼容性问题（Windows fatal exception: code 0xc0000139）
-
-# HTTP Client
-httpx
-aiohttp
-
-# WebSocket
 python-socketio
 
-# Configuration
-pydantic>=2.0.0
+# ── Data Validation & Config ──
+pydantic>=2.6.0
 pydantic-settings
 python-dotenv
 PyYAML
 
-# Export (lazy import, optional)
-python-docx
-python-pptx
+# ── Database ──
+sqlalchemy>=2.0.0
+# MySQL support (optional, SQLite is used by default)
+pymysql
+cryptography
 
-# System Monitoring
+# ── HTTP Clients ──
+httpx
+aiohttp
+requests
+
+# ── System Monitoring ──
 psutil
 
-# Logging
-loguru
+# ── Export: Fallback Libraries (optional, used when pandoc/marp/markmap are not installed) ──
+python-docx
+python-pptx
+pyecharts
+# pypandoc_binary bundles the pandoc binary — no separate pandoc installation needed
+pypandoc_binary
 
-# Testing (dev only)
-pytest
-pytest-asyncio
+# ── Optional: Skill Graph similarity computation ──
+numpy
+
+# ── Dev / Testing (not required for runtime) ──
+# pytest
+# pytest-asyncio
