@@ -70,6 +70,14 @@ class Settings(BaseSettings):
 
     complexity_threshold: float = 0.65
 
+    # V4.2: 上下文管理 — 共享上下文窗口上限（token 数）
+    # 本地模型 qwen2.5:7b 支持 128K，但 8GB VRAM 约束下保守设为 16K
+    context_max_tokens: int = 16384
+    # 触发自动压缩的阈值（使用率百分比）
+    context_compress_threshold: float = 0.80
+    # 触发溢出弹窗的阈值（使用率百分比）
+    context_overflow_threshold: float = 0.90
+
     max_concurrent_tasks: int = 10
     max_retry_attempts: int = 3
 

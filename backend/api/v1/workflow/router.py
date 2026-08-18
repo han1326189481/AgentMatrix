@@ -14,22 +14,38 @@ router = APIRouter()
 
 
 class SimpleCache:
+    """带 TTL 的简单内存缓存，支持 hit/miss 统计
+
+    Attributes:
+        hits: 累计命中次数
+        misses: 累计未命中次数
+    """
+
     def __init__(self, maxsize: int = 100, ttl: int = 300):
         self.maxsize = maxsize
         self.ttl = ttl
         self.cache: Dict[str, Tuple[Any, float]] = {}
+        self.hits = 0
+        self.misses = 0
 
     def __contains__(self, key: str) -> bool:
         if key in self.cache:
             _, timestamp = self.cache[key]
             if time.time() - timestamp < self.ttl:
+                self.hits += 1
                 return True
             del self.cache[key]
+        self.misses += 1
         return False
 
     def __getitem__(self, key: str) -> Any:
-        if key in self:
-            return self.cache[key][0]
+        # 直接访问内部缓存，不触发 __contains__，避免调用方 if key in cache: return cache[key]
+        # 的 hits 重复计数（__contains__ 已计入一次）
+        if key in self.cache:
+            value, timestamp = self.cache[key]
+            if time.time() - timestamp < self.ttl:
+                return value
+            del self.cache[key]
         raise KeyError(key)
 
     def __setitem__(self, key: str, value: Any) -> None:
@@ -40,10 +56,31 @@ class SimpleCache:
 
     def clear(self) -> None:
         self.cache.clear()
+        self.hits = 0
+        self.misses = 0
 
     @property
     def size(self) -> int:
         return len(self.cache)
+
+    @property
+    def hit_rate(self) -> float:
+        """缓存命中率（0-1），无请求时返回 0"""
+        total = self.hits + self.misses
+        return self.hits / total if total > 0 else 0.0
+
+    def get_stats(self) -> Dict[str, Any]:
+        """获取缓存统计"""
+        total = self.hits + self.misses
+        return {
+            "size": self.size,
+            "max_size": self.maxsize,
+            "ttl": self.ttl,
+            "hits": self.hits,
+            "misses": self.misses,
+            "hit_rate": round(self.hit_rate, 4),
+            "total_requests": total,
+        }
 
 
 workflow_cache = SimpleCache(maxsize=100, ttl=300)
@@ -149,11 +186,7 @@ async def execute_workflow_parallel(
 
 @router.get("/cache/stats")
 async def get_cache_stats():
-    return {
-        "cache_size": workflow_cache.size,
-        "max_size": workflow_cache.maxsize,
-        "ttl": workflow_cache.ttl
-    }
+    return workflow_cache.get_stats()
 
 
 @router.post("/cache/clear")

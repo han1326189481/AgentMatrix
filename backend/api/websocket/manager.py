@@ -37,11 +37,17 @@ class WebSocketManager:
                 except Exception as e:
                     logger.error(f"Error sending message to {connection_id}: {e}")
         else:
+            dead_connections = []
             for conn_id, websocket in list(self.active_connections.items()):
                 try:
                     await websocket.send_json(message)
                 except Exception as e:
                     logger.error(f"Error broadcasting to {conn_id}: {e}")
+                    dead_connections.append(conn_id)
+            # 清理已断开的连接，避免后续广播重复报错
+            for conn_id in dead_connections:
+                self.active_connections.pop(conn_id, None)
+                logger.info(f"WebSocket dead connection removed: {conn_id}")
 
     async def broadcast_agent_status(self, agent_statuses: Dict[str, Any]) -> None:
         message = {
@@ -137,3 +143,39 @@ class WebSocketManager:
 
     def get_connection_count(self) -> int:
         return len(self.active_connections)
+
+    async def broadcast_metrics_update(self, metrics: Dict[str, Any]) -> None:
+        """V4.1: 推送实时指标更新（成本和缓存命中率）
+
+        metrics 结构:
+        {
+            "timestamp": str,     # ISO 8601
+            "cache": {
+                "workflow_cache_hit_rate": float,
+                "intent_cache_hit_rate": float,
+                "overall_hit_rate": float,
+            },
+            "cost": {
+                "estimated_cost": float,
+                "estimated_savings": float,
+                "savings_rate": float,
+                "avg_cost_per_workflow": float,
+                "total_cloud_tokens": int,
+                "total_local_tokens": int,
+                "workflow_count": int,
+                "local_workflow_count": int,
+                "cloud_workflow_count": int,
+            },
+        }
+        """
+        message = {
+            "type": "metrics_update",
+            "data": metrics
+        }
+        logger.info(
+            f"[WebSocket] broadcast_metrics_update: "
+            f"hit_rate={metrics.get('cache', {}).get('overall_hit_rate', 0):.1%}, "
+            f"cost=¥{metrics.get('cost', {}).get('estimated_cost', 0):.6f}, "
+            f"connections={len(self.active_connections)}"
+        )
+        await self.send_message(message)

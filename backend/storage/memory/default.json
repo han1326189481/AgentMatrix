@@ -1,1 +1,65 @@
-[]
+[
+  {
+    "id": "mem_1786956110852_0",
+    "content": "我是你的AI助手，能帮你解答问题、聊聊天，还能生成文本呢。有需要尽管告诉我！",
+    "timestamp": 1786956110.8529837,
+    "importance": 0.7,
+    "source": "auto",
+    "category": "fact",
+    "access_count": 4
+  },
+  {
+    "id": "mem_1786960893032_1",
+    "content": "Transformer 是一种神经网络架构，用于处理输入序列中的不同位置信息。",
+    "timestamp": 1786960893.032223,
+    "importance": 1.0,
+    "source": "auto",
+    "category": "fact",
+    "access_count": 3
+  },
+  {
+    "id": "mem_1787023298937_2",
+    "content": "用户询问关于AI助手的类型和能力",
+    "timestamp": 1787023298.9379883,
+    "importance": 0.7,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 2
+  },
+  {
+    "id": "mem_1787024106505_3",
+    "content": "可以回答问题、聊天解闷，还能帮你生成各种文本",
+    "timestamp": 1787024106.505714,
+    "importance": 0.7,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1787024106508_4",
+    "content": "有需要随时告诉我！",
+    "timestamp": 1787024106.508789,
+    "importance": 0.7,
+    "source": "auto",
+    "category": "preference",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1787025808114_5",
+    "content": "用户可以生成各种文本格式",
+    "timestamp": 1787025808.114165,
+    "importance": 0.7,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1787025808117_6",
+    "content": "包括但不限于短文、诗歌、故事、文案、广告语、剧本、新闻稿、邮件、报告、小说片段",
+    "timestamp": 1787025808.1173184,
+    "importance": 1.0,
+    "source": "auto",
+    "category": "fact",
+    "access_count": 0
+  }
+]

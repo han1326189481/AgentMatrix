@@ -49,6 +49,8 @@ class KnowledgeAgent(BaseAgent):
         # V3.5: WebSearch 插件与时效性知识库（懒加载）
         self._web_search_plugin = None
         self._timely_knowledge_service = None
+        # V4.0: CodeMunch 代码检索插件（懒加载）
+        self._code_munch_plugin = None
 
         self.system_keywords = ["我是谁", "你是谁", "knowledge agent", "知识助手", "你的职责", "你的任务"]
 
@@ -114,6 +116,103 @@ class KnowledgeAgent(BaseAgent):
                 logger.warning(f"TimelyKnowledgeService 加载失败: {e}")
                 self._timely_knowledge_service = False  # 标记不可用
         return self._timely_knowledge_service if self._timely_knowledge_service is not False else None
+
+    # ============================================================
+    # V4.0 (2026-08-17): CodeMunch 代码检索插件 懒加载
+    # ============================================================
+
+    @property
+    def code_munch_plugin(self):
+        """懒加载 CodeMunchPlugin — 基于 jCodeMunch MCP 的代码检索"""
+        if self._code_munch_plugin is None:
+            try:
+                from core.llm.code_munch_plugin import get_code_munch_plugin
+                self._code_munch_plugin = get_code_munch_plugin()
+            except Exception as e:
+                logger.warning(f"CodeMunchPlugin 加载失败: {e}")
+                self._code_munch_plugin = False  # 标记不可用
+        return self._code_munch_plugin if self._code_munch_plugin is not False else None
+
+    async def _try_code_munch(
+        self,
+        user_input: str,
+        knowledge_items: List[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """V4.0: 尝试使用 CodeMunch 插件检索代码知识
+
+        流程:
+        1. 检测用户问题是否为代码相关查询
+        2. 初始化 CodeMunch MCP 子进程（如未初始化）
+        3. 调用 search_and_extract 搜索符号并提取源代码
+        4. 注入 knowledge_items 供 Writer Agent 使用
+
+        Args:
+            user_input: 用户输入内容
+            knowledge_items: 知识条目列表（原地修改）
+
+        Returns:
+            {
+                "used": bool,              # 是否使用了 CodeMunch
+                "symbols_count": int,      # 搜索到的符号数
+                "sources_count": int,      # 提取的源码数
+                "error": Optional[str],
+            }
+        """
+        result = {
+            "used": False,
+            "symbols_count": 0,
+            "sources_count": 0,
+            "error": None,
+        }
+
+        # 检测是否为代码相关查询
+        from core.llm.code_munch_plugin import CodeMunchPlugin
+        if not CodeMunchPlugin.detect_code_query(user_input):
+            return result
+
+        plugin = self.code_munch_plugin
+        if plugin is None:
+            result["error"] = "CodeMunchPlugin 不可用"
+            return result
+
+        try:
+            # 确保 MCP 子进程已初始化
+            if not await plugin._ensure_initialized():
+                result["error"] = "CodeMunch MCP 初始化失败"
+                return result
+
+            # 一站式搜索 + 提取
+            cm_result = await plugin.search_and_extract(
+                query=user_input[:100],
+                max_symbols=3,
+            )
+
+            if cm_result.get("used"):
+                # 注入知识库条目
+                for item in cm_result.get("knowledge_items", []):
+                    knowledge_items.append(item)
+
+                result.update({
+                    "used": True,
+                    "symbols_count": len(cm_result.get("symbols", [])),
+                    "sources_count": len(cm_result.get("sources", [])),
+                })
+                logger.info(
+                    f"[KnowledgeAgent V4.0] CodeMunch 检索到 "
+                    f"{result['symbols_count']} 个符号，"
+                    f"提取 {result['sources_count']} 个源码"
+                )
+            else:
+                result["error"] = cm_result.get("error", "未找到匹配代码")
+                logger.debug(
+                    f"[KnowledgeAgent V4.0] CodeMunch 未找到匹配: "
+                    f"{result['error']}"
+                )
+        except Exception as e:
+            result["error"] = f"CodeMunch 调用失败: {e}"
+            logger.warning(f"[KnowledgeAgent V4.0] CodeMunch 异常: {e}")
+
+        return result
 
     def _detect_timely_scenario(self, content: str) -> str:
         """检测用户问题是否属于时效性场景
@@ -672,6 +771,22 @@ class KnowledgeAgent(BaseAgent):
             web_search_category = timely_result.get("category", "")
             web_search_stored = timely_result.get("stored_to_db", False)
 
+            # ============================================================
+            # V4.0 (2026-08-17): CodeMunch 代码检索
+            # ------------------------------------------------------------
+            # 检测代码相关查询（函数/类/方法/实现等关键词）:
+            # - 命中 → 调用 jCodeMunch MCP 搜索符号并提取源代码
+            # - 注入 knowledge_items 供 Writer Agent 使用
+            # - 失败降级：不影响主流程，仅记录日志
+            # ============================================================
+            code_munch_result = await self._try_code_munch(
+                user_input=input_data.content,
+                knowledge_items=knowledge_items,
+            )
+            code_munch_used = code_munch_result.get("used", False)
+            code_munch_symbols = code_munch_result.get("symbols_count", 0)
+            code_munch_sources = code_munch_result.get("sources_count", 0)
+
             # 6. 判断任务类型（兼容旧 task_type + 新 task_type_v2）
             legacy_task_type = self._determine_task_type(input_data.content, keywords)
 
@@ -712,6 +827,10 @@ class KnowledgeAgent(BaseAgent):
                 "web_search_source": web_search_source,
                 "web_search_category": web_search_category,
                 "web_search_stored": web_search_stored,
+                # V4.0: CodeMunch 代码检索信号
+                "code_munch_used": code_munch_used,
+                "code_munch_symbols": code_munch_symbols,
+                "code_munch_sources": code_munch_sources,
             }
 
             await self._set_status("idle")
@@ -739,6 +858,10 @@ class KnowledgeAgent(BaseAgent):
                     "web_search_performed": web_search_performed,
                     "web_search_source": web_search_source,
                     "web_search_category": web_search_category,
+                    # V4.0: CodeMunch 元数据
+                    "code_munch_used": code_munch_used,
+                    "code_munch_symbols": code_munch_symbols,
+                    "code_munch_sources": code_munch_sources,
                 },
                 model_used=self.local_model
             )

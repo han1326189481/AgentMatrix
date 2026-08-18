@@ -22,7 +22,14 @@ logger = logging.getLogger(__name__)
 
 
 class IntentCache:
-    """意图缓存 — 两层缓存结构"""
+    """意图缓存 — 两层缓存结构
+
+    Attributes:
+        l1_hits: L1 累计命中次数
+        l1_misses: L1 累计未命中次数
+        l2_hits: L2 累计命中次数
+        l2_misses: L2 累计未命中次数
+    """
 
     def __init__(self, max_size: int = 200, ttl: int = 300):
         self._max_size = max_size
@@ -32,6 +39,12 @@ class IntentCache:
         self._skill_path_cache: Dict[str, Dict[str, Any]] = {}
         # L2: 完整结果缓存
         self._result_cache: Dict[str, Dict[str, Any]] = {}
+
+        # V4.1: 全局 hit/miss 计数器
+        self.l1_hits = 0
+        self.l1_misses = 0
+        self.l2_hits = 0
+        self.l2_misses = 0
 
     # ============================================================
     # L1: 技能路径缓存
@@ -52,9 +65,11 @@ class IntentCache:
         if entry and not self._is_expired(entry):
             entry["hit_count"] = entry.get("hit_count", 0) + 1
             entry["last_hit"] = datetime.now().isoformat()
+            self.l1_hits += 1
             logger.debug(f"IntentCache L1 HIT: {query[:30]}... → {entry['data']}")
             return entry["data"]
 
+        self.l1_misses += 1
         return None
 
     def store_skill_path(self, query: str, skill_path: List[str]):
@@ -98,9 +113,11 @@ class IntentCache:
         if entry and not self._is_expired(entry):
             entry["hit_count"] = entry.get("hit_count", 0) + 1
             entry["last_hit"] = datetime.now().isoformat()
+            self.l2_hits += 1
             logger.info(f"IntentCache L2 HIT: {query[:30]}...")
             return entry["data"]
 
+        self.l2_misses += 1
         return None
 
     def store_result(self, query: str, result: Dict[str, Any]):
@@ -213,24 +230,39 @@ class IntentCache:
         """
         if layer == "l1" or layer is None:
             self._skill_path_cache.clear()
+            self.l1_hits = 0
+            self.l1_misses = 0
         if layer == "l2" or layer is None:
             self._result_cache.clear()
+            self.l2_hits = 0
+            self.l2_misses = 0
 
     def get_stats(self) -> Dict[str, Any]:
-        """获取缓存统计"""
-        l1_hits = sum(e.get("hit_count", 0) for e in self._skill_path_cache.values())
-        l2_hits = sum(e.get("hit_count", 0) for e in self._result_cache.values())
+        """获取缓存统计（含命中率）"""
+        l1_total = self.l1_hits + self.l1_misses
+        l2_total = self.l2_hits + self.l2_misses
+        overall_total = l1_total + l2_total
+        overall_hits = self.l1_hits + self.l2_hits
 
         return {
             "l1_skill_path": {
                 "size": len(self._skill_path_cache),
                 "max_size": self._max_size,
-                "hits": l1_hits,
+                "hits": self.l1_hits,
+                "misses": self.l1_misses,
+                "hit_rate": round(self.l1_hits / l1_total, 4) if l1_total > 0 else 0.0,
             },
             "l2_result": {
                 "size": len(self._result_cache),
                 "max_size": self._max_size,
-                "hits": l2_hits,
+                "hits": self.l2_hits,
+                "misses": self.l2_misses,
+                "hit_rate": round(self.l2_hits / l2_total, 4) if l2_total > 0 else 0.0,
+            },
+            "overall": {
+                "hits": overall_hits,
+                "misses": overall_total - overall_hits,
+                "hit_rate": round(overall_hits / overall_total, 4) if overall_total > 0 else 0.0,
             },
             "ttl": self._ttl,
         }

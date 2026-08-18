@@ -184,7 +184,8 @@ export interface OllamaDetectResponse {
 // V3: WebSocket 消息类型（与后端规则五对齐 — 原生 WebSocket，非 socket.io）
 // V3.2: 新增 vision_progress 类型（视觉识别进度推送）
 // V3.3: 新增 audit_progress 类型（知识库质检进度推送）
-export type WebSocketMessageType = 'agent_status' | 'workflow_step' | 'final_result' | 'vision_progress' | 'audit_progress' | 'clarify_request';
+// V4.1: 新增 metrics_update 类型（成本 & 缓存指标推送）
+export type WebSocketMessageType = 'agent_status' | 'workflow_step' | 'final_result' | 'vision_progress' | 'audit_progress' | 'clarify_request' | 'metrics_update' | 'context_usage';
 
 export interface WebSocketMessage {
   type: WebSocketMessageType;
@@ -201,3 +202,40 @@ export interface VisionProgress {
 
 // 统一复杂度阈值（消除 constants.tsx 重复定义）
 export const COMPLEXITY_THRESHOLD = 0.65;
+
+// V4.1: 指标快照（WebSocket metrics_update 推送 + 轮询兜底）
+export interface CacheMetrics {
+  workflow_cache_hit_rate: number;
+  intent_cache_hit_rate: number;
+  overall_hit_rate: number;
+}
+
+export interface CostMetrics {
+  estimated_cost: number;
+  estimated_savings: number;
+  savings_rate: number;
+  avg_cost_per_workflow: number;
+  total_cloud_tokens: number;
+  total_local_tokens: number;
+  workflow_count: number;
+  local_workflow_count: number;
+  cloud_workflow_count: number;
+}
+
+export interface MetricsSnapshot {
+  timestamp: string;
+  cache: CacheMetrics;
+  cost: CostMetrics;
+}
+
+// V4.2: 上下文使用量快照
+export interface ContextUsage {
+  total_tokens: number;
+  limit: number;
+  remaining: number;
+  usage_ratio: number;
+  system_tokens: number;
+  history_tokens: number;
+  kb_tokens: number;
+  user_input_tokens: number;
+}

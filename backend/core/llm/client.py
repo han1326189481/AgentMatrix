@@ -13,6 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 class LLMClient:
+    # DeepSeek 定价（元/百万token）
+    DEEPSEEK_INPUT_PRICE = 1.0    # ¥1 / 百万输入 token
+    DEEPSEEK_OUTPUT_PRICE = 4.0   # ¥4 / 百万输出 token
+
     def __init__(self):
         self.ollama_host = settings.ollama_host
         self.ollama_model = settings.ollama_model
@@ -23,6 +27,10 @@ class LLMClient:
         self.deepseek_model = getattr(settings, 'deepseek_model', 'deepseek-v4-pro')
         self.dynamic_ollama_host = None
 
+        # V4.1: Token 侧信道 — 累积每次调用的 token 消耗，供 CostTracker 消费
+        self._local_tokens = {"input": 0, "output": 0, "calls": 0}
+        self._cloud_tokens = {"input": 0, "output": 0, "calls": 0}
+
     async def generate_local(self, prompt: str, system_prompt: str = None, model: str = None) -> str:
         host = self.dynamic_ollama_host or self.ollama_host
         url = f"{host}/api/generate"
@@ -31,7 +39,7 @@ class LLMClient:
             "prompt": prompt,
             "stream": False,
             "options": {
-                "num_ctx": 8192,
+                "num_ctx": 16384,
                 "num_predict": 4096,
                 "num_thread": 4
             }
@@ -44,6 +52,18 @@ class LLMClient:
                 async with session.post(url, json=payload) as response:
                     if response.status == 200:
                         data = await response.json()
+                        # V4.1: 捕获 Ollama token 计数（prompt_eval_count + eval_count）
+                        prompt_tokens = data.get("prompt_eval_count", 0)
+                        eval_tokens = data.get("eval_count", 0)
+                        if prompt_tokens > 0 or eval_tokens > 0:
+                            self._local_tokens["input"] += prompt_tokens
+                            self._local_tokens["output"] += eval_tokens
+                            self._local_tokens["calls"] += 1
+                            logger.debug(
+                                f"[Ollama] Token: prompt={prompt_tokens}, "
+                                f"completion={eval_tokens}, "
+                                f"cumulative_local={self._local_tokens}"
+                            )
                         return data.get("response", "")
                     else:
                         error_text = await response.text()
@@ -62,7 +82,7 @@ class LLMClient:
             "prompt": prompt,
             "stream": True,
             "options": {
-                "num_ctx": 8192,
+                "num_ctx": 16384,
                 "num_predict": 4096,
                 "num_thread": 4,
                 "temperature": 0.3
@@ -134,7 +154,7 @@ class LLMClient:
         url = "https://api.deepseek.com/v1/chat/completions"
         
         logger.info(f"[DeepSeek] API URL: {url}")
-        logger.info(f"[DeepSeek] API Key: {self.deepseek_api_key[:10]}... (长度: {len(self.deepseek_api_key)})")
+        logger.info(f"[DeepSeek] API Key: 已配置 (长度: {len(self.deepseek_api_key)})")
 
         messages = []
         if system_prompt:
@@ -168,11 +188,18 @@ class LLMClient:
                             completion_tokens = usage.get('completion_tokens', 0)
                             total_tokens = usage.get('total_tokens', 0)
 
-                            logger.info("[DeepSeek] API调用成功")
-                            logger.info(f"[DeepSeek] Token消耗 - prompt: {prompt_tokens}, completion: {completion_tokens}, total: {total_tokens}")
-
-                            if total_tokens > 0:
-                                logger.info(f"[DeepSeek] 💰 费用计算: {total_tokens} tokens")
+                            # V4.1: 累积云端 token 消耗到侧信道
+                            if prompt_tokens > 0 or completion_tokens > 0:
+                                self._cloud_tokens["input"] += prompt_tokens
+                                self._cloud_tokens["output"] += completion_tokens
+                                self._cloud_tokens["calls"] += 1
+                                cost = (prompt_tokens / 1_000_000) * self.DEEPSEEK_INPUT_PRICE + \
+                                       (completion_tokens / 1_000_000) * self.DEEPSEEK_OUTPUT_PRICE
+                                logger.info(
+                                    f"[DeepSeek] API调用成功 — "
+                                    f"prompt: {prompt_tokens}, completion: {completion_tokens}, "
+                                    f"total: {total_tokens}, cost: ¥{cost:.6f}"
+                                )
 
                             return choices[0].get("message", {}).get("content", "")
                         logger.warning("[DeepSeek] API返回但没有choices")
@@ -195,6 +222,79 @@ class LLMClient:
                         return f"Error: {response.status} - {error_text}"
         except Exception as e:
             logger.error(f"[DeepSeek] 调用失败: {e}", exc_info=True)
+            return f"Error: 调用 DeepSeek 失败 - {str(e)}"
+
+    async def generate_cloud_with_history(
+        self,
+        messages: list,
+        model: str = None,
+    ) -> str:
+        """V4.2: 云端生成 — 支持多轮对话历史
+
+        用于上下文溢出后切换到云端模型时，传递完整对话历史。
+        messages 格式: [{"role": "system"|"user"|"assistant", "content": "..."}]
+        """
+        if not self.deepseek_api_key:
+            logger.error("[CloudHistory] DeepSeek API key not set")
+            return "Error: DeepSeek API Key 未设置"
+
+        url = "https://api.deepseek.com/v1/chat/completions"
+
+        payload = {
+            "model": model or self.deepseek_model,
+            "messages": messages,
+            "temperature": 0.7,
+            "max_tokens": 4096,
+        }
+        logger.info(
+            f"[CloudHistory] 使用模型: {model or self.deepseek_model}, "
+            f"消息数: {len(messages)}"
+        )
+
+        headers = {
+            "Authorization": f"Bearer {self.deepseek_api_key}",
+            "Content-Type": "application/json",
+        }
+
+        try:
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=120)) as session:
+                async with session.post(url, json=payload, headers=headers) as response:
+                    logger.info(f"[CloudHistory] Response status: {response.status}")
+
+                    if response.status == 200:
+                        data = await response.json()
+                        choices = data.get("choices", [])
+                        if choices:
+                            usage = data.get("usage", {})
+                            prompt_tokens = usage.get("prompt_tokens", 0)
+                            completion_tokens = usage.get("completion_tokens", 0)
+
+                            # V4.1: 累积云端 token 消耗
+                            if prompt_tokens > 0 or completion_tokens > 0:
+                                self._cloud_tokens["input"] += prompt_tokens
+                                self._cloud_tokens["output"] += completion_tokens
+                                self._cloud_tokens["calls"] += 1
+                                cost = (prompt_tokens / 1_000_000) * self.DEEPSEEK_INPUT_PRICE + \
+                                       (completion_tokens / 1_000_000) * self.DEEPSEEK_OUTPUT_PRICE
+                                logger.info(
+                                    f"[CloudHistory] API调用成功 — "
+                                    f"prompt: {prompt_tokens}, completion: {completion_tokens}, "
+                                    f"cost: ¥{cost:.6f}"
+                                )
+
+                            return choices[0].get("message", {}).get("content", "")
+                        logger.warning("[CloudHistory] API返回但没有choices")
+                        return ""
+                    elif response.status == 401:
+                        error_text = await response.text()
+                        logger.error(f"[CloudHistory] 认证失败: {error_text}")
+                        return f"Error: 401 认证失败 - {error_text}"
+                    else:
+                        error_text = await response.text()
+                        logger.error(f"[CloudHistory] 错误: {response.status} - {error_text}")
+                        return f"Error: {response.status} - {error_text}"
+        except Exception as e:
+            logger.error(f"[CloudHistory] 调用失败: {e}", exc_info=True)
             return f"Error: 调用 DeepSeek 失败 - {str(e)}"
 
     async def generate_by_config(self, prompt: str, model_config: dict, system_prompt: str = None) -> str:
@@ -248,12 +348,21 @@ class LLMClient:
                             prompt_tokens = usage.get('prompt_tokens', 0)
                             completion_tokens = usage.get('completion_tokens', 0)
                             total_tokens = usage.get('total_tokens', 0)
+
+                            # V4.1: 累积云端 token 消耗到侧信道
+                            if prompt_tokens > 0 or completion_tokens > 0:
+                                self._cloud_tokens["input"] += prompt_tokens
+                                self._cloud_tokens["output"] += completion_tokens
+                                self._cloud_tokens["calls"] += 1
+
                             if total_tokens > 0:
+                                cost = (prompt_tokens / 1_000_000) * self.DEEPSEEK_INPUT_PRICE + \
+                                       (completion_tokens / 1_000_000) * self.DEEPSEEK_OUTPUT_PRICE
                                 logger.info(
-                                    f"[ConfigModel] Token消耗 - "
+                                    f"[ConfigModel] Token消耗 — "
                                     f"prompt: {prompt_tokens}, "
                                     f"completion: {completion_tokens}, "
-                                    f"total: {total_tokens}"
+                                    f"total: {total_tokens}, cost: ¥{cost:.6f}"
                                 )
                             logger.info("[ConfigModel] API调用成功")
                             return choices[0].get("message", {}).get("content", "")
@@ -290,6 +399,60 @@ class LLMClient:
         else:
             async for chunk in self.generate_local_stream(prompt, system_prompt, model):
                 yield chunk
+
+    # ============================================================
+    # V4.1: Token 侧信道 — 供 CostTracker 消费
+    # ============================================================
+
+    def get_and_reset_tokens(self) -> Dict[str, Any]:
+        """获取并重置累积的 token 消耗数据
+
+        每次 workflow 执行完成后调用，获取该次 workflow 产生的 token 消耗。
+        返回后内部计数器归零，准备下一次 workflow。
+
+        Returns:
+            {
+                "local": {"input": int, "output": int, "calls": int},
+                "cloud": {"input": int, "output": int, "calls": int},
+            }
+        """
+        result = {
+            "local": dict(self._local_tokens),
+            "cloud": dict(self._cloud_tokens),
+        }
+        self._local_tokens = {"input": 0, "output": 0, "calls": 0}
+        self._cloud_tokens = {"input": 0, "output": 0, "calls": 0}
+        return result
+
+    @staticmethod
+    def calc_cloud_cost(input_tokens: int, output_tokens: int) -> float:
+        """计算云端 API 调用成本（元）
+
+        Args:
+            input_tokens: 输入 token 数
+            output_tokens: 输出 token 数
+
+        Returns:
+            成本（元），保留 6 位小数精度
+        """
+        cost = (input_tokens / 1_000_000) * LLMClient.DEEPSEEK_INPUT_PRICE + \
+               (output_tokens / 1_000_000) * LLMClient.DEEPSEEK_OUTPUT_PRICE
+        return round(cost, 6)
+
+    @staticmethod
+    def calc_local_savings(input_tokens: int, output_tokens: int) -> float:
+        """计算本地模型节省的成本（元）
+
+        即：如果这些 token 走云端 API 需要多少钱
+
+        Args:
+            input_tokens: 本地模型输入 token 数
+            output_tokens: 本地模型输出 token 数
+
+        Returns:
+            节省金额（元）
+        """
+        return LLMClient.calc_cloud_cost(input_tokens, output_tokens)
 
 
 _llm_client: Optional[LLMClient] = None

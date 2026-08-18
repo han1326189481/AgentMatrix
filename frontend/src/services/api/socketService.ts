@@ -162,3 +162,13 @@ export function onClarifyRequest(handler: (request: ClarifyRequest) => void): ()
     }
   });
 }
+
+// V4.1: 订阅指标更新（成本和缓存命中率）
+import type { MetricsSnapshot } from '@/types';
+export function onMetricsUpdate(handler: (metrics: MetricsSnapshot) => void): () => void {
+  return socketService.subscribe((msg) => {
+    if (msg.type === 'metrics_update') {
+      handler(msg.data as unknown as MetricsSnapshot);
+    }
+  });
+}

@@ -15,6 +15,7 @@ from agents.base.utils import safe_json_parse
 from models.workflow import WorkflowInput, WorkflowOutput, WorkflowStep, TaskStep
 from core.dynamic_router import get_dynamic_router
 from api.v1.metrics.router import get_metrics_store
+from core.cost_tracker import get_cost_tracker
 import asyncio
 import time
 from datetime import datetime
@@ -642,6 +643,17 @@ class WorkflowService:
                         cloud_mode = judge_data.get("cloud_mode", "none")
                         executed_locally = judge_decision == "local_output"
 
+                        # V4.2: 上下文溢出后强制云端模式（前端弹窗选项二/三触发）
+                        if current_context.get("force_cloud"):
+                            executed_locally = False
+                            judge_decision = "cloud_enhance"
+                            cloud_mode = "full_rewrite"
+                            logger.info(
+                                f"[ForceCloud] 上下文溢出强制云端模式，"
+                                f"原决策={judge_data.get('decision')}, "
+                                f"difficulty={difficulty_threshold:.2f}, review={review_score:.2f}"
+                            )
+
                         logger.info(
                             f"Judge decision: {judge_decision}, "
                             f"difficulty_threshold={difficulty_threshold:.2f}, "
@@ -725,7 +737,89 @@ class WorkflowService:
             metrics["api_calls"] += 1
         else:
             metrics["local_executions"] += 1
-            metrics["cost_saved"] += 0.01
+
+        # V4.1: 从 LLMClient 侧信道读取 token 消耗，写入 CostTracker
+        try:
+            from core.llm.client import get_llm_client
+            llm_client = get_llm_client()
+            tokens = llm_client.get_and_reset_tokens()
+            cost_tracker = get_cost_tracker()
+            cost_tracker.record_workflow(
+                executed_locally=executed_locally,
+                local_tokens=tokens.get("local", {}),
+                cloud_tokens=tokens.get("cloud", {}),
+            )
+            cost_summary = cost_tracker.get_summary()
+            # 更新 metrics 中的成本字段
+            metrics["estimated_cost"] = cost_summary["estimated_cost"]
+            metrics["estimated_savings"] = cost_summary["estimated_savings"]
+            metrics["total_cloud_tokens"] = cost_summary["total_cloud_input_tokens"] + cost_summary["total_cloud_output_tokens"]
+            metrics["total_local_tokens"] = cost_summary["total_local_input_tokens"] + cost_summary["total_local_output_tokens"]
+            metrics["savings_rate"] = cost_summary["savings_rate"]
+            logger.info(
+                f"[CostTracker] 累计: cloud_cost=¥{cost_summary['estimated_cost']:.6f}, "
+                f"savings=¥{cost_summary['estimated_savings']:.6f}, "
+                f"savings_rate={cost_summary['savings_rate']:.1%}, "
+                f"workflows={cost_summary['workflow_count']}"
+            )
+
+            # V4.1: 推送实时指标到前端 WebSocket
+            try:
+                from api.v1.workflow.router import workflow_cache as wf_cache
+                from core.skill_engine.intent_cache import get_intent_cache
+                import datetime as dt
+
+                ic = get_intent_cache()
+                ic_stats = ic.get_stats()
+                wf_stats = wf_cache.get_stats()
+                overall_hits = wf_stats["hits"] + ic_stats["overall"]["hits"]
+                overall_misses = wf_stats["misses"] + ic_stats["overall"]["misses"]
+                overall_total = overall_hits + overall_misses
+
+                ws_manager = _get_ws_manager()
+
+                if ws_manager:
+                    metrics_payload = {
+                        "timestamp": dt.datetime.now().isoformat(),
+                        "cache": {
+                            "workflow_cache_hit_rate": wf_stats["hit_rate"],
+                            "intent_cache_hit_rate": ic_stats["overall"]["hit_rate"],
+                            "overall_hit_rate": round(overall_hits / overall_total, 4) if overall_total > 0 else 0.0,
+                        },
+                        "cost": {
+                            "estimated_cost": cost_summary["estimated_cost"],
+                            "estimated_savings": cost_summary["estimated_savings"],
+                            "savings_rate": cost_summary["savings_rate"],
+                            "avg_cost_per_workflow": cost_summary["avg_cost_per_workflow"],
+                            "total_cloud_tokens": cost_summary["total_cloud_input_tokens"] + cost_summary["total_cloud_output_tokens"],
+                            "total_local_tokens": cost_summary["total_local_input_tokens"] + cost_summary["total_local_output_tokens"],
+                            "workflow_count": cost_summary["workflow_count"],
+                            "local_workflow_count": cost_summary["local_workflow_count"],
+                            "cloud_workflow_count": cost_summary["cloud_workflow_count"],
+                        },
+                    }
+                    await ws_manager.broadcast_metrics_update(metrics_payload)
+            except Exception as e:
+                logger.warning(f"[MetricsUpdate] WebSocket 推送失败: {e}")
+
+            # V4.1: 保存指标快照到历史数据库
+            try:
+                from core.metrics_store import get_metrics_store as get_persistent_metrics_store
+                ms = get_persistent_metrics_store()
+                ms.save_snapshot(
+                    cache_stats={
+                        "hits": overall_hits,
+                        "misses": overall_misses,
+                        "overall_hit_rate": round(overall_hits / overall_total, 4) if overall_total > 0 else 0.0,
+                        "workflow_cache_hit_rate": wf_stats["hit_rate"],
+                        "intent_cache_hit_rate": ic_stats["overall"]["hit_rate"],
+                    },
+                    cost_summary=cost_summary,
+                )
+            except Exception as e:
+                logger.warning(f"[MetricsStore] 快照保存失败: {e}")
+        except Exception as e:
+            logger.warning(f"[CostTracker] 成本追踪失败: {e}")
 
         total_duration = time.time() - start_time
         workflow_end = datetime.now()
@@ -1032,6 +1126,16 @@ class WorkflowService:
                         judge_decision = judge_data.get("decision", "local_output")
                         cloud_mode = judge_data.get("cloud_mode", "none")
                         executed_locally = judge_decision == "local_output"
+
+                        # V4.2: 上下文溢出后强制云端模式
+                        if current_context.get("force_cloud"):
+                            executed_locally = False
+                            judge_decision = "cloud_enhance"
+                            cloud_mode = "full_rewrite"
+                            logger.info(
+                                f"[ForceCloud/Parallel] 上下文溢出强制云端模式，"
+                                f"原决策={judge_data.get('decision')}"
+                            )
                     except Exception as e:
                         logger.error(f"[STREAM] Failed to parse judge result: {e}")
                         executed_locally = True

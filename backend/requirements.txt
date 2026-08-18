@@ -38,6 +38,9 @@ pypandoc_binary
 # ── Optional: Skill Graph similarity computation ──
 numpy
 
+# ── Code Retrieval: jCodeMunch MCP (AST-based code search) ──
+jcodemunch-mcp
+
 # ── Dev / Testing (not required for runtime) ──
 # pytest
 # pytest-asyncio

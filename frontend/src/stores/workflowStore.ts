@@ -50,6 +50,8 @@ interface WorkflowStore {
   wsConnected: boolean;
   // 沙盒
   sandboxId: string;  // V3.5.1: 强制物理沙箱，空字符串表示未选中
+  // V4.2: 上下文溢出后强制云端模式
+  forceCloud: boolean;
 
   // Actions
   executeWorkflow: (input: string, extraContext?: Record<string, unknown>) => Promise<void>;
@@ -77,6 +79,8 @@ interface WorkflowStore {
   setVisionProgress: (progress: VisionProgress | null) => void;
   setSandboxId: (id: string) => void;
   loadSandboxHistory: (sandboxId: string) => Promise<void>;
+  // V4.2: 上下文溢出后强制云端模式
+  setForceCloud: (force: boolean) => void;
   // V3: 推荐开关 + 冷却期控制
   recommendEnabled: boolean;                       // 推荐总开关（默认 true）
   skipNextRecommend: boolean;                      // 跳过下一次推荐（使用模板后置 true）
@@ -134,6 +138,8 @@ export const useWorkflowStore = create<WorkflowStore>((set, get) => ({
   visionProgress: null,
   wsConnected: false,
   sandboxId: '',  // V3.5.1: 空字符串表示未选中物理沙箱
+  // V4.2: 上下文溢出后强制云端模式
+  forceCloud: false,
   // V3: 推荐开关（默认常开，从 localStorage 读取）+ 冷却期标记
   recommendEnabled: typeof window !== 'undefined'
     ? localStorage.getItem('agentmatrix_recommend_enabled') !== 'false'
@@ -161,6 +167,8 @@ export const useWorkflowStore = create<WorkflowStore>((set, get) => ({
   setSandboxId: (id) => {
     set({ sandboxId: id });
   },
+  // V4.2: 上下文溢出后强制云端模式
+  setForceCloud: (force) => set({ forceCloud: force }),
 
   // V3: 推荐开关切换（持久化到 localStorage）
   toggleRecommend: () => {
@@ -462,6 +470,10 @@ export const useWorkflowStore = create<WorkflowStore>((set, get) => ({
         recommend_enabled: get().recommendEnabled,
         skip_next_recommend: skipNext,
       };
+      // V4.2: 上下文溢出后强制使用云端模型
+      if (get().forceCloud) {
+        context.force_cloud = true;
+      }
       // V3.4: 合并额外的 context（如抱怨澄清后传入的 complaint_type）
       // complaint_type 会让 Writer Agent 注入道歉+重答指令
       if (extraContext) {

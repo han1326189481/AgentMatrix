@@ -18,14 +18,24 @@ const ChatInterface: React.FC = () => {
   const [exportingIdx, setExportingIdx] = useState<number | null>(null);
   // V3: 推荐模板卡片展开状态（记录展开的 chat 索引和模板节点ID）
   const [expandedTemplate, setExpandedTemplate] = useState<string | null>(null);
-  // V3: mounted 标记 — 避免 recommendEnabled SSR/CSR 不一致导致的 Hydration 警告
-  // 服务端渲染时 recommendEnabled 固定为 true，客户端挂载后从 localStorage 读取可能为 false
-  // 在 mounted=false 期间渲染中性的默认状态，挂载后再切换到真实状态
+  // V3: mounted 标记
   const [mounted, setMounted] = useState(false);
-  // V3.2: 图片上传中状态（用于显示加载指示器，避免连续点击）
+  // V3.2: 图片上传中状态
   const [isUploadingImages, setIsUploadingImages] = useState(false);
-  // V3.2: 图片预览（放大查看）— 存放当前放大的图片 base64
+  // V3.2: 图片预览
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  // V4.3: 头像切换 — 持久化到 localStorage
+  const [userAvatar, setUserAvatar] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('agentmatrix_user_avatar') || null;
+  });
+  const [systemAvatar, setSystemAvatar] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('agentmatrix_system_avatar') || null;
+  });
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [avatarPickerTarget, setAvatarPickerTarget] = useState<'user' | 'system'>('user');
+  const avatarFileRef = useRef<HTMLInputElement>(null);
   useEffect(() => { setMounted(true); }, []);
   // V3.2: ESC 键关闭图片预览
   useEffect(() => {
@@ -235,6 +245,43 @@ const ChatInterface: React.FC = () => {
         inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
       }
     }, 50);
+  };
+
+  // V4.3: 头像切换处理
+  const handleAvatarChange = (target: 'user' | 'system') => {
+    setAvatarPickerTarget(target);
+    setShowAvatarPicker(true);
+  };
+
+  const handleAvatarFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      if (avatarPickerTarget === 'user') {
+        setUserAvatar(dataUrl);
+        localStorage.setItem('agentmatrix_user_avatar', dataUrl);
+      } else {
+        setSystemAvatar(dataUrl);
+        localStorage.setItem('agentmatrix_system_avatar', dataUrl);
+      }
+      setShowAvatarPicker(false);
+    };
+    reader.readAsDataURL(file);
+    // 重置 input 以便同一文件可再次选择
+    e.target.value = '';
+  };
+
+  const handleResetAvatar = (target: 'user' | 'system') => {
+    if (target === 'user') {
+      setUserAvatar(null);
+      localStorage.removeItem('agentmatrix_user_avatar');
+    } else {
+      setSystemAvatar(null);
+      localStorage.removeItem('agentmatrix_system_avatar');
+    }
+    setShowAvatarPicker(false);
   };
 
   const {
@@ -489,11 +536,20 @@ const ChatInterface: React.FC = () => {
           <div key={idx} className="chat-message-group">
             {/* User Message */}
             <div className="chat-message chat-message-user">
-              <div className="message-avatar user-avatar">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
+              <div
+                className="message-avatar user-avatar"
+                title="点击更换用户头像"
+                onClick={() => handleAvatarChange('user')}
+                style={{ cursor: 'pointer' }}
+              >
+                {userAvatar ? (
+                  <img src={userAvatar} alt="用户头像" className="avatar-img" />
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                )}
               </div>
               <div className="message-content">
                 <p>{chat.user_input}</p>
@@ -661,13 +717,22 @@ const ChatInterface: React.FC = () => {
 
             {/* Assistant Message */}
             <div className="chat-message chat-message-assistant">
-              <div className="message-avatar assistant-avatar">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2a5 5 0 0 1 5 5v3a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z" />
-                  <path d="M3 11v1a9 9 0 0 0 18 0v-1" />
-                  <circle cx="9" cy="17" r="1" />
-                  <circle cx="15" cy="17" r="1" />
-                </svg>
+              <div
+                className="message-avatar assistant-avatar"
+                title="点击更换系统头像"
+                onClick={() => handleAvatarChange('system')}
+                style={{ cursor: 'pointer' }}
+              >
+                {systemAvatar ? (
+                  <img src={systemAvatar} alt="系统头像" className="avatar-img" />
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2a5 5 0 0 1 5 5v3a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z" />
+                    <path d="M3 11v1a9 9 0 0 0 18 0v-1" />
+                    <circle cx="9" cy="17" r="1" />
+                    <circle cx="15" cy="17" r="1" />
+                  </svg>
+                )}
               </div>
               <div className="message-content">
                 {/* XSS 修复：用 react-markdown + rehype-sanitize 替换 dangerouslySetInnerHTML */}
@@ -679,25 +744,6 @@ const ChatInterface: React.FC = () => {
                     {chat.response}
                   </ReactMarkdown>
                 </div>
-                {/* Workflow metadata */}
-                {workflowSteps.length > 0 && chat.response && (
-                  <div className="message-meta">
-                    <span className="meta-badge" style={{
-                      color: judgeDecision === 'cloud' ? 'var(--orange)' : 'var(--green)',
-                      background: judgeDecision === 'cloud' ? 'rgba(245,158,11,0.1)' : 'rgba(34,197,94,0.1)'
-                    }}>
-                      {judgeDecision === 'cloud' ? '云端增强' : '本地执行'}
-                    </span>
-                    {complexityScore > 0 && (
-                      <span className="meta-badge" style={{ background: 'rgba(139,92,246,0.1)', color: 'var(--purple)' }}>
-                        复杂度 {complexityScore.toFixed(2)}
-                      </span>
-                    )}
-                    <span className="meta-badge" style={{ background: 'rgba(107,114,128,0.1)', color: 'var(--text-muted)' }}>
-                      {workflowSteps.length} Agent 协作
-                    </span>
-                  </div>
-                )}
                 {/* V3: 导出提示 — 智能识别导出意图（模板提问 or 自然语言导出请求）*/}
                 {(() => {
                   const intent = detectExportIntent(chat);
@@ -765,24 +811,20 @@ const ChatInterface: React.FC = () => {
           </div>
         ))}
 
-        {/* Running Logs */}
+        {/* Running Logs — 透明背景，逐行显示 Agent 工作状态 */}
         {isRunning && logs.length > 0 && (
           <div className="chat-message chat-message-assistant">
             <div className="message-avatar assistant-avatar">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
+              {systemAvatar ? (
+                <img src={systemAvatar} alt="系统头像" className="avatar-img" />
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+              )}
             </div>
             <div className="message-content">
-              <div className="running-indicator">
-                <div className="running-dots">
-                  <span className="dot" />
-                  <span className="dot" />
-                  <span className="dot" />
-                </div>
-                <span className="running-text">Agent 工作流执行中...</span>
-              </div>
               <div className="running-logs">
                 {logs.map((log, idx) => (
                   <div key={idx} className="running-log-item" style={{ borderLeftColor: getAgentColorValue(log.agent) }}>
@@ -1014,11 +1056,6 @@ const ChatInterface: React.FC = () => {
             )}
           </button>
         </div>
-        <p className="chat-input-hint">
-          {pendingImages.length > 0
-            ? `已附加 ${pendingImages.length} 张图片，发送后将启动视觉识别 → Knowledge → Writer → Review → Judge → Result`
-            : '5 Agent 协同: Knowledge → Writer → Review → Judge → Result'}
-        </p>
       </div>
 
       {/* V3.2: 图片放大预览 Modal — 点击遮罩层或 ESC 关闭 */}
@@ -1050,6 +1087,86 @@ const ChatInterface: React.FC = () => {
         </div>,
         document.body
       )}
+
+      {/* V4.3: 头像选择器弹窗 */}
+      {showAvatarPicker && typeof document !== 'undefined' && createPortal(
+        <div className="avatar-picker-overlay" onClick={() => setShowAvatarPicker(false)}>
+          <div className="avatar-picker-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="avatar-picker-header">
+              <h3>更换{avatarPickerTarget === 'user' ? '用户' : '系统'}头像</h3>
+              <button className="avatar-picker-close" onClick={() => setShowAvatarPicker(false)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="avatar-picker-body">
+              <div className="avatar-picker-preview">
+                <div className="avatar-picker-circle">
+                  {(avatarPickerTarget === 'user' ? userAvatar : systemAvatar) ? (
+                    <img
+                      src={avatarPickerTarget === 'user' ? (userAvatar ?? '') : (systemAvatar ?? '')}
+                      alt="当前头像"
+                    />
+                  ) : (
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      {avatarPickerTarget === 'user' ? (
+                        <>
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                          <circle cx="12" cy="7" r="4" />
+                        </>
+                      ) : (
+                        <>
+                          <path d="M12 2a5 5 0 0 1 5 5v3a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z" />
+                          <path d="M3 11v1a9 9 0 0 0 18 0v-1" />
+                          <circle cx="9" cy="17" r="1" />
+                          <circle cx="15" cy="17" r="1" />
+                        </>
+                      )}
+                    </svg>
+                  )}
+                </div>
+              </div>
+
+              <div className="avatar-picker-actions">
+                <button
+                  className="avatar-picker-btn avatar-picker-btn--upload"
+                  onClick={() => avatarFileRef.current?.click()}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  上传自定义图片
+                </button>
+                <button
+                  className="avatar-picker-btn avatar-picker-btn--reset"
+                  onClick={() => handleResetAvatar(avatarPickerTarget)}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="1 4 1 10 7 10" />
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                  </svg>
+                  恢复默认头像
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* V4.3: 隐藏的头像文件上传 */}
+      <input
+        ref={avatarFileRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={handleAvatarFileUpload}
+      />
     </div>
   );
 };

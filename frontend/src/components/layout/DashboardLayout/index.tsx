@@ -1,19 +1,24 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useWorkflowStore } from '@/stores/workflowStore';
+import { sandboxService } from '@/services/api/sandboxService';
 import ThemeToggle from './components/ThemeToggle';
 import DecisionCard from './components/DecisionCard';
 import OllamaGuide from './components/OllamaGuide';
-import TaskStepList from './components/TaskStepList';
 import ErrorOverlay from './components/ErrorOverlay';
 import AuditNotification from './components/AuditNotification';
 import ClarifyNotification from './components/ClarifyNotification';
+import MetricsBar from './components/MetricsBar';
+import ContextBar from './components/ContextBar';
+import ContextPanel from './components/ContextPanel';
+import ContextOverflowModal from './components/ContextOverflowModal';
 import SandboxSidebar from './components/SandboxSidebar';
 import CloudModelSettingsModal from './components/CloudModelSettingsModal';
 import { isCloudModelConfigured } from '@/services/api/settingsService';
 import { useTheme } from './ThemeProvider';
+import type { ContextUsage } from '@/types';
 
 // V3: ChatInterface 禁用 SSR，避免 recommendEnabled/chatHistory 等
 // localStorage 状态在 SSR/CSR 不一致导致的 Hydration 错误
@@ -29,7 +34,7 @@ const ChatInterface = dynamic(() => import('./components/ChatInterface'), {
 
 const DashboardLayout: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const { isRunning, initWebSocket } = useWorkflowStore();
+  const { isRunning, initWebSocket, sandboxId, setSandboxId, setForceCloud } = useWorkflowStore();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [sandboxPanelOpen, setSandboxPanelOpen] = useState(true);
@@ -37,6 +42,47 @@ const DashboardLayout: React.FC = () => {
   // V3.5.1: 云端模型设置弹窗（首次启动引导 + 日常设置）
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+
+  // V4.2: 上下文溢出弹窗状态
+  const [overflowContext, setOverflowContext] = useState<ContextUsage | null>(null);
+  const [overflowDismissed, setOverflowDismissed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('agentmatrix_overflow_dismissed') === 'true';
+  });
+
+  // V4.2: 上下文溢出回调 — 仅当未被 dismiss 时弹窗
+  const handleOverflow = useCallback((ctx: ContextUsage) => {
+    if (!overflowDismissed) {
+      setOverflowContext(ctx);
+    }
+  }, [overflowDismissed]);
+
+  // V4.2: 选项一 — 新建沙盒，重新开始
+  const handleNewSandbox = useCallback(async () => {
+    try {
+      const newSandbox = await sandboxService.create('新对话（上下文溢出后重建）');
+      setSandboxId(newSandbox.id);
+    } catch (e) {
+      console.error('创建新沙盒失败:', e);
+    }
+    setOverflowContext(null);
+  }, [setSandboxId]);
+
+  // V4.2: 选项二 — 云端模型接管，继续对话
+  const handleSwitchToCloud = useCallback(() => {
+    setForceCloud(true);
+    setOverflowContext(null);
+  }, [setForceCloud]);
+
+  // V4.2: 选项三 — 我已理解风险，切换云端付费模式（不再提示）
+  const handleDismissOverflow = useCallback(() => {
+    setForceCloud(true);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('agentmatrix_overflow_dismissed', 'true');
+    }
+    setOverflowDismissed(true);
+    setOverflowContext(null);
+  }, [setForceCloud]);
 
   // 初始化 WebSocket 连接（仅客户端）
   // initWebSocket 返回 cleanup 函数，防止 StrictMode 重复注册 handler
@@ -97,6 +143,12 @@ const DashboardLayout: React.FC = () => {
         </div>
 
         <div className="topbar-right">
+          {/* V4.1: 实时指标面板（缓存命中率 + 成本节省） */}
+          <MetricsBar compact />
+          <div className="topbar-divider" />
+          {/* V4.2: 上下文使用进度条 */}
+          <ContextBar compact onOverflow={handleOverflow} />
+          <div className="topbar-divider" />
           <button
             className="topbar-btn"
             onClick={() => setRightPanelOpen(!rightPanelOpen)}
@@ -145,10 +197,10 @@ const DashboardLayout: React.FC = () => {
           <ChatInterface />
         </main>
 
-        {/* Right Panel - Task Steps (取代 AgentChain 的 5 圆圈动画) */}
+        {/* Right Panel - 上下文使用量监控 */}
         <aside className={`dashboard-right ${rightPanelOpen ? 'open' : 'closed'}`}>
           <div className="right-content">
-            <TaskStepList />
+            <ContextPanel />
           </div>
         </aside>
       </div>
@@ -177,6 +229,16 @@ const DashboardLayout: React.FC = () => {
           onClose={() => setShowSettings(false)}
         />
       )}
+
+      {/* V4.2: 上下文溢出弹窗（一次性 — 选项三 dismiss 后不再显示） */}
+      <ContextOverflowModal
+        visible={overflowContext !== null}
+        currentTokens={overflowContext?.total_tokens ?? 0}
+        limit={overflowContext?.limit ?? 16384}
+        onNewSandbox={handleNewSandbox}
+        onSwitchToCloud={handleSwitchToCloud}
+        onDismiss={handleDismissOverflow}
+      />
     </div>
   );
 };

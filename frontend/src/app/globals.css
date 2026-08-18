@@ -223,6 +223,163 @@ body {
   40% { opacity: 1; transform: scale(1.2); }
 }
 
+/* ===== V4.1: MetricsBar 实时指标面板 ===== */
+.metrics-bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.metrics-bar--compact {
+  height: 34px;
+  padding: 0 4px;
+}
+
+.metrics-card {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  cursor: default;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.metrics-card:hover {
+  background: var(--bg-hover);
+}
+
+.metrics-value {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.metrics-value--green {
+  color: var(--green);
+}
+
+.metrics-value--yellow {
+  color: var(--orange);
+}
+
+.metrics-value--red {
+  color: var(--red);
+}
+
+.metrics-value--gray {
+  color: var(--text-muted);
+}
+
+.metrics-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.ring-progress {
+  flex-shrink: 0;
+}
+
+.topbar-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-color);
+  margin: 0 4px;
+}
+
+/* ===== V4.2: ContextBar 上下文进度条 ===== */
+.context-bar {
+  display: flex;
+  align-items: center;
+}
+
+.context-bar--compact {
+  height: 34px;
+  padding: 0 4px;
+}
+
+.context-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.context-bar-track {
+  width: 72px;
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.context-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  min-width: 0;
+}
+
+.context-bar-text {
+  font-size: 10px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+/* 展开模式 */
+.metrics-bar--expanded {
+  flex-direction: column;
+  padding: 12px;
+  gap: 12px;
+}
+
+.metrics-bar--loading {
+  padding: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.metrics-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 6px;
+}
+
+.metrics-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.metrics-ring-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metrics-ring-label {
+  position: absolute;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.metrics-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
 /* Dashboard Body */
 .dashboard-body {
   display: flex;
@@ -988,8 +1145,21 @@ body {
   margin-bottom: 4px;
 }
 
+.markdown-content li:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content ul:last-child,
+.markdown-content ol:last-child {
+  margin-bottom: 0;
+}
+
 .markdown-content p {
   margin-bottom: 12px;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
 }
 
 .markdown-content strong {
@@ -1151,36 +1321,7 @@ body {
   color: var(--red);
 }
 
-/* Running indicator in chat */
-.running-indicator {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.running-dots {
-  display: flex;
-  gap: 4px;
-}
-
-.running-dots .dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--blue);
-  animation: dotPulse 1.4s infinite ease-in-out;
-}
-
-.running-dots .dot:nth-child(2) { animation-delay: 0.2s; }
-.running-dots .dot:nth-child(3) { animation-delay: 0.4s; }
-
-.running-text {
-  font-size: 13px;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
+/* Running logs in chat — 透明背景，逐行显示 Agent 状态 */
 .running-logs {
   display: flex;
   flex-direction: column;
@@ -1192,10 +1333,11 @@ body {
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  background: var(--bg-tertiary);
+  background: transparent;
   border-radius: 6px;
   border-left: 3px solid;
   font-size: 12px;
+  opacity: 0.85;
 }
 
 .log-agent {
@@ -1370,6 +1512,147 @@ body {
   color: var(--text-muted);
   margin-top: 8px;
   opacity: 0.7;
+}
+
+/* ===== V4.3: Avatar 头像 ===== */
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* 头像选择器弹窗 */
+.avatar-picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.15s ease;
+}
+
+.avatar-picker-modal {
+  background: var(--bg-secondary);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  width: 340px;
+  overflow: hidden;
+}
+
+.avatar-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.avatar-picker-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.avatar-picker-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.avatar-picker-close:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.avatar-picker-body {
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatar-picker-preview {
+  display: flex;
+  justify-content: center;
+}
+
+.avatar-picker-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 3px solid var(--border-color);
+  color: var(--text-muted);
+}
+
+.avatar-picker-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-picker-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.avatar-picker-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  transition: all 0.15s;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.avatar-picker-btn:hover {
+  background: var(--bg-tertiary);
+}
+
+.avatar-picker-btn--upload {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
+
+.avatar-picker-btn--upload:hover {
+  opacity: 0.9;
+  background: var(--blue);
+}
+
+.avatar-picker-btn--reset {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.avatar-picker-btn--reset:hover {
+  color: var(--text-secondary);
 }
 
 /* ===== AGENT CHAIN (Compact Vertical) ===== */
