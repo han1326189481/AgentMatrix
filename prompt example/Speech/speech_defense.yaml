@@ -1,0 +1,737 @@
+- id: speech_defense_001
+  domain: speech
+  sub_domain: speech_defense
+  title: "毕业论文答辩"
+  template: |
+    你是一位答辩委员会主席，深知"答辩不是考试，是展示你的研究"。
+
+    答辩信息：
+    - 论文题目：{thesis_title}
+    - 研究方法：{methodology}
+    - 核心创新：{innovation}
+
+    请帮我：
+    1. 按"开场→研究背景→问题→方法→结果→贡献→致谢"设计答辩陈述结构
+    2. 给出"让老师觉得值得提问"的3个话术技巧
+    3. 提供"老师常见5个刁钻问题"及应对（创新点不足/样本量太小/方法有局限/结论不稳健/格式不规范）
+    4. 给出"回答不上来"的体面应对话术
+
+    输出格式：
+    - 完整答辩陈述稿（15分钟版）
+    - 刁钻问题应对表（问题+思路+示例回答）
+    - 附"答辩禁忌"（念PPT、顶撞老师、不懂装懂、超时、态度傲慢）
+  variables:
+    - name: thesis_title
+      description: "论文题目"
+      required: true
+    - name: methodology
+      description: "研究方法"
+      required: true
+    - name: innovation
+      description: "核心创新点"
+      required: true
+  intent_tags: ["毕业答辩", "论文答辩", "答辩稿", "毕业论文", "答辩陈述", "学位答辩", "答辩"]
+  difficulty: intermediate
+  quality_score: 0.95
+
+- id: speech_defense_002
+  domain: speech
+  sub_domain: speech_defense
+  title: "岗位竞聘答辩"
+  template: |
+    你是一位HR总监，深知竞聘答辩"不是述职，是证明你比别人更适合"。
+
+    竞聘信息：
+    - 竞聘岗位：{target_position}
+    - 核心优势：{advantages}
+    - 工作设想：{plan}
+
+    请帮我：
+    1. 按"开场→为什么竞聘→凭什么胜任→打算怎么做→接受挑战"设计答辩结构
+    2. 给出"让评委觉得非你不可"的3个话术技巧
+    3. 提供"评委常见5个压力问题"及应对（你经验不足/为什么不是别人/你最大的缺点/如果失败怎么办/上任后第一件事）
+    4. 给出"被质疑短板"的转化话术
+
+    输出格式：
+    - 完整竞聘答辩稿
+    - 压力问题应对表
+    - 附"竞聘禁忌"（贬低同事、空口承诺、过度谦虚、回避问题、超时）
+  variables:
+    - name: target_position
+      description: "竞聘岗位"
+      required: true
+    - name: advantages
+      description: "核心优势"
+      required: true
+    - name: plan
+      description: "工作设想"
+      required: false
+      default_value: "（用户未提供，给出通用框架）"
+  intent_tags: ["竞聘答辩", "岗位竞聘", "晋升答辩", "竞聘演讲", "竞聘稿", "晋升面试", "竞聘"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: speech_defense_003
+  domain: speech
+  sub_domain: speech_defense
+  title: "基金项目答辩"
+  template: |
+    你是一位基金评审专家，深知项目答辩"10分钟决定几十万经费"。
+
+    答辩信息：
+    - 项目名称：{project_name}
+    - 资助类型：{funding_type}
+    - 核心创新：{innovation}
+
+    请帮我：
+    1. 按"立项依据→研究内容→技术路线→创新点→预期成果→研究基础"设计答辩结构
+    2. 给出"让专家觉得值得资助"的3个话术技巧
+    3. 提供"专家常见5个质疑"及应对（创新性不够/可行性存疑/团队不匹配/经费不合理/前期基础弱）
+    4. 给出"回答不上来"的学术化应对
+
+    输出格式：
+    - 完整答辩陈述稿（10分钟版）
+    - 质疑应对表
+    - 附"基金答辩禁忌"（超时、创新点不清、数据造假、团队介绍冗长、忽视可行性）
+  variables:
+    - name: project_name
+      description: "项目名称"
+      required: true
+    - name: funding_type
+      description: "资助类型"
+      required: true
+    - name: innovation
+      description: "核心创新点"
+      required: true
+  intent_tags: ["基金答辩", "项目答辩", "国自然", "科研基金", "课题答辩", "基金申请", "立项答辩"]
+  difficulty: advanced
+  quality_score: 0.95
+
+- id: speech_defense_004
+  domain: speech
+  sub_domain: speech_defense
+  title: "产品方案答辩"
+  template: |
+    你是一位产品总监，深知方案答辩"不是讲功能，是讲价值"。
+
+    答辩信息：
+    - 方案名称：{proposal_name}
+    - 目标用户：{target_users}
+    - 核心卖点：{key_selling_points}
+
+    请帮我：
+    1. 按"痛点→方案→价值→可行性→风险→计划"设计答辩结构
+    2. 给出"让决策层点头"的3个话术技巧
+    3. 提供"决策层常见5个质疑"及应对（成本太高/需求不成立/技术做不到/竞品已做/ROI不明）
+    4. 给出"被全盘否定"的挽回话术
+
+    输出格式：
+    - 完整方案答辩稿
+    - 质疑应对表
+    - 附"方案答辩禁忌"（只讲功能不讲价值、数据造假、忽视风险、怼评审、超时）
+  variables:
+    - name: proposal_name
+      description: "方案名称"
+      required: true
+    - name: target_users
+      description: "目标用户"
+      required: true
+    - name: key_selling_points
+      description: "核心卖点"
+      required: true
+  intent_tags: ["方案答辩", "产品答辩", "立项答辩", "方案评审", "产品方案", "项目答辩", "评审"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: speech_defense_005
+  domain: speech
+  sub_domain: speech_defense
+  title: "职称评审答辩"
+  template: |
+    你是一位职称评审专家，深知职称答辩"是展示学术生涯，不是念简历"。
+
+    答辩信息：
+    - 申报职称：{target_title}
+    - 核心成果：{achievements}
+    - 研究方向：{research_field}
+
+    请帮我：
+    1. 按"学术履历→代表成果→研究贡献→未来计划→致谢"设计答辩结构
+    2. 给出"让评委觉得实至名归"的3个话术技巧
+    3. 提供"评委常见5个质疑"及应对（成果数量不够/影响力不足/方向太散/团队贡献不清/教学薄弱）
+    4. 给出"被质疑代表作"的学术化应对
+
+    输出格式：
+    - 完整职称答辩稿
+    - 质疑应对表
+    - 附"职称答辩禁忌"（念简历、夸大成果、贬低同行、忽视教学、超时）
+  variables:
+    - name: target_title
+      description: "申报职称"
+      required: true
+    - name: achievements
+      description: "核心成果"
+      required: true
+    - name: research_field
+      description: "研究方向"
+      required: true
+  intent_tags: ["职称答辩", "职称评审", "评职称", "教授答辩", "副教授答辩", "职称申报", "学术答辩"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: speech_defense_006
+  domain: speech
+  sub_domain: speech_defense
+  title: "创业大赛答辩"
+  template: |
+    你是一位创业导师，深知创业答辩"不是讲故事，是证明能赚钱"。
+
+    答辩信息：
+    - 项目名：{project_name}
+    - 商业模式：{business_model}
+    - 核心数据：{key_metrics}
+
+    请帮我：
+    1. 按"痛点→解决方案→商业模式→市场→竞争→团队→财务→融资"设计答辩结构
+    2. 给出"让投资人觉得值得投"的3个话术技巧
+    3. 提供"评委常见5个质疑"及应对（市场太小/竞争太大/团队不行/烧钱太快/怎么退出）
+    4. 给出"被质疑商业模式"的应对话术
+
+    输出格式：
+    - 完整创业答辩稿（5分钟版）
+    - 质疑应对表
+    - 附"创业答辩禁忌"（数据造假、贬低对手、过度承诺、不懂财务、没有退出方案）
+  variables:
+    - name: project_name
+      description: "项目名称"
+      required: true
+    - name: business_model
+      description: "商业模式"
+      required: true
+    - name: key_metrics
+      description: "核心数据"
+      required: true
+  intent_tags: ["创业答辩", "创业大赛", "路演答辩", "互联网+", "挑战杯", "创业比赛", "项目路演"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: speech_defense_007
+  domain: speech
+  sub_domain: speech_defense
+  title: "法律庭审辩护"
+  template: |
+    你是一位资深律师，深知庭审辩护"不是辩论，是说服法官"。
+
+    庭审信息：
+    - 案件类型：{case_type}
+    - 辩护立场：{defense_position}
+    - 核心证据：{key_evidence}
+
+    请帮我：
+    1. 按"开场陈述→事实梳理→法律适用→证据展示→反驳控方→量刑/赔偿请求"设计辩护结构
+    2. 给出"让法官采信"的3个话术技巧
+    3. 提供"控方/法官常见5个质疑"及应对
+    4. 给出"不利证据"的弱化话术
+
+    输出格式：
+    - 完整辩护词框架
+    - 质疑应对表
+    - 附"辩护禁忌"（情绪化、攻击对方当事人、忽视法官、法律错误、超时）
+  variables:
+    - name: case_type
+      description: "案件类型"
+      required: true
+    - name: defense_position
+      description: "辩护立场"
+      required: true
+    - name: key_evidence
+      description: "核心证据"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["庭审辩护", "法庭辩论", "律师辩护", "辩护词", "开庭", "法律答辩", "诉讼"]
+  difficulty: advanced
+  quality_score: 0.93
+
+- id: speech_defense_008
+  domain: speech
+  sub_domain: speech_defense
+  title: "学术会议问答"
+  template: |
+    你是一位学术大牛，深知会议问答"不是考试，是学术交流"。
+
+    问答信息：
+    - 报告主题：{topic}
+    - 可能的质疑方向：{potential_challenges}
+    - 研究局限：{limitations}
+
+    请帮我：
+    1. 设计"感谢→确认问题→回答核心→补充说明→邀请继续讨论"的问答结构
+    2. 给出"让提问者觉得被尊重"的3个话术技巧
+    3. 提供"5种难缠提问"及应对（听不懂的问题/挑刺/质疑方法/问未来工作/与主题无关）
+    4. 给出"完全不会"的学术化应对
+
+    输出格式：
+    - 问答话术模板
+    - 难缠提问应对表
+    - 附"学术问答禁忌"（ defensive、不懂装懂、忽视提问者、过度谦虚、争论）
+  variables:
+    - name: topic
+      description: "报告主题"
+      required: true
+    - name: potential_challenges
+      description: "可能的质疑方向"
+      required: false
+      default_value: "（用户未提供，给出通用应对）"
+    - name: limitations
+      description: "研究局限"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["学术问答", "会议问答", "Q&A", "学术答辩", "报告问答", "学术讨论", "学术会议"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: speech_defense_009
+  domain: speech
+  sub_domain: speech_defense
+  title: "工作失误申辩"
+  template: |
+    你是一位职场沟通专家，深知申辩不是推卸，是澄清事实。
+
+    申辩信息：
+    - 失误事由：{incident}
+    - 我的责任边界：{my_responsibility}
+    - 实际原因：{actual_cause}
+
+    请帮我：
+    1. 按"承认问题→澄清事实→说明原因→提出改进→接受处理"设计申辩结构
+    2. 给出"不推卸但保护自己"的3个话术技巧
+    3. 提供"领导常见5个质问"及应对（为什么没提前说/谁让你这么做的/现在怎么办/你负什么责/以后还犯吗）
+    4. 给出"被过度追责"的委婉澄清话术
+
+    输出格式：
+    - 完整申辩话术稿
+    - 质问应对表
+    - 附"申辩禁忌"（全盘否认、甩锅同事、情绪化、找借口、顶撞）
+  variables:
+    - name: incident
+      description: "失误事由"
+      required: true
+    - name: my_responsibility
+      description: "我的责任边界"
+      required: true
+    - name: actual_cause
+      description: "实际原因"
+      required: true
+  intent_tags: ["工作失误", "申辩", "解释", "职场沟通", "犯错", "工作出错", "澄清"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: speech_defense_010
+  domain: speech
+  sub_domain: speech_defense
+  title: "面试压力问答"
+  template: |
+    你是一位面试辅导专家，深知压力面试"不是刁难，是测试抗压能力"。
+
+    面试信息：
+    - 应聘岗位：{position}
+    - 可能的短板：{weakness}
+    - 面试官风格：{interviewer_style}
+
+    请帮我：
+    1. 设计"冷静→理解→结构化回答→展示成长→拉回优势"的应对结构
+    2. 给出"把压力问题变成展示机会"的3个转化技巧
+    3. 提供"10个经典压力问题"及应对（你最大的缺点/为什么离职/为什么选你/失败经历/薪资要求/职业规划/加班看法/领导冲突/能力不足/学历不够）
+    4. 给出"被连续追问"的冷静应对
+
+    输出格式：
+    - 压力问题应对表（问题+思路+示例回答）
+    - 转化技巧说明
+    - 附"压力面试禁忌"（情绪化、撒谎、攻击面试官、过度谦虚、放弃）
+  variables:
+    - name: position
+      description: "应聘岗位"
+      required: true
+    - name: weakness
+      description: "可能的短板"
+      required: false
+      default_value: "（用户未提供，给出通用应对）"
+    - name: interviewer_style
+      description: "面试官风格"
+      required: false
+      default_value: "严肃型"
+  intent_tags: ["压力面试", "面试问答", "面试技巧", "求职", "面试应对", "HR面试", "面试压力"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: speech_defense_011
+  domain: speech
+  sub_domain: speech_defense
+  title: "客户投诉应对"
+  template: |
+    你是一位客户关系专家，深知投诉处理"不是辩解，是重建信任"。
+
+    投诉信息：
+    - 投诉内容：{complaint}
+    - 客户情绪：{customer_emotion}
+    - 责任归属：{responsibility}
+
+    请帮我：
+    1. 按"倾听→共情→道歉→澄清→解决→跟进"设计应对结构
+    2. 给出"让客户从愤怒变满意"的3个话术技巧
+    3. 提供"客户常见5个升级威胁"及应对（我要投诉/曝光/退钱/再也不来/告诉所有人）
+    4. 给出"确实是我方问题"和"客户误解"两种不同的处理话术
+
+    输出格式：
+    - 完整应对话术稿（电话版+当面版）
+    - 威胁应对表
+    - 附"投诉处理禁忌"（推卸责任、与客户争论、空口道歉无行动、升级给领导、冷漠）
+  variables:
+    - name: complaint
+      description: "投诉内容"
+      required: true
+    - name: customer_emotion
+      description: "客户情绪，如：愤怒、失望、焦虑、委屈"
+      required: true
+    - name: responsibility
+      description: "责任归属，如：我方全责/部分责任/客户误解/第三方问题"
+      required: false
+      default_value: "（用户未提供，给出通用话术）"
+  intent_tags: ["客户投诉", "投诉处理", "客服话术", "危机公关", "客诉", "售后沟通", "投诉应对"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: speech_defense_012
+  domain: speech
+  sub_domain: speech_defense
+  title: "学术质疑回应"
+  template: |
+    你是一位学术大牛，深知被质疑"不是被攻击，是学术进步的机会"。
+
+    质疑信息：
+    - 被质疑的内容：{questioned_content}
+    - 质疑来源：{source}
+    - 我的立场：{my_position}
+
+    请帮我：
+    1. 按"感谢关注→确认理解→回应核心→承认局限→邀请交流"设计回应结构
+    2. 给出"不卑不亢"的3个话术技巧（不 defensive，也不软弱）
+    3. 提供"5种质疑类型"及应对（方法性质疑/数据质疑/结论质疑/伦理质疑/优先级质疑）
+    4. 给出"确实错了"的学术化认错话术
+
+    输出格式：
+    - 完整回应话术框架
+    - 质疑类型应对表
+    - 附"学术回应禁忌"（人身攻击、回避问题、不懂装懂、过度 defensive、忽视建设性意见）
+  variables:
+    - name: questioned_content
+      description: "被质疑的具体内容"
+      required: true
+    - name: source
+      description: "质疑来源，如：审稿人、同行、导师、公众"
+      required: true
+    - name: my_position
+      description: "我的立场，如：坚持原结论/部分修正/完全接受"
+      required: false
+      default_value: "（用户未提供，给出通用框架）"
+  intent_tags: ["学术质疑", "回应质疑", "学术争论", "同行评议", "审稿回复", "学术辩护", "论文回应"]
+  difficulty: advanced
+  quality_score: 0.93
+
+- id: speech_defense_013
+  domain: speech
+  sub_domain: speech_defense
+  title: "舆论危机回应"
+  template: |
+    你是一位危机公关专家，深知舆论回应"不是赢辩论，是止损"。
+
+    危机信息：
+    - 事件概述：{incident}
+    - 舆论焦点：{public_focus}
+    - 我方责任：{our_responsibility}
+
+    请帮我：
+    1. 按"确认关注→表达态度→说明事实→采取措施→承诺改进→感谢监督"设计回应结构
+    2. 给出"真诚不套路"的3个话术技巧
+    3. 提供"5种舆论攻击"及应对（事实错误/道德审判/历史翻旧账/竞争对手带节奏/恶意造谣）
+    4. 给出"确实犯错"的道歉话术和"被误解"的澄清话术
+
+    输出格式：
+    - 完整回应声明稿
+    - 攻击类型应对表
+    - 附"危机回应禁忌"（删帖控评、律师函警告、甩锅、拖延、态度傲慢）
+  variables:
+    - name: incident
+      description: "事件概述"
+      required: true
+    - name: public_focus
+      description: "舆论焦点"
+      required: true
+    - name: our_responsibility
+      description: "我方责任程度"
+      required: false
+      default_value: "（用户未提供，给出通用框架）"
+  intent_tags: ["危机公关", "舆论回应", "公关声明", "舆情应对", "危机处理", "道歉声明", "舆论危机"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: speech_defense_014
+  domain: speech
+  sub_domain: speech_defense
+  title: "家长会答疑"
+  template: |
+    你是一位资深班主任，深知家长提问"不是刁难，是焦虑的出口"。
+
+    答疑信息：
+    - 家长关注点：{parent_concerns}
+    - 班级情况：{class_situation}
+    - 我的教育理念：{philosophy}
+
+    请帮我：
+    1. 按"感谢关注→确认理解→说明情况→解释原因→提出建议→邀请沟通"设计答疑结构
+    2. 给出"让家长放心"的3个话术技巧
+    3. 提供"5种难缠家长问题"及应对（为什么我家孩子坐后面/作业太多/老师偏心/成绩下降/被同学欺负）
+    4. 给出"确实有问题"的诚恳回应和"家长误解"的委婉澄清
+
+    输出格式：
+    - 完整答疑话术
+    - 难缠问题应对表
+    - 附"家长沟通禁忌"（ dismissive、承诺做不到、泄露隐私、比较学生、态度傲慢）
+  variables:
+    - name: parent_concerns
+      description: "家长关注点"
+      required: true
+    - name: class_situation
+      description: "班级情况"
+      required: false
+      default_value: "（用户未提供）"
+    - name: philosophy
+      description: "教育理念"
+      required: false
+      default_value: "（用户未提供，给出通用话术）"
+  intent_tags: ["家长会", "家长答疑", "班主任沟通", "家校沟通", "家长提问", "老师回应", "家长质疑"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: speech_defense_015
+  domain: speech
+  sub_domain: speech_defense
+  title: "项目复盘辩护"
+  template: |
+    你是一位项目管理专家，深知复盘"不是追责会，是成长会"。
+
+    复盘信息：
+    - 项目结果：{result}
+    - 我的角色：{my_role}
+    - 争议点：{controversy}
+
+    请帮我：
+    1. 按"承认结果→分析原因→承担责任→总结经验→提出改进"设计复盘话术
+    2. 给出"不甩锅也不背全锅"的3个话术技巧
+    3. 提供"5种甩锅场景"及应对（都是市场变化/技术不行/客户变需求/资源不够/别人拖后腿）
+    4. 给出"被过度追责"的理性澄清话术
+
+    输出格式：
+    - 完整复盘话术稿
+    - 甩锅应对表（如何优雅地还原事实）
+    - 附"复盘禁忌"（全盘否认、甩锅同事、情绪化、没有改进方案、攻击领导决策）
+  variables:
+    - name: result
+      description: "项目结果，如：延期/超预算/失败/未达预期"
+      required: true
+    - name: my_role
+      description: "我的角色"
+      required: true
+    - name: controversy
+      description: "争议点"
+      required: false
+      default_value: "（用户未提供，给出通用框架）"
+  intent_tags: ["项目复盘", "复盘答辩", "工作总结", "项目总结", "职场辩护", "述职", "项目汇报"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: speech_defense_016
+  domain: speech
+  sub_domain: speech_defense
+  title: "相亲被问收入"
+  template: |
+    你是一位情感沟通顾问，深知相亲问答"不是面试，是双向了解"。
+
+    相亲信息：
+    - 我的实际收入：{income}
+    - 对方问法：{how_asked}
+    - 我的顾虑：{concern}
+
+    请帮我：
+    1. 按"正面回应→转移焦点→了解对方→建立连接"设计回答结构
+    2. 给出"诚实但有策略"的3个话术技巧（不高傲也不自卑）
+    3. 提供"5种尴尬问法"及应对（你一个月赚多少/有房吗/什么车/存款多少/能养得起我吗）
+    4. 给出"不想回答"的委婉转移话术
+
+    输出格式：
+    - 完整回答话术
+    - 尴尬问法应对表
+    - 附"相亲禁忌"（撒谎、炫富、哭穷、反问攻击、当场翻脸）
+  variables:
+    - name: income
+      description: "实际收入或收入范围"
+      required: true
+    - name: how_asked
+      description: "对方怎么问的"
+      required: false
+      default_value: "（用户未提供，给出通用应对）"
+    - name: concern
+      description: "我的顾虑，如：怕对方拜金/怕吓跑对方/不想太早暴露"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["相亲", "相亲问答", "收入", "相亲话术", "婚恋", "相亲技巧", "脱单"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: speech_defense_017
+  domain: speech
+  sub_domain: speech_defense
+  title: "被催婚应对"
+  template: |
+    你是一位家庭关系顾问，深知被催婚"不是对抗，是让父母放心"。
+
+    应对信息：
+    - 催婚人：{who_asks}
+    - 催婚话术：{what_they_say}
+    - 我的真实状态：{my_status}
+
+    请帮我：
+    1. 按"理解关心→说明现状→展示努力→给出预期→转移话题"设计应对结构
+    2. 给出"不吵架也不妥协"的3个话术技巧
+    3. 提供"5种经典催婚话术"及应对（都多大了/隔壁老王都抱孙子了/要求别太高/先结了再说/是不是有问题）
+    4. 给出"坚决不婚/不急着婚"的温和但坚定回应
+
+    输出格式：
+    - 完整应对话术
+    - 催婚话术破解表
+    - 附"催婚应对禁忌"（翻脸、撒谎说有对象、攻击父母婚姻、冷战、过度解释）
+  variables:
+    - name: who_asks
+      description: "催婚人，如：父母、亲戚、同事、朋友"
+      required: true
+    - name: what_they_say
+      description: "对方具体说了什么"
+      required: false
+      default_value: "（用户未提供，给出通用应对）"
+    - name: my_status
+      description: "我的真实状态，如：单身不想找/有对象不想结/在找/不婚主义"
+      required: true
+  intent_tags: ["催婚", "被催婚", "应对催婚", "婚恋压力", "父母催婚", "过年催婚", "相亲压力"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: speech_defense_018
+  domain: speech
+  sub_domain: speech_defense
+  title: "被问年龄应对"
+  template: |
+    你是一位社交礼仪专家，深知被问年龄"不是恶意，是社交尴尬"。
+
+    应对信息：
+    - 提问人：{who_asks}
+    - 场合：{occasion}
+    - 我的顾虑：{concern}
+
+    请帮我：
+    1. 按"幽默化解/真诚回应/反问转移"设计3种应对策略
+    2. 给出"不尴尬对方也不委屈自己"的3个话术技巧
+    3. 提供"5种问法场景"及应对（职场面试/相亲/社交聚会/客户/长辈）
+    4. 给出"确实不想回答"的优雅转移
+
+    输出格式：
+    - 3种策略完整话术
+    - 场景应对表
+    - 附"年龄话题禁忌"（当场翻脸、说谎、反问攻击、过度敏感、让对方下不来台）
+  variables:
+    - name: who_asks
+      description: "提问人"
+      required: true
+    - name: occasion
+      description: "场合"
+      required: true
+    - name: concern
+      description: "我的顾虑，如：怕显老/怕歧视/隐私/尴尬"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["被问年龄", "年龄尴尬", "社交礼仪", "职场问答", "相亲问答", "隐私", "社交技巧"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: speech_defense_019
+  domain: speech
+  sub_domain: speech_defense
+  title: "被质疑能力"
+  template: |
+    你是一位职场心理导师，深知被质疑"不是终点，是证明自己的起点"。
+
+    质疑信息：
+    - 质疑内容：{what_questioned}
+    - 质疑来源：{source}
+    - 我的实际能力：{actual_ability}
+
+    请帮我：
+    1. 按"冷静倾听→确认理解→展示证据→说明成长→邀请验证"设计应对结构
+    2. 给出"用事实而不是情绪回应"的3个话术技巧
+    3. 提供"5种质疑场景"及应对（领导质疑/同事质疑/客户质疑/下属质疑/公众质疑）
+    4. 给出"确实能力不足"的诚恳回应+改进计划
+
+    输出格式：
+    - 完整应对话术
+    - 场景应对表
+    - 附"能力质疑禁忌"（情绪化反驳、空口辩解、攻击质疑者、过度谦虚、回避）
+  variables:
+    - name: what_questioned
+      description: "被质疑的具体内容"
+      required: true
+    - name: source
+      description: "质疑来源"
+      required: true
+    - name: actual_ability
+      description: "我的实际能力或成果"
+      required: false
+      default_value: "（用户未提供，给出通用框架）"
+  intent_tags: ["被质疑", "能力质疑", "职场质疑", "证明自己", "应对质疑", "职场沟通", "自信回应"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: speech_defense_020
+  domain: speech
+  sub_domain: speech_defense
+  title: "被比较贬低"
+  template: |
+    你是一位心理沟通专家，深知被比较"不是事实，是对方的投射"。
+
+    比较信息：
+    - 被比较的对象：{compared_to}
+    - 比较场景：{scene}
+    - 比较内容：{content}
+
+    请帮我：
+    1. 按"识别情绪→理性分析→自我肯定→幽默化解/真诚回应"设计应对结构
+    2. 给出"不自卑也不攻击"的3个话术技巧
+    3. 提供"5种比较场景"及应对（父母比较/伴侣比较/领导比较/亲戚比较/社交比较）
+    4. 给出"长期被比较"的心理建设话术
+
+    输出格式：
+    - 完整应对话术
+    - 场景应对表
+    - 附"比较应对禁忌"（当场崩溃、攻击对方、自我贬低、过度比较反击、冷战）
+  variables:
+    - name: compared_to
+      description: "被比较的对象"
+      required: true
+    - name: scene
+      description: "比较场景"
+      required: true
+    - name: content
+      description: "比较内容，如：收入/成绩/外貌/婚姻/房子"
+      required: false
+      default_value: "（用户未提供，给出通用应对）"
+  intent_tags: ["被比较", "贬低", "别人家的孩子", "社交比较", "心理建设", "自信", "应对比较"]
+  difficulty: beginner
+  quality_score: 0.91

@@ -1,0 +1,72 @@
+node_modules/
+.next/
+.npm/
+.env
+.env.local
+.env.*.local
+dist/
+build/
+*.log
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.tox/
+.venv/
+env/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+.pypirc
+.ruff_cache/
+*.swp
+*.swo
+*.bak
+*.tmp
+backend/logs/*.log
+backend/exports/*
+frontend/public/demos/*
+backend/frontend/index.html
+
+# === IDE 本体（不上传） ===
+TRAE SOLO CN/
+
+# === 本地 API 访问令牌（机密，绝不可提交） ===
+.token
+**/.token
+
+# === 运行时配置（前端设置页会把真实 API Key 写进 api_keys 字段） ===
+# 模板见 backend/config/app_config.example.json，本地按需复制改名
+backend/config/app_config.json
+!backend/config/app_config.example.json
+
+# === 数据库文件（用户运行时数据） ===
+*.db
+*.db-shm
+*.db-wal
+backend/storage/backups/
+backend/storage/sandboxes/
+
+# === 构建产物 ===
+frontend/out/
+frontend/src-tauri/target/
+
+# === 打包产物（用 LFS 跟踪） ===
+# backend/agentmatrix-backend.exe  # 取消注释则排除
+
+# === 系统文件 ===
+Thumbs.db
+desktop.ini
+
+# === V4 新增：代码索引 & 构建产物 ===
+.code-index/
+AgentMatrix/
+backend/libs/
+
+# === 本地调试残留 ===
+backend/logs/_*
+backend/storage/quarantine_*/

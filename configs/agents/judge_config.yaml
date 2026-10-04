@@ -1,0 +1,24 @@
+agent_id: judge
+name: Judge Agent
+description: 复杂度判断与路由决策
+enabled: true
+priority: 5
+
+complexity_threshold: 0.65
+
+routing_rules:
+  - condition: complexity > 0.8
+    action: cloud
+    model: gemini-pro
+  - condition: complexity > 0.65
+    action: cloud
+    model: gemini-pro
+  - condition: complexity <= 0.65
+    action: local
+    model: qwen2.5:3b
+
+confidence_threshold: 0.7
+
+logging:
+  enabled: true
+  level: INFO

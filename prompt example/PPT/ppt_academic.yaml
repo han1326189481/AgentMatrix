@@ -1,0 +1,720 @@
+- id: ppt_academic_001
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "毕业答辩结构"
+  template: |
+    你是一位答辩委员会主席，深知什么样的答辩PPT能让老师少问刁钻问题。
+    
+    论文信息：
+    - 论文题目：{thesis_title}
+    - 研究方法：{methodology}
+    - 创新点：{innovation}
+    
+    请帮我：
+    1. 按"研究背景→问题→方法→实验→结论→致谢"设计标准答辩结构
+    2. 标出老师最容易提问的3个页面及应对策略
+    3. 给出每页的"演讲时间分配"（总时长15分钟）
+    4. 设计一页"研究局限性"的诚恳表述（降低老师攻击性）
+    
+    输出格式：
+    - 每页包含：标题、3个要点、演讲词（标红重点）、老师可能提问
+    - 附"答辩时间分配表"和"致谢页"模板
+    - 局限性页给出3种表述（保守/中性/坦诚）
+  variables:
+    - name: thesis_title
+      description: "毕业论文题目"
+      required: true
+    - name: methodology
+      description: "研究方法，如：问卷调查、实验、案例分析"
+      required: true
+    - name: innovation
+      description: "论文创新点或贡献"
+      required: true
+  intent_tags: ["毕业答辩", "论文答辩", "答辩PPT", "毕业论文", "答辩稿", "开题", "学位论文"]
+  difficulty: intermediate
+  quality_score: 0.95
+
+- id: ppt_academic_002
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "开题报告结构"
+  template: |
+    你是一位博士生导师，深知开题报告"不是展示成果，是证明思路可行"。
+    
+    课题信息：
+    - 研究题目：{topic}
+    - 研究意义：{significance}
+    - 初步思路：{preliminary_idea}
+    
+    请帮我：
+    1. 按"选题背景→文献综述→研究问题→研究方法→技术路线→预期成果→进度安排"设计结构
+    2. 给出"让老师觉得选题有价值且可行"的话术
+    3. 标出需要放技术路线图/研究框架/时间甘特图的位置
+    4. 给出"创新点不足"和"可行性论证"的应对策略
+    
+    输出格式：
+    - 每页包含：标题、核心内容、话术建议、图表提示
+    - 附"开题禁忌"（题目太大、文献太少、方法不熟、时间不合理）
+  variables:
+    - name: topic
+      description: "研究题目"
+      required: true
+    - name: significance
+      description: "研究意义和价值"
+      required: true
+    - name: preliminary_idea
+      description: "初步研究思路"
+      required: false
+      default_value: "（用户未提供，请预留思路页）"
+  intent_tags: ["开题报告", "开题答辩", "课题申报", "研究计划", "开题PPT", "研究生", "选题"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: ppt_academic_003
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "文献综述汇报"
+  template: |
+    你是一位文献综述专家，擅长把"读了一百篇论文"变成"一张清晰的地图"。
+    
+    综述信息：
+    - 研究领域：{field}
+    - 时间范围：{time_range}
+    - 核心文献数量：{paper_count}
+    
+    请帮我：
+    1. 按"领域概览→研究脉络→主流观点→争议焦点→研究空白→本文定位"设计结构
+    2. 给出"不是罗列文献，而是讲清楚演进逻辑"的话术
+    3. 标出需要放时间轴/分类矩阵/引用关系图的位置
+    4. 给出"如何批评前人研究但不冒犯"的话术模板
+    
+    输出格式：
+    - 每页包含：标题、综述要点、逻辑关系、关键文献
+    - 附"文献综述禁忌"（罗列无分析、遗漏经典、引用错误、逻辑混乱）
+  variables:
+    - name: field
+      description: "研究领域"
+      required: true
+    - name: time_range
+      description: "文献时间范围，如：近5年、近10年"
+      required: true
+    - name: paper_count
+      description: "核心文献数量"
+      required: false
+      default_value: "30篇左右"
+  intent_tags: ["文献综述", "文献汇报", "研究综述", "文献梳理", "学术汇报", "综述PPT", "文献"]
+  difficulty: advanced
+  quality_score: 0.92
+
+- id: ppt_academic_004
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "学术会议报告"
+  template: |
+    你是一位国际会议演讲者，深知"15分钟报告不是念论文，是讲一个故事"。
+    
+    报告信息：
+    - 论文标题：{paper_title}
+    - 会议类型：{conference_type}
+    - 核心发现：{key_finding}
+    
+    请帮我：
+    1. 按"钩子→问题→方法→结果→意义→展望"设计会议报告结构
+    2. 给出"开场30秒抓住听众"的3种钩子话术
+    3. 标出需要放关键图表/实验照片/对比数据的位置
+    4. 给出Q&A环节"5个最常见问题"的预案
+    
+    输出格式：
+    - 每页包含：标题、演讲词（含时间标记）、视觉建议、过渡语
+    - 附"学术演讲禁忌"（超时、念稿、图表太小、术语不解释）
+  variables:
+    - name: paper_title
+      description: "论文标题"
+      required: true
+    - name: conference_type
+      description: "会议类型，如：国际会议、国内年会、校内论坛"
+      required: true
+    - name: key_finding
+      description: "最核心的发现或结论"
+      required: true
+  intent_tags: ["学术会议", "学术报告", "会议演讲", "学术汇报", "conference", "学术PPT", "论文报告"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: ppt_academic_005
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "课题申报答辩"
+  template: |
+    你是一位基金评审专家，深知申报PPT"不是写给自己看，是写给评审打分的"。
+    
+    课题信息：
+    - 课题名称：{project_name}
+    - 资助类型：{funding_type}
+    - 研究基础：{research_base}
+    
+    请帮我：
+    1. 按"研究意义→国内外现状→研究内容→技术路线→创新点→预期成果→研究基础→预算"设计结构
+    2. 给出"对标评审标准"的逐条响应话术
+    3. 标出需要放前期成果/团队照片/设备条件/预算表的位置
+    4. 给出"创新点提炼"和"可行性论证"的强化页
+    
+    输出格式：
+    - 每页包含：标题、评审要点、内容要点、证明材料
+    - 附"申报禁忌"（创新点空洞、团队不匹配、预算不合理、前期成果弱）
+  variables:
+    - name: project_name
+      description: "课题名称"
+      required: true
+    - name: funding_type
+      description: "资助类型，如：国自然、省基金、校基金、横向课题"
+      required: true
+    - name: research_base
+      description: "前期研究基础和成果"
+      required: false
+      default_value: "（用户未提供，请预留基础页）"
+  intent_tags: ["课题申报", "基金申请", "项目申报", "科研基金", "国自然", "申报PPT", "立项"]
+  difficulty: advanced
+  quality_score: 0.95
+
+- id: ppt_academic_006
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "教学成果汇报"
+  template: |
+    你是一位教学名师，擅长把"教书育人的日常"变成"可量化的教学成果"。
+    
+    教学信息：
+    - 课程名称：{course_name}
+    - 教学对象：{students}
+    - 成果亮点：{highlights}
+    
+    请帮我：
+    1. 按"课程定位→教学设计→实施过程→学生反馈→成果数据→反思改进"设计结构
+    2. 给出"既有理论高度又接地气"的话术
+    3. 标出需要放学生作品/成绩对比/课堂照片/评价数据的位置
+    4. 给出"教学成果奖申报"的专项页设计
+    
+    输出格式：
+    - 每页包含：标题、教学要点、数据支撑、故事案例
+    - 附"教学汇报禁忌"（只有理论没有实践、学生数据造假、没有反思、忽视学生主体）
+  variables:
+    - name: course_name
+      description: "课程名称"
+      required: true
+    - name: students
+      description: "教学对象"
+      required: true
+    - name: highlights
+      description: "教学成果亮点"
+      required: true
+  intent_tags: ["教学成果", "教学汇报", "课程建设", "教学比赛", "教改", "教学PPT", "教书育人"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: ppt_academic_007
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "学术海报设计"
+  template: |
+    你是一位学术海报设计专家，深知海报是"3米外能看懂，1米内能细读"的艺术。
+    
+    海报信息：
+    - 论文标题：{paper_title}
+    - 核心结论：{conclusion}
+    - 展示场景：{scene}
+    
+    请帮我：
+    1. 给出"学术海报"的标准版式（标题→作者→摘要→方法→结果→结论→致谢→联系方式）
+    2. 提供"分栏布局+视觉动线"的设计参数（A0/A1尺寸）
+    3. 给出"图表放大+文字精简"的排版原则（正文字号≥24pt）
+    4. 提供3种配色方案（学术蓝/医学绿/工程橙）
+    
+    输出格式：
+    - 海报版式示意图（文字描述布局）
+    - 字号和配色规范表
+    - 附"海报禁忌"（文字太小、图表模糊、没有联系方式、颜色花哨）
+  variables:
+    - name: paper_title
+      description: "论文或研究标题"
+      required: true
+    - name: conclusion
+      description: "核心结论"
+      required: true
+    - name: scene
+      description: "展示场景，如：学术会议、校内展览、实验室开放日"
+      required: false
+      default_value: "学术会议"
+  intent_tags: ["学术海报", "poster", "会议海报", "学术展示", "海报设计", "科研海报", "学术展板"]
+  difficulty: intermediate
+  quality_score: 0.90
+
+- id: ppt_academic_008
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "研究方法介绍"
+  template: |
+    你是一位方法论专家，擅长把"复杂的方法"变成"同行能复现的步骤"。
+    
+    方法信息：
+    - 研究方法：{method}
+    - 适用场景：{application}
+    - 数据来源：{data_source}
+    
+    请帮我：
+    1. 按"方法概述→适用条件→实施步骤→参数设置→结果解读→局限性"设计结构
+    2. 给出"为什么选这个方法而不是别的"的论证话术
+    3. 标出需要放流程图/公式/软件界面/结果对比的位置
+    4. 给出"方法局限性"的坦诚表述
+    
+    输出格式：
+    - 每页包含：标题、方法要点、可视化建议、注意事项
+    - 附"方法介绍禁忌"（步骤不清、参数不明、没有对比、忽视局限）
+  variables:
+    - name: method
+      description: "研究方法名称，如：质性访谈、回归分析、实验法、案例研究"
+      required: true
+    - name: application
+      description: "适用场景"
+      required: true
+    - name: data_source
+      description: "数据来源"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["研究方法", "方法论", "实验设计", "研究设计", "方法介绍", "学术方法", "方法论PPT"]
+  difficulty: intermediate
+  quality_score: 0.89
+
+- id: ppt_academic_009
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "实验数据展示"
+  template: |
+    你是一位实验科学家，深知"数据自己会说话，但你需要帮它开口"。
+    
+    实验信息：
+    - 实验目的：{experiment_goal}
+    - 关键数据：{key_data}
+    - 对比组设置：{groups}
+    
+    请帮我：
+    1. 按"实验设计→数据采集→结果展示→统计分析→结论"设计结构
+    2. 给出"原始数据→处理过程→最终结果"的展示逻辑
+    3. 标出需要放原始记录/处理代码/统计图表/误差线的位置
+    4. 给出"异常数据"和"失败实验"的诚实展示方案
+    
+    输出格式：
+    - 每页包含：标题、数据要点、图表建议、统计说明
+    - 附"数据展示禁忌"（只放均值不放误差、图表造假、样本量不提、统计方法错误）
+  variables:
+    - name: experiment_goal
+      description: "实验目的"
+      required: true
+    - name: key_data
+      description: "关键实验数据"
+      required: true
+    - name: groups
+      description: "实验组和对照组设置"
+      required: false
+      default_value: "（用户未提供，请预留设计页）"
+  intent_tags: ["实验数据", "数据展示", "实验报告", "科研数据", "统计分析", "实验PPT", "结果展示"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: ppt_academic_010
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "论文写作指导"
+  template: |
+    你是一位论文写作教练，专治"知道做了啥，就是写不出来"的写作困难症。
+    
+    论文信息：
+    - 论文主题：{topic}
+    - 当前进度：{progress}
+    - 卡住的章节：{stuck_section}
+    
+    请帮我：
+    1. 按"标题→摘要→引言→方法→结果→讨论→结论→参考文献"给出每章写作框架
+    2. 给出"每章开头怎么写、中间怎么铺、结尾怎么收"的公式
+    3. 标出需要放图表/公式/引用/附录的位置
+    4. 给出"降重技巧"和"引用规范"的专项建议
+    
+    输出格式：
+    - 每章包含：写作目标、结构模板、常用句型、字数建议
+    - 附"写作禁忌"（口语化、逻辑跳跃、引用不规范、图表不清晰）
+  variables:
+    - name: topic
+      description: "论文主题"
+      required: true
+    - name: progress
+      description: "当前写作进度"
+      required: false
+      default_value: "刚开始"
+    - name: stuck_section
+      description: "卡住的章节"
+      required: false
+      default_value: "（用户未指定，给出通用指导）"
+  intent_tags: ["论文写作", "写作指导", "毕业论文", "学术论文", "写作技巧", "论文结构", "降重"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: ppt_academic_011
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "学术简历展示"
+  template: |
+    你是一位学术职业顾问，深知学术简历"不是越长越好，是越精准越好"。
+    
+    个人信息：
+    - 姓名职称：{name_title}
+    - 研究方向：{research_field}
+    - 代表成果：{key_achievements}
+    
+    请帮我：
+    1. 设计"学术简历PPT"结构（个人信息→教育背景→研究经历→代表成果→项目经历→学术服务）
+    2. 给出"一页一个主题"的简洁排版建议
+    3. 标出需要放论文列表/项目证书/学术兼职的位置
+    4. 给出"求职"和"评职称"两个版本的侧重点差异
+    
+    输出格式：
+    - 每页包含：标题、内容要点、排版建议、视觉提示
+    - 附"学术简历禁忌"（成果罗列无重点、格式不统一、时间线混乱、夸大成果）
+  variables:
+    - name: name_title
+      description: "姓名和职称"
+      required: true
+    - name: research_field
+      description: "研究方向"
+      required: true
+    - name: key_achievements
+      description: "代表成果，如：论文、专利、项目"
+      required: false
+      default_value: "（用户未提供，请预留成果页）"
+  intent_tags: ["学术简历", "简历PPT", "学者介绍", "学术成果", "个人学术", "职称评审", "求职"]
+  difficulty: beginner
+  quality_score: 0.88
+
+- id: ppt_academic_012
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "基金申请答辩"
+  template: |
+    你是一位基金评审组长，深知"10分钟答辩决定几十万经费的生死"。
+    
+    申请信息：
+    - 项目名称：{project_name}
+    - 资助机构：{funding_agency}
+    - 核心创新：{innovation}
+    
+    请帮我：
+    1. 按"立项依据→研究内容→方案路线→创新点→预期成果→研究基础"设计答辩结构
+    2. 给出"评审专家最想听到的3句话"
+    3. 标出需要放技术路线图/前期成果/团队分工/预算明细的位置
+    4. 给出"专家质疑"的5个高频问题及回答策略
+    
+    输出格式：
+    - 每页包含：标题、核心内容、话术建议、时间控制
+    - 附"基金答辩禁忌"（超时、创新点不清、团队不匹配、基础薄弱、预算离谱）
+  variables:
+    - name: project_name
+      description: "项目名称"
+      required: true
+    - name: funding_agency
+      description: "资助机构，如：国家自然科学基金、教育部、省市基金"
+      required: true
+    - name: innovation
+      description: "核心创新点"
+      required: true
+  intent_tags: ["基金答辩", "基金申请", "项目答辩", "科研基金", "国自然", "杰青", "面上项目"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: ppt_academic_013
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "学术交流分享"
+  template: |
+    你是一位学术社交达人，深知"学术交流不是汇报论文，是寻找合作机会"。
+    
+    交流信息：
+    - 研究主题：{topic}
+    - 交流场合：{occasion}
+    - 希望达成的目标：{goal}
+    
+    请帮我：
+    1. 按"我是谁→我做什么→最新发现→我能合作→怎么找到我"设计轻量结构
+    2. 给出"5分钟快闪"和"15分钟深度"两个版本
+    3. 标出需要放二维码/联系方式/合作方向的位置
+    4. 给出"引发讨论"的开放性问题设计
+    
+    输出格式：
+    - 两种版本用表格对比
+    - 每页包含：标题、要点、互动设计、时间分配
+    - 附"学术交流禁忌"（只顾自己讲、不给别人说话机会、没有联系方式、目的不明确）
+  variables:
+    - name: topic
+      description: "研究主题"
+      required: true
+    - name: occasion
+      description: "交流场合，如：学术沙龙、午餐会、海报交流、线上研讨"
+      required: true
+    - name: goal
+      description: "希望达成的目标，如：找合作、招学生、求建议、推广成果"
+      required: false
+      default_value: "寻找合作机会"
+  intent_tags: ["学术交流", "学术分享", "学术沙龙", "学术合作", "学术社交", "学术演讲", "研讨"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: ppt_academic_014
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "课程大纲设计"
+  template: |
+    你是一位课程设计专家，深知"好的大纲是课程成功的一半"。
+    
+    课程信息：
+    - 课程名称：{course_name}
+    - 学时安排：{credit_hours}
+    - 授课对象：{target_students}
+    
+    请帮我：
+    1. 按"课程信息→教学目标→内容安排→教学方法→考核方式→参考资料"设计大纲结构
+    2. 给出"知识→能力→素养"三层教学目标的话术
+    3. 标出需要放教学周历/案例清单/实验安排/评分标准的位置
+    4. 给出"思政元素"和"前沿融入"的设计建议
+    
+    输出格式：
+    - 每页包含：标题、内容要点、设计说明、可视化建议
+    - 附"课程大纲禁忌"（目标空洞、内容陈旧、考核单一、没有思政）
+  variables:
+    - name: course_name
+      description: "课程名称"
+      required: true
+    - name: credit_hours
+      description: "学时安排，如：32学时、48学时"
+      required: true
+    - name: target_students
+      description: "授课对象"
+      required: true
+  intent_tags: ["课程大纲", "教学大纲", "课程设计", "教学计划", "课程PPT", "教案", "教学安排"]
+  difficulty: beginner
+  quality_score: 0.88
+
+- id: ppt_academic_015
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "学术伦理宣讲"
+  template: |
+    你是一位科研诚信官，深知学术伦理"不是束缚，是保护研究者"。
+    
+    宣讲信息：
+    - 宣讲对象：{audience}
+    - 重点领域：{focus_area}
+    - 案例需求：{need_cases}
+    
+    请帮我：
+    1. 按"为什么重要→常见违规→真实案例→防范措施→求助渠道"设计宣讲结构
+    2. 给出"严肃但不恐吓"的话术，避免说教感
+    3. 标出需要放案例截图/流程图/制度文件/联系方式的位置
+    4. 给出"自查清单"和"举报渠道"页
+    
+    输出格式：
+    - 每页包含：标题、核心信息、案例提示、互动提问
+    - 附"学术伦理禁忌"（只讲规定不讲原因、案例太血腥、没有正向引导、忽视求助渠道）
+  variables:
+    - name: audience
+      description: "宣讲对象，如：本科生、研究生、青年教师、科研人员"
+      required: true
+    - name: focus_area
+      description: "重点领域，如：抄袭、数据造假、署名不当、利益冲突"
+      required: false
+      default_value: "学术不端综合"
+    - name: need_cases
+      description: "是否需要真实案例"
+      required: false
+      default_value: "是"
+  intent_tags: ["学术伦理", "科研诚信", "学术道德", "学术规范", "伦理宣讲", "学术不端", "诚信教育"]
+  difficulty: intermediate
+  quality_score: 0.90
+
+- id: ppt_academic_016
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "数据分析方法"
+  template: |
+    你是一位统计教学名师，擅长让"文科生也能听懂"数据分析。
+    
+    分析信息：
+    - 数据类型：{data_type}
+    - 分析目的：{analysis_goal}
+    - 软件工具：{software}
+    
+    请帮我：
+    1. 按"数据类型→分析方法→操作步骤→结果解读→报告撰写"设计教学结构
+    2. 给出"什么时候用T检验、什么时候用卡方、什么时候用回归"的选择指南
+    3. 标出需要放软件界面/输出结果/公式/决策树的位置
+    4. 给出"结果不显著"和"结果反常"的应对话术
+    
+    输出格式：
+    - 每页包含：标题、方法要点、操作提示、常见错误
+    - 附"方法选择决策树"（文字描述）
+    - 附"数据分析禁忌"（方法错配、过度解读、忽视前提条件、图表误导）
+  variables:
+    - name: data_type
+      description: "数据类型，如：定量、定性、混合、时间序列"
+      required: true
+    - name: analysis_goal
+      description: "分析目的，如：差异比较、相关分析、预测、分类"
+      required: true
+    - name: software
+      description: "使用的软件，如：SPSS、R、Python、Excel"
+      required: false
+      default_value: "SPSS"
+  intent_tags: ["数据分析", "统计方法", "SPSS", "统计分析", "数据教学", "研究方法", "统计"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: ppt_academic_017
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "理论框架构建"
+  template: |
+    你是一位理论建构大师，擅长把"零散的概念"变成"站得住脚的框架"。
+    
+    理论信息：
+    - 研究主题：{topic}
+    - 核心概念：{core_concepts}
+    - 理论基础：{theoretical_base}
+    
+    请帮我：
+    1. 按"问题提出→概念界定→理论回顾→框架构建→假设推导→验证思路"设计结构
+    2. 给出"如何用一张图讲清楚理论框架"的可视化建议
+    3. 标出需要放概念图/关系图/对比表/逻辑链的位置
+    4. 给出"框架边界"和"适用条件"的说明页
+    
+    输出格式：
+    - 每页包含：标题、理论要点、可视化建议、逻辑衔接
+    - 附"理论框架禁忌"（概念不清、逻辑跳跃、忽视前人、框架过于复杂）
+  variables:
+    - name: topic
+      description: "研究主题"
+      required: true
+    - name: core_concepts
+      description: "核心概念列表"
+      required: true
+    - name: theoretical_base
+      description: "理论基础"
+      required: false
+      default_value: "（用户未提供，请预留理论回顾页）"
+  intent_tags: ["理论框架", "框架构建", "概念模型", "研究模型", "理论模型", "学术理论", "建构"]
+  difficulty: advanced
+  quality_score: 0.92
+
+- id: ppt_academic_018
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "学术写作规范"
+  template: |
+    你是一位期刊主编，深知"格式不规范，内容再好也可能被拒"。
+    
+    写作信息：
+    - 目标期刊/学位：{target}
+    - 论文阶段：{stage}
+    - 格式要求（选填）：{format_requirement}
+    
+    请帮我：
+    1. 按"标题→摘要→关键词→正文→图表→引用→附录"逐节给出格式规范
+    2. 给出"APA/MLA/GB/T 7714"三种引用格式的对比和示例
+    3. 标出需要放格式模板/示例论文/检查清单的位置
+    4. 给出"投稿前自查表"和"常见退修原因"页
+    
+    输出格式：
+    - 每节包含：格式要求、常见错误、正确示例、检查要点
+    - 附"写作规范禁忌"（格式混用、引用缺失、图表不清、页眉页脚错误）
+  variables:
+    - name: target
+      description: "目标期刊或学位类型"
+      required: true
+    - name: stage
+      description: "论文阶段，如：初稿、修改稿、投稿前"
+      required: true
+    - name: format_requirement
+      description: "具体的格式要求文件"
+      required: false
+      default_value: "（用户未提供，按通用规范）"
+  intent_tags: ["学术写作", "写作规范", "论文格式", "引用格式", "投稿", "学术规范", "论文排版"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: ppt_academic_019
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "同行评审回复"
+  template: |
+    你是一位资深审稿人，深知"回复审稿意见不是辩解，是展示专业素养"。
+    
+    审稿信息：
+    - 审稿意见：{reviewer_comments}
+    - 论文主题：{paper_topic}
+    - 修改难点：{difficult_revisions}
+    
+    请帮我：
+    1. 按"总体回应→逐条回复→修改说明→致谢"设计回复结构
+    2. 给出"接受→解释→反驳"三种回应策略及话术模板
+    3. 标出需要放修改标记/补充数据/新增图表的位置
+    4. 给出"如何礼貌地不同意审稿人"的话术
+    
+    输出格式：
+    - 逐条回复模板（审稿意见→作者回应→具体修改→位置标注）
+    - 附"回复禁忌"（态度傲慢、回避问题、修改不彻底、不标注修改位置）
+  variables:
+    - name: reviewer_comments
+      description: "审稿人意见"
+      required: true
+    - name: paper_topic
+      description: "论文主题"
+      required: true
+    - name: difficult_revisions
+      description: "难以修改的意见"
+      required: false
+      default_value: "（用户未提供，给出通用策略）"
+  intent_tags: ["审稿回复", "同行评审", "修改稿", "审稿意见", "回复信", "rebuttal", "学术投稿"]
+  difficulty: advanced
+  quality_score: 0.93
+
+- id: ppt_academic_020
+  domain: ppt
+  sub_domain: ppt_academic
+  title: "学术影响力展示"
+  template: |
+    你是一位学术评价专家，擅长把"冷冰冰的指标"变成"有温度的学术故事"。
+    
+    学者信息：
+    - 姓名职称：{name_title}
+    - 研究方向：{field}
+    - 代表成果：{achievements}
+    
+    请帮我：
+    1. 按"学术履历→代表成果→引用影响→学术服务→未来方向"设计展示结构
+    2. 给出"H指数、被引次数、ESI高被引"等指标的解读话术
+    3. 标出需要放引用网络/成果时间线/合作地图的位置
+    4. 给出"人才项目申报"和"职称评审"两个版本的侧重点
+    
+    输出格式：
+    - 每页包含：标题、数据要点、故事化解读、视觉建议
+    - 附"影响力展示禁忌"（只堆指标没有故事、夸大影响、忽视合作、未来方向模糊）
+  variables:
+    - name: name_title
+      description: "姓名和职称"
+      required: true
+    - name: field
+      description: "研究方向"
+      required: true
+    - name: achievements
+      description: "代表成果和影响力数据"
+      required: false
+      default_value: "（用户未提供，请预留成果页）"
+  intent_tags: ["学术影响力", "学术成果", "学者介绍", "H指数", "被引", "学术评价", "人才申报"]
+  difficulty: intermediate
+  quality_score: 0.90

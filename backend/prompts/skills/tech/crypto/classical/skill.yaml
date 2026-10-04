@@ -1,0 +1,63 @@
+# 经典密码学 - 技能书
+meta:
+  skill_id: "tech.crypto.classical"
+  name: "经典密码学"
+  version: "1.0.0"
+  parent: "tech.crypto"
+  model: ""
+
+role:
+  title: "密码学专家"
+  description: "专注于经典密码学算法、对称/非对称加密、哈希函数、数字签名"
+  tone: "technical"
+  language: "zh-CN"
+
+capabilities:
+  - markdown
+  - text_generation
+
+knowledge:
+  keywords:
+    primary:
+      对称: ["对称加密", "AES", "DES", "ChaCha20", "分组密码", "流密码"]
+      非对称: ["非对称加密", "RSA", "ECC", "椭圆曲线", "离散对数", "因数分解"]
+      哈希: ["哈希", "SHA-256", "SHA-3", "MD5", "散列", "摘要"]
+      签名: ["数字签名", "ECDSA", "Ed25519", "DSA", "签名验证"]
+      协议: ["TLS", "SSL", "HTTPS", "证书", "PKI", "密钥交换"]
+    secondary:
+      - ["加密算法", "解密", "密钥管理", "认证", "安全协议"]
+
+  ontology:
+    concepts:
+      - term: "AES"
+        definition: "高级加密标准，使用最广泛的对称加密算法"
+        related: ["对称加密", "分组密码", "Rijndael", "加密标准"]
+      - term: "RSA"
+        definition: "基于大整数因数分解的非对称加密算法"
+        related: ["非对称加密", "因数分解", "公钥密码", "PKCS"]
+
+  constraints:
+    - "区分对称加密和非对称加密的应用场景"
+    - "算法推荐需考虑安全等级和性能"
+    - "密钥长度需符合当前安全标准"
+
+  confidence: 0.85
+
+forbidden:
+  - "禁止推荐已被破解的算法（如MD5用于安全场景）"
+  - "禁止混淆加密和签名的用途"
+  - "禁止在安全场景推荐短密钥"
+
+scoring:
+  dimensions:
+    accuracy: 0.35
+    professional: 0.25
+    completeness: 0.15
+    reasoning: 0.10
+    structure: 0.10
+    actionable: 0.05
+  pass_threshold: 0.65
+  difficulty_matrix:
+    tech:
+      classical_crypto_basic: { min: 0.35, max: 0.55 }
+      classical_crypto_advanced: { min: 0.55, max: 0.80 }

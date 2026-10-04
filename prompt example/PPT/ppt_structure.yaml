@@ -1,0 +1,727 @@
+- id: ppt_structure_001
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "年终总结结构"
+  template: |
+    你是一位帮过上千个职场人做PPT的资深设计师，擅长把"不知道写什么"变成"领导看了直点头"的结构。
+    
+    我的PPT信息：
+    - 岗位/身份：{role}
+    - 今年主要干了什么：{achievements}
+    - 大概页数：{pages}页（默认12页）
+    
+    请帮我：
+    1. 设计一套完整的年终总结PPT大纲，每页写什么、写多少字
+    2. 每页给出3-5个要点，告诉我放什么内容
+    3. 标出哪些页需要数据/图表/照片
+    4. 给每页配一句过渡语或金句
+    
+    输出格式：
+    - 用Markdown二级标题表示每页（## 第N页：标题）
+    - 每页包含：标题、要点（3-5条）、建议配图/数据、过渡语
+    - 最后附"演讲时间分配建议"
+  variables:
+    - name: role
+      description: "你的岗位或身份，如：销售主管、小学班主任、行政专员"
+      required: true
+    - name: achievements
+      description: "今年完成的主要工作，用大白话列几条就行"
+      required: true
+    - name: pages
+      description: "希望多少页，默认12页"
+      required: false
+      default_value: "12"
+  intent_tags: ["年终总结", "年底汇报", "工作总结", "述职", "年终PPT", "考核", "帮我写总结", "年终报告"]
+  difficulty: beginner
+  quality_score: 0.93
+
+- id: ppt_structure_002
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "项目汇报结构"
+  template: |
+    你是一位项目管理高手，专治"项目做了不少，汇报时却不知道怎么说"的毛病。
+    
+    我的项目信息：
+    - 项目名称：{project_name}
+    - 目前做到哪了：{progress}
+    - 遇到了什么问题（选填）：{problems}
+    
+    请帮我：
+    1. 按"背景→目标→进展→问题→下一步"设计PPT大纲
+    2. 每页给出具体话术，我照着念就行
+    3. 标出需要放截图/数据/时间轴的位置
+    4. 给领导/客户看的版本和给团队看的版本各一版
+    
+    输出格式：
+    - 分"汇报版"和"内部版"两套结构
+    - 每页包含：标题、3-5个要点、建议放的素材
+    - 用表格对比两版差异
+  variables:
+    - name: project_name
+      description: "项目名字"
+      required: true
+    - name: progress
+      description: "目前进展，比如：已完成80%，进入测试阶段"
+      required: true
+    - name: problems
+      description: "遇到的困难或风险"
+      required: false
+      default_value: "（用户未提供，请预留问题分析页）"
+  intent_tags: ["项目汇报", "进度汇报", "项目总结", "项目PPT", "汇报进度", "项目进展", "里程碑"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: ppt_structure_003
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "竞聘述职结构"
+  template: |
+    你是一位帮过500+人成功晋升的HR总监，深知竞聘PPT的"加分项"和"雷区"。
+    
+    我的竞聘信息：
+    - 竞聘岗位：{target_position}
+    - 我凭什么胜任：{advantages}
+    - 过往业绩（选填）：{performance}
+    
+    请帮我：
+    1. 设计"开场抓眼球→证明我能行→规划未来→收尾打动人"的完整结构
+    2. 每页给出具体话术，要谦虚但有力量
+    3. 标出必须放数据/证书/案例的位置
+    4. 给3个不同风格的结尾（稳健型/进取型/感人型）
+    
+    输出格式：
+    - 每页用二级标题，包含：标题、要点、推荐话术、素材建议
+    - 三种结尾单独列出
+    - 附"竞聘演讲时间分配表"
+  variables:
+    - name: target_position
+      description: "想竞聘的岗位，如：部门经理、项目经理、教研组长"
+      required: true
+    - name: advantages
+      description: "你的核心优势，大白话就行"
+      required: true
+    - name: performance
+      description: "过往亮眼成绩"
+      required: false
+      default_value: "（用户未提供，请预留业绩展示页）"
+  intent_tags: ["竞聘", "述职", "岗位竞聘", "晋升答辩", "竞聘演讲", "提拔", "竞选", "升职"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: ppt_structure_004
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "创业路演结构"
+  template: |
+    你是一位看过1000+份BP的投资人，知道什么样的路演PPT能让投资人眼前一亮。
+    
+    我的项目信息：
+    - 项目名称：{project_name}
+    - 做什么的（一句话）：{elevator_pitch}
+    - 需要融多少钱（选填）：{funding}
+    
+    请帮我：
+    1. 按投资人思维设计"痛点→解决方案→商业模式→团队→融资"结构
+    2. 每页给出"必须说的金句"和"绝对不能说的话"
+    3. 标出需要数据支撑的关键页
+    4. 设计Q&A环节可能遇到的5个问题及回答思路
+    
+    输出格式：
+    - 每页包含：标题、3个核心要点、推荐金句、数据要求
+    - 附"投资人最反感的10种表述"避雷清单
+    - Q&A预案单独成节
+  variables:
+    - name: project_name
+      description: "项目或公司名字"
+      required: true
+    - name: elevator_pitch
+      description: "一句话描述项目是做什么的"
+      required: true
+    - name: funding
+      description: "融资金额和用途"
+      required: false
+      default_value: "（用户未提供，请预留融资计划页）"
+  intent_tags: ["创业路演", "BP", "融资PPT", "商业计划", "投资人", "路演", "创业大赛", " pitch"]
+  difficulty: advanced
+  quality_score: 0.93
+
+- id: ppt_structure_005
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "产品发布结构"
+  template: |
+    你是一位策划过苹果、小米级发布会的PPT导演，懂得"悬念→高潮→行动"的节奏。
+    
+    产品信息：
+    - 产品名称：{product_name}
+    - 目标用户是谁：{target_users}
+    - 最亮眼的3个功能：{key_features}
+    
+    请帮我：
+    1. 设计"预热→痛点→产品亮相→功能详解→价格→行动号召"的发布结构
+    2. 每页给出"台上怎么说"和"PPT上怎么放"
+    3. 标出需要Demo视频/动效/实物图的位置
+    4. 设计一个让人记住的"一句话口号"
+    
+    输出格式：
+    - 分"演讲脚本"和"PPT页面内容"两栏对照
+    - 每页包含：标题、演讲词（100字内）、PPT视觉建议
+    - 最后附"发布会节奏时间表"
+  variables:
+    - name: product_name
+      description: "产品名字"
+      required: true
+    - name: target_users
+      description: "目标用户群体"
+      required: true
+    - name: key_features
+      description: "最核心的3个功能或卖点"
+      required: true
+  intent_tags: ["产品发布", "发布会", "新品上市", "产品介绍", "产品推广", "路演", "宣讲"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: ppt_structure_006
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "培训课件结构"
+  template: |
+    你是一位企业内训师，擅长把枯燥的知识变成"学员不想玩手机"的互动课件。
+    
+    培训信息：
+    - 培训主题：{topic}
+    - 学员是谁：{audience}
+    - 培训时长：{duration}
+    
+    请帮我：
+    1. 按"开场破冰→知识输入→互动练习→总结收尾"设计课件结构
+    2. 每页给出讲师话术和学员互动环节
+    3. 每20分钟设计一个"提神互动"（提问/小测验/案例讨论）
+    4. 给出课后作业或行动清单
+    
+    输出格式：
+    - 每页包含：标题、讲师话术（标红重点）、互动设计、时间分配
+    - 用表格列出"学员易走神的时间点及应对策略"
+    - 附课后作业模板
+  variables:
+    - name: topic
+      description: "培训主题，如：Excel技巧、沟通礼仪、安全规范"
+      required: true
+    - name: audience
+      description: "学员群体，如：新员工、销售团队、中层管理者"
+      required: true
+    - name: duration
+      description: "培训时长，如：1小时、半天、全天"
+      required: true
+  intent_tags: ["培训课件", "教学PPT", "企业培训", "内训", "讲课", "教案", "课程设计"]
+  difficulty: intermediate
+  quality_score: 0.90
+
+- id: ppt_structure_007
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "会议议程结构"
+  template: |
+    你是一位行政效率专家，专治"开会2小时，有效10分钟"的会议病。
+    
+    会议信息：
+    - 会议主题：{meeting_topic}
+    - 参会人员：{attendees}
+    - 预计时长：{duration}
+    
+    请帮我：
+    1. 设计"会前→会中→会后"三阶段的议程PPT
+    2. 每个议题分配精确到分钟的时间
+    3. 标出需要提前准备的材料/数据
+    4. 设计会议决议页和待办事项页
+    
+    输出格式：
+    - 用时间轴形式展示议程
+    - 每议题包含：时间、主题、负责人、预期产出、所需材料
+    - 附"会议纪律提醒"一页的话术
+  variables:
+    - name: meeting_topic
+      description: "会议主题"
+      required: true
+    - name: attendees
+      description: "参会人员或部门"
+      required: true
+    - name: duration
+      description: "会议时长"
+      required: true
+  intent_tags: ["会议议程", "会议PPT", "开会", "议程安排", "会议纪要", "会议主持", "日程"]
+  difficulty: beginner
+  quality_score: 0.88
+
+- id: ppt_structure_008
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "活动策划结构"
+  template: |
+    你是一位策划过上百场活动的执行总监，懂预算、懂流程、懂怎么让老板点头。
+    
+    活动信息：
+    - 活动名称：{event_name}
+    - 活动目的：{purpose}
+    - 预算范围（选填）：{budget}
+    
+    请帮我：
+    1. 设计"活动背景→目标→流程→预算→分工→风险"的完整结构
+    2. 给出活动当天的"分钟级"执行时间表
+    3. 标出需要物料清单/场地布置图/人员分工表的位置
+    4. 给出Plan B（天气/设备/人员变动应急预案）
+    
+    输出格式：
+    - 每页包含：标题、3-5个要点、执行细节、责任人建议
+    - 附"活动执行检查清单"（Checklist）
+    - 时间表单独成节
+  variables:
+    - name: event_name
+      description: "活动名称"
+      required: true
+    - name: purpose
+      description: "活动目的，如：团建、年会、招生、促销"
+      required: true
+    - name: budget
+      description: "预算范围"
+      required: false
+      default_value: "（用户未提供，请预留预算页）"
+  intent_tags: ["活动策划", "活动方案", "团建", "年会", "活动PPT", "执行方案", "策划案"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: ppt_structure_009
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "调研报告结构"
+  template: |
+    你是一位数据化表达专家，擅长把"一堆数据"变成"一眼看懂"的汇报结构。
+    
+    调研信息：
+    - 调研主题：{topic}
+    - 核心发现（选填）：{findings}
+    - 样本量/数据来源：{data_source}
+    
+    请帮我：
+    1. 按"背景→方法→发现→建议→结论"设计报告结构
+    2. 每页给出数据呈现方式（图表/表格/文字）
+    3. 标出"老板最关心的3个数据"应该放哪页
+    4. 给出执行建议页，把调研结果变成行动计划
+    
+    输出格式：
+    - 每页包含：标题、核心数据、图表建议、解读话术
+    - 附"数据可信度说明"一页模板
+    - 建议页用"问题→数据→行动"三段式
+  variables:
+    - name: topic
+      description: "调研主题"
+      required: true
+    - name: findings
+      description: "主要发现或结论"
+      required: false
+      default_value: "（用户未提供，请预留研究发现页）"
+    - name: data_source
+      description: "数据来源和样本量"
+      required: true
+  intent_tags: ["调研报告", "市场调查", "数据分析", "研究报告", "问卷分析", "用户调研", "报告PPT"]
+  difficulty: intermediate
+  quality_score: 0.89
+
+- id: ppt_structure_010
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "个人简介结构"
+  template: |
+    你是一位职业规划师，擅长帮人在3分钟内让别人记住自己。
+    
+    我的信息：
+    - 姓名/职业：{name_and_job}
+    - 最牛的3个标签：{tags}
+    - 使用场景：{scene}
+    
+    请帮我：
+    1. 设计"钩子→履历→亮点→价值→记忆点"的5页极简结构
+    2. 给出每页的"一句话自我介绍"版本（30秒/1分钟/3分钟）
+    3. 标出需要放照片/作品/证书的位置
+    4. 设计一个让人记住的"个人Slogan"
+    
+    输出格式：
+    - 每页包含：标题、内容要点、视觉建议、口述稿
+    - 三种时长版本单独列出
+    - 附"避免自夸过度"的谦虚话术替换表
+  variables:
+    - name: name_and_job
+      description: "你的名字和职业"
+      required: true
+    - name: tags
+      description: "3个最能代表你的标签，如：10年教龄、马拉松跑者、AI爱好者"
+      required: true
+    - name: scene
+      description: "使用场景，如：面试、社交、演讲、相亲"
+      required: true
+  intent_tags: ["个人简介", "自我介绍", "个人介绍", "简历PPT", "面试", "求职", "自我展示"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: ppt_structure_011
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "社团招新结构"
+  template: |
+    你是一位校园活动策划达人，知道怎么让大一新生看了就想加入。
+    
+    社团信息：
+    - 社团名称：{club_name}
+    - 社团特色/卖点：{features}
+    - 招新对象：{target_members}
+    
+    请帮我：
+    1. 设计"我们是谁→我们做过什么→你能得到什么→怎么加入"的招新结构
+    2. 每页给出"学长学姐口吻"的话术，亲切不官方
+    3. 标出需要放活动照片/获奖证书/成员感言的位置
+    4. 设计一个"扫码入群"或"报名表"的尾页
+    
+    输出格式：
+    - 每页包含：标题、3-5个卖点、推荐话术、素材建议
+    - 附"招新现场演讲稿"（3分钟版）
+    - 尾页包含二维码位置和文案
+  variables:
+    - name: club_name
+      description: "社团名字"
+      required: true
+    - name: features
+      description: "社团最吸引人的地方"
+      required: true
+    - name: target_members
+      description: "想招什么样的人，如：大一新生、摄影爱好者"
+      required: true
+  intent_tags: ["社团招新", "学生会", "纳新", "招新PPT", "社团介绍", "校园", "社团宣传"]
+  difficulty: beginner
+  quality_score: 0.88
+
+- id: ppt_structure_012
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "毕业答辩结构"
+  template: |
+    你是一位答辩委员会主席，深知什么样的答辩PPT能让老师少问刁钻问题。
+    
+    论文信息：
+    - 论文题目：{thesis_title}
+    - 研究方法：{methodology}
+    - 创新点：{innovation}
+    
+    请帮我：
+    1. 按"研究背景→问题→方法→实验→结论→致谢"设计标准答辩结构
+    2. 标出老师最容易提问的3个页面及应对策略
+    3. 给出每页的"演讲时间分配"（总时长15分钟）
+    4. 设计一页"研究局限性"的诚恳表述（降低老师攻击性）
+    
+    输出格式：
+    - 每页包含：标题、3个要点、演讲词（标红重点）、老师可能提问
+    - 附"答辩时间分配表"和"致谢页"模板
+    - 局限性页单独给出3种表述（保守/中性/坦诚）
+  variables:
+    - name: thesis_title
+      description: "毕业论文题目"
+      required: true
+    - name: methodology
+      description: "用的研究方法，如：问卷调查、实验、案例分析"
+      required: true
+    - name: innovation
+      description: "论文的创新点或贡献"
+      required: true
+  intent_tags: ["毕业答辩", "论文答辩", "答辩PPT", "毕业论文", "答辩稿", "开题", "答辩结构"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: ppt_structure_013
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "课程教学结构"
+  template: |
+    你是一位省级教学名师，擅长把45分钟课堂变成"学生不想下课"的体验。
+    
+    课程信息：
+    - 课程名称：{course_name}
+    - 教学对象：{students}
+    - 课时安排：{class_hours}
+    
+    请帮我：
+    1. 按"导入→新授→练习→小结→作业"设计课件结构
+    2. 每10分钟设计一个"注意力锚点"（提问/视频/互动）
+    3. 标出需要板书/实验/小组讨论的位置
+    4. 给出课后反思页模板
+    
+    输出格式：
+    - 每页包含：标题、教学内容、互动设计、时间分配、教具准备
+    - 附"课堂突发情况应对"（学生走神/提问不会/时间不够）
+    - 作业页分基础版和提高版
+  variables:
+    - name: course_name
+      description: "课程名称"
+      required: true
+    - name: students
+      description: "学生群体，如：高一学生、职场新人、公务员"
+      required: true
+    - name: class_hours
+      description: "课时，如：45分钟、90分钟"
+      required: true
+  intent_tags: ["课程教学", "教案", "课件结构", "教学PPT", "备课", "讲课", "教学设计"]
+  difficulty: intermediate
+  quality_score: 0.89
+
+- id: ppt_structure_014
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "公司介绍结构"
+  template: |
+    你是一位品牌顾问，擅长让陌生人在5分钟内信任一家公司。
+    
+    公司信息：
+    - 公司名：{company_name}
+    - 行业/业务：{industry}
+    - 核心优势：{advantages}
+    
+    请帮我：
+    1. 设计"我们是谁→我们做什么→为什么选我们→合作案例→联系方式"结构
+    2. 给出不同受众的版本（客户版/投资人版/求职者版）
+    3. 标出需要放资质/证书/合作logo的位置
+    4. 设计一页"差异化优势"的对比表
+    
+    输出格式：
+    - 分三个受众版本，用表格对比差异
+    - 每页包含：标题、要点、视觉建议、话术
+    - 附"公司介绍1分钟电梯版"话术
+  variables:
+    - name: company_name
+      description: "公司名字"
+      required: true
+    - name: industry
+      description: "所属行业或主营业务"
+      required: true
+    - name: advantages
+      description: "相比同行的核心优势"
+      required: true
+  intent_tags: ["公司介绍", "企业宣传", "公司简介", "品牌介绍", "宣传册", "企业PPT", "介绍"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: ppt_structure_015
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "招商加盟结构"
+  template: |
+    你是一位招商总监，知道加盟商最关心"能不能赚钱"和"靠不靠谱"。
+    
+    品牌信息：
+    - 品牌名：{brand_name}
+    - 加盟政策：{policy}
+    - 盈利模型（选填）：{profit_model}
+    
+    请帮我：
+    1. 按"市场机会→品牌实力→加盟支持→盈利分析→加盟流程"设计结构
+    2. 每页给出"加盟商视角"的话术，打消顾虑
+    3. 标出需要放门店照片/营收数据/加盟商证言的位置
+    4. 设计"常见问题解答"页（FAQ）
+    
+    输出格式：
+    - 每页包含：标题、3个要点、加盟商关切点、数据支撑建议
+    - FAQ页包含10个高频问题及回答
+    - 附"加盟流程图"和"投资回报测算表"模板
+  variables:
+    - name: brand_name
+      description: "品牌名称"
+      required: true
+    - name: policy
+      description: "加盟政策要点，如：0加盟费、总部培训、区域保护"
+      required: true
+    - name: profit_model
+      description: "盈利方式或投资回报周期"
+      required: false
+      default_value: "（用户未提供，请预留盈利分析页）"
+  intent_tags: ["招商加盟", "加盟PPT", "招商会", "代理", "合伙人", "招商方案", "加盟"]
+  difficulty: intermediate
+  quality_score: 0.89
+
+- id: ppt_structure_016
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "政府汇报结构"
+  template: |
+    你是一位体制内材料高手，深谙"领导想看到什么"和"什么话不能说"。
+    
+    汇报信息：
+    - 汇报主题：{topic}
+    - 所属部门/单位：{department}
+    - 工作成果/数据：{achievements}
+    
+    请帮我：
+    1. 按"上级精神→工作进展→存在问题→下一步计划"的政务逻辑设计结构
+    2. 每页给出"公文风格"话术，严谨规范
+    3. 标出需要放数据/对比表/现场照片的位置
+    4. 设计一页"需上级协调事项"的委婉表述
+    
+    输出格式：
+    - 每页包含：标题、要点（公文风格）、数据支撑、过渡语
+    - 附"公文常用表述替换表"（口语→公文）
+    - 敏感内容给出"风险提示"
+  variables:
+    - name: topic
+      description: "汇报主题"
+      required: true
+    - name: department
+      description: "汇报单位或部门"
+      required: true
+    - name: achievements
+      description: "主要工作成果和数据"
+      required: true
+  intent_tags: ["政府汇报", "工作汇报", "公文", "政务", "机关", "体制内", "汇报材料", "述职"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: ppt_structure_017
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "党建学习结构"
+  template: |
+    你是一位党建工作者，擅长把理论学习变成"党员愿意听、记得住"的课件。
+    
+    学习信息：
+    - 学习主题：{theme}
+    - 学习对象：{audience}
+    - 学习时长：{duration}
+    
+    请帮我：
+    1. 按"背景意义→核心内容→典型案例→实践要求"设计党课结构
+    2. 每页给出"既有高度又接地气"的话术
+    3. 标出需要放党史图片/视频/金句的位置
+    4. 设计"党员行动清单"页
+    
+    输出格式：
+    - 每页包含：标题、学习要点、案例建议、互动提问
+    - 附"党史金句库"（5-10条）
+    - 行动清单分个人和组织两个层面
+  variables:
+    - name: theme
+      description: "学习主题，如：二十大精神、党史学习、廉政教育"
+      required: true
+    - name: audience
+      description: "学习对象，如：支部党员、入党积极分子、机关干部"
+      required: true
+    - name: duration
+      description: "学习时长"
+      required: true
+  intent_tags: ["党建", "党课", "党建学习", "支部", "党员", "主题教育", "党史", "党课PPT"]
+  difficulty: intermediate
+  quality_score: 0.88
+
+- id: ppt_structure_018
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "家长会结构"
+  template: |
+    你是一位经验丰富的班主任，知道家长会上什么话该说、怎么说家长才配合。
+    
+    家长会信息：
+    - 年级班级：{class_info}
+    - 会议目的：{purpose}
+    - 重点内容：{key_content}
+    
+    请帮我：
+    1. 按"欢迎→班级情况→成绩分析→问题与建议→家校合作→结束"设计结构
+    2. 给出"既专业又亲切"的话术，避免家长反感
+    3. 标出需要放学生作品/活动照片/成绩分布图的位置
+    4. 设计"个别交流预约"页
+    
+    输出格式：
+    - 每页包含：标题、话术（标红敏感词替换）、数据呈现建议、家长互动
+    - 附"表扬与批评的话术模板"（不点名批评、集体表扬）
+    - 家校合作给出具体可执行的建议
+  variables:
+    - name: class_info
+      description: "年级和班级"
+      required: true
+    - name: purpose
+      description: "家长会目的，如：期中总结、升学动员、习惯养成"
+      required: true
+    - name: key_content
+      description: "重点要讲的内容"
+      required: true
+  intent_tags: ["家长会", "家长沟通", "班级管理", "家校", "班主任", "学期总结", "家长会PPT"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: ppt_structure_019
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "婚礼纪念结构"
+  template: |
+    你是一位婚礼策划师，擅长把爱情故事变成"全场又哭又笑"的纪念PPT。
+    
+    爱情信息：
+    - 新人姓名：{couple_names}
+    - 恋爱故事梗概：{love_story}
+    - 照片数量（选填）：{photo_count}
+    
+    请帮我：
+    1. 按"相遇→相识→相爱→求婚→婚礼→感恩→祝福"设计情感结构
+    2. 每页给出"旁白词"和"背景音乐建议"
+    3. 标出需要放照片/视频/聊天记录的位置
+    4. 设计一页"感恩父母"的催泪环节
+    
+    输出格式：
+    - 每页包含：标题、旁白词（100字内）、照片建议、BGM建议
+    - 附"婚礼现场播放时间表"
+    - 感恩页给出3种风格（温馨/搞笑/感人）
+  variables:
+    - name: couple_names
+      description: "新人姓名"
+      required: true
+    - name: love_story
+      description: "恋爱故事的关键节点，如：2018年相识、2020年在一起"
+      required: true
+    - name: photo_count
+      description: "大概有多少张照片"
+      required: false
+      default_value: "30"
+  intent_tags: ["婚礼PPT", "结婚纪念", "婚礼视频", "求婚", "爱情故事", "婚礼致辞", "纪念册"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: ppt_structure_020
+  domain: ppt
+  sub_domain: ppt_structure
+  title: "同学聚会结构"
+  template: |
+    你是一位老同学聚会的"气氛组组长"，擅长把回忆杀变成全场高潮。
+    
+    聚会信息：
+    - 届别班级：{class_info}
+    - 聚会主题：{theme}
+    - 回忆素材：{memories}
+    
+    请帮我：
+    1. 按"开场→回忆→现状→互动→展望→干杯"设计聚会PPT结构
+    2. 每页给出"主持人串词"和"现场互动设计"
+    3. 标出需要放老照片/同学录/搞笑视频的位置
+    4. 设计"点名报到"和"真心话大冒险"环节
+    
+    输出格式：
+    - 每页包含：标题、主持词、互动设计、素材建议
+    - 附"聚会流程时间表"和"背景音乐清单"
+    - 设计一页"同学通讯录"模板
+  variables:
+    - name: class_info
+      description: "届别和班级，如：2010届高三（2）班"
+      required: true
+    - name: theme
+      description: "聚会主题，如：十年再聚首、青春不散场"
+      required: true
+    - name: memories
+      description: "共同的回忆素材，如：班主任语录、运动会、春游"
+      required: true
+  intent_tags: ["同学聚会", "校友会", "毕业纪念", "聚会PPT", "回忆录", "老同学", "聚会策划"]
+  difficulty: beginner
+  quality_score: 0.87

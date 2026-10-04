@@ -1,0 +1,209 @@
+[
+  {
+    "id": "mem_1786956110852_0",
+    "content": "我是你的AI助手，能帮你解答问题、聊聊天，还能生成文本呢。有需要尽管告诉我！",
+    "timestamp": 1786956110.8529837,
+    "importance": 0.7,
+    "source": "auto",
+    "category": "fact",
+    "access_count": 7
+  },
+  {
+    "id": "mem_1786960893032_1",
+    "content": "Transformer 是一种神经网络架构，用于处理输入序列中的不同位置信息。",
+    "timestamp": 1786960893.032223,
+    "importance": 1.0,
+    "source": "auto",
+    "category": "fact",
+    "access_count": 51
+  },
+  {
+    "id": "mem_1787023298937_2",
+    "content": "用户询问关于AI助手的类型和能力",
+    "timestamp": 1787023298.9379883,
+    "importance": 0.7,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 2
+  },
+  {
+    "id": "mem_1787024106505_3",
+    "content": "可以回答问题、聊天解闷，还能帮你生成各种文本",
+    "timestamp": 1787024106.505714,
+    "importance": 0.7,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1787024106508_4",
+    "content": "有需要随时告诉我！",
+    "timestamp": 1787024106.508789,
+    "importance": 0.7,
+    "source": "auto",
+    "category": "preference",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1787025808114_5",
+    "content": "用户可以生成各种文本格式",
+    "timestamp": 1787025808.114165,
+    "importance": 0.7,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1787025808117_6",
+    "content": "包括但不限于短文、诗歌、故事、文案、广告语、剧本、新闻稿、邮件、报告、小说片段",
+    "timestamp": 1787025808.1173184,
+    "importance": 1.0,
+    "source": "auto",
+    "category": "fact",
+    "access_count": 48
+  },
+  {
+    "id": "mem_1787189207026_7",
+    "content": "把测试报告.docx按格式规范.md修复一下格式",
+    "timestamp": 1787189207.026319,
+    "importance": 0.9,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 45
+  },
+  {
+    "id": "mem_1787189221089_8",
+    "content": "清理 演示文稿.pptx 的空白页和空文本框",
+    "timestamp": 1787189221.0897803,
+    "importance": 0.9,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1787189238073_9",
+    "content": "读一下测试报告.docx",
+    "timestamp": 1787189238.0739803,
+    "importance": 0.3,
+    "source": "auto",
+    "category": "event",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1787189238077_10",
+    "content": "帮我总结主要内容",
+    "timestamp": 1787189238.07713,
+    "importance": 0.7,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1787189524989_11",
+    "content": "把测试报告.docx修复一下格式",
+    "timestamp": 1787189524.9893882,
+    "importance": 0.9,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1787189549093_12",
+    "content": "按格式规范.md 生成一份项目方案文档",
+    "timestamp": 1787189549.0932808,
+    "importance": 0.9,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1787189561914_13",
+    "content": "清理演示文稿中的空白页和空文本框",
+    "timestamp": 1787189561.9142387,
+    "importance": 0.9,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1787189582919_14",
+    "content": "读一下测试报告.docx",
+    "timestamp": 1787189582.9191337,
+    "importance": 0.7,
+    "source": "auto",
+    "category": "fact",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1787189582921_15",
+    "content": "帮我总结主要内容",
+    "timestamp": 1787189582.921777,
+    "importance": 0.7,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1788862048682_16",
+    "content": "我想去北京玩",
+    "timestamp": 1788862048.682187,
+    "importance": 0.9,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1788862048684_17",
+    "content": "有什么热门景点推荐吗",
+    "timestamp": 1788862048.6842906,
+    "importance": 0.3,
+    "source": "auto",
+    "category": "event",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1788862066912_18",
+    "content": "推荐/引荐邮件怎么写，帮朋友也是帮自己",
+    "timestamp": 1788862066.9120035,
+    "importance": 0.9,
+    "source": "auto",
+    "category": "goal",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1788862066913_19",
+    "content": "你是一位人脉广泛的行业前辈，深知'推荐邮件写得好，三方都受益'",
+    "timestamp": 1788862066.9137266,
+    "importance": 0.8,
+    "source": "auto",
+    "category": "fact",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1789957080672_20",
+    "content": "这是上面地方",
+    "timestamp": 1789957080.6723204,
+    "importance": 0.3,
+    "source": "auto",
+    "category": "fact",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1789957103884_21",
+    "content": "我问你刚才我发送的图片是什么地方的车站",
+    "timestamp": 1789957103.884182,
+    "importance": 0.7,
+    "source": "auto",
+    "category": "event",
+    "access_count": 0
+  },
+  {
+    "id": "mem_1789957170657_22",
+    "content": "这是什么",
+    "timestamp": 1789957170.6574426,
+    "importance": 0.3,
+    "source": "auto",
+    "category": "event",
+    "access_count": 0
+  }
+]

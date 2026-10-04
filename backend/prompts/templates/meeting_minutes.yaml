@@ -1,0 +1,43 @@
+# 会议纪要模板
+# 适用：会议记录/纪要类任务
+meta:
+  template_id: "meeting_minutes"
+  name: "会议纪要"
+  version: "1.0.0"
+  description: "适用于会议记录、纪要整理等需要结构化输出的任务"
+
+applicable:
+  task_types: ["planning", "writing"]
+  domains: ["business", "daily"]
+  keywords: ["会议纪要", "会议记录", "会议", "纪要", "例会"]
+  min_length: 150
+
+sections:
+  - title: "会议基本信息"
+    content: "记录会议时间、地点、主持人、参会人员"
+    required: true
+  - title: "会议议题"
+    content: "列出本次会议讨论的主要议题"
+    required: true
+  - title: "讨论内容"
+    content: "详细记录各议题的讨论内容、各方观点"
+    required: true
+  - title: "决议事项"
+    content: "列出会议达成的决议和共识"
+    required: true
+  - title: "待办事项"
+    content: "列出待办任务、负责人和截止时间"
+    required: true
+  - title: "下次会议"
+    content: "下次会议的时间和议题预告"
+    required: false
+
+output:
+  format: "markdown"
+  header_level: "##"
+  style: "professional"
+
+constraints:
+  - "记录需客观准确，不添加主观评价"
+  - "待办事项需明确责任人和时间"
+  - "决议事项需清晰无歧义"

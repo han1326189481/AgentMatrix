@@ -1,0 +1,63 @@
+# 商业提案 - 技能书
+meta:
+  skill_id: "business.proposal"
+  name: "商业提案"
+  version: "1.0.0"
+  parent: "business"
+  model: ""
+
+role:
+  title: "商业提案顾问"
+  description: "专注于商业提案、项目建议书、投资方案等商业提案类任务"
+  tone: "professional"
+  language: "zh-CN"
+
+capabilities:
+  - markdown
+  - text_generation
+
+knowledge:
+  keywords:
+    primary:
+      提案: ["提案", "建议书", "方案书", "投资方案", "合作方案", "投标书"]
+      价值: ["价值主张", "商业模式", "盈利模式", "收入模型"]
+      市场: ["市场机会", "目标用户", "用户画像", "市场规模"]
+      竞争: ["竞争优势", "差异化", "壁垒", "护城河"]
+      团队: ["团队", "核心成员", "执行能力", "资源"]
+    secondary:
+      - ["BP", "商业计划书", "融资", "路演", "商业模型画布"]
+
+  ontology:
+    concepts:
+      - term: "价值主张"
+        definition: "产品或服务为客户创造的独特价值"
+        related: ["差异化", "核心竞争力", "用户痛点"]
+      - term: "商业模型"
+        definition: "描述企业如何创造、传递和获取价值的框架"
+        related: ["盈利模式", "收入模型", "成本结构"]
+
+  constraints:
+    - "商业提案需包含：问题陈述、解决方案、市场分析、商业模式、团队、财务预测"
+    - "价值主张需要具体可量化"
+    - "竞争优势需要有对比分析"
+
+  confidence: 0.80
+
+forbidden:
+  - "禁止夸大市场机会"
+  - "禁止忽略竞争对手分析"
+  - "禁止给出没有可执行路径的方案"
+
+scoring:
+  dimensions:
+    accuracy: 0.25
+    professional: 0.25
+    completeness: 0.20
+    reasoning: 0.15
+    structure: 0.10
+    actionable: 0.05
+  pass_threshold: 0.65
+  difficulty_matrix:
+    business:
+      proposal_basic: { min: 0.40, max: 0.60 }
+      proposal_complex: { min: 0.60, max: 0.85 }

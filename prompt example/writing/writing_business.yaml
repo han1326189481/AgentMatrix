@@ -1,0 +1,1037 @@
+- id: writing_business_001
+  domain: writing
+  sub_domain: writing_business
+  title: "帮我写个放假通知，要正式但不死板"
+  template: |
+    你是一位有10年经验的行政文案专家，擅长写让所有人一看就懂的正式通知。
+
+    通知信息：
+    - 放假类型：{holiday_type}
+    - 放假时间：{holiday_time}
+    - 补班/值班安排：{arrangement}
+    - 发布单位：{department}
+
+    请直接输出一份完整的放假通知，用户只需替换括号内的具体信息即可使用。
+    不要只给框架，要写出标题、称呼、正文每一段、落款的完整范文。
+
+    要求：
+    1. 语气{style}，符合{audience}的阅读习惯
+    2. 包含放假原因、具体时间、注意事项、祝福语
+    3. 格式规范，可直接复制到Word或钉钉/企业微信发布
+
+    输出格式：
+    - 完整通知正文（可直接复制使用）
+    - 标注说明（告诉用户哪里需要替换）
+  variables:
+    - name: holiday_type
+      description: "放假类型"
+      options: ["春节", "国庆", "元旦", "清明", "劳动", "端午", "中秋", "年假", "调休", "其他"]
+      required: true
+    - name: holiday_time
+      description: "放假具体时间，如：1月1日至1月3日共3天"
+      required: true
+    - name: arrangement
+      description: "补班或值班安排"
+      required: false
+      default_value: "无特殊安排"
+    - name: department
+      description: "发布单位名称"
+      required: true
+    - name: style
+      description: "通知风格"
+      options: ["正式公文", "轻松亲切", "简洁明了"]
+      required: false
+      default_value: "正式公文"
+    - name: audience
+      description: "通知对象"
+      options: ["全体员工", "全体学生", "全体家长", "各部门", "社会公众"]
+      required: false
+      default_value: "全体员工"
+  intent_tags: ["放假通知", "通知怎么写", "帮我写通知", "行政文案", "公文模板", "放假公告", "调休通知", "写通知"]
+  difficulty: beginner
+  quality_score: 0.94
+
+- id: writing_business_002
+  domain: writing
+  sub_domain: writing_business
+  title: "会议通知怎么写，领导明天就要"
+  template: |
+    你是一位资深行政主管，写过上千份会议通知，深知"通知写不清楚，开会就乱套"。
+
+    会议信息：
+    - 会议主题：{topic}
+    - 会议时间：{time}
+    - 会议地点/线上链接：{location}
+    - 参会人员：{attendees}
+    - 需要准备的材料：{materials}
+    - 发布单位：{department}
+
+    请直接输出一份完整的会议通知，包含标题、称呼、正文、落款。
+    用户只需替换括号内容即可直接使用。
+
+    要求：
+    1. 语气{style}
+    2. 把时间、地点、要准备什么写清楚，不让参会人来回问
+    3. 如果是线上会议，要包含入会方式和会议号
+    4. 给出完整范文，不要只列123框架
+
+    输出格式：
+    - 完整会议通知正文
+    - 参会须知（提醒带什么、提前多久到）
+  variables:
+    - name: topic
+      description: "会议主题"
+      required: true
+    - name: time
+      description: "会议时间，如：2026年8月1日（周五）上午9:00"
+      required: true
+    - name: location
+      description: "会议地点或线上链接"
+      required: true
+    - name: attendees
+      description: "参会人员范围"
+      options: ["全体员工", "各部门负责人", "项目组全体成员", "全体党员", "班委会成员", "相关人员"]
+      required: true
+    - name: materials
+      description: "需要准备的材料"
+      required: false
+      default_value: "无特殊要求"
+    - name: department
+      description: "发布单位"
+      required: true
+    - name: style
+      description: "通知风格"
+      options: ["正式严肃", "简洁明了", "亲切提醒"]
+      required: false
+      default_value: "正式严肃"
+  intent_tags: ["会议通知", "开会通知", "怎么写通知", "帮我写会议通知", "行政文案", "会议安排", "通知模板"]
+  difficulty: beginner
+  quality_score: 0.94
+
+- id: writing_business_003
+  domain: writing
+  sub_domain: writing_business
+  title: "任免通知怎么写，要显得正式又得体"
+  template: |
+    你是一位组织人事部门的资深笔杆子，擅长拟写任免、任命类公文。
+
+    任免信息：
+    - 任免类型：{type}
+    - 涉及人员：{person}
+    - 任免职务：{position}
+    - 生效时间：{effective_date}
+    - 任免原因/依据：{reason}
+    - 发文单位：{department}
+
+    请直接输出一份完整的任免通知，格式规范，可直接印发或发布。
+
+    要求：
+    1. 符合党政机关/企事业单位公文格式规范
+    2. 用词准确，不歧义
+    3. 包含任免决定、生效时间、希望要求、落款
+    4. 输出完整正文，不要只给提纲
+
+    输出格式：
+    - 完整任免通知正文
+    - 格式说明（标题字号、落款位置等提醒）
+  variables:
+    - name: type
+      description: "任免类型"
+      options: ["任命", "免去", "兼任", "改任", "聘任"]
+      required: true
+    - name: person
+      description: "涉及人员姓名"
+      required: true
+    - name: position
+      description: "任免的职务名称"
+      required: true
+    - name: effective_date
+      description: "生效时间"
+      required: true
+    - name: reason
+      description: "任免原因或依据"
+      required: false
+      default_value: "根据工作需要"
+    - name: department
+      description: "发文单位全称"
+      required: true
+  intent_tags: ["任免通知", "任命通知", "公文写作", "人事任免", "正式公文", "帮我写任命书", "干部任免"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_business_004
+  domain: writing
+  sub_domain: writing_business
+  title: "工作通报怎么写，表彰和批评都要会"
+  template: |
+    你是一位政府机关/大型企业综合办资深文秘，擅长写让人心服口服的通报。
+
+    通报信息：
+    - 通报类型：{type}
+    - 事件概述：{incident}
+    - 涉及人员/单位：{subject}
+    - 处理决定/表彰内容：{decision}
+    - 发文单位：{department}
+
+    请直接输出一份完整的工作通报，用户替换括号内容即可使用。
+
+    要求：
+    1. 如果是表彰，要让被表彰者感到光荣，让其他人受到激励
+    2. 如果是批评，要事实清楚、定性准确、处理恰当，不侮辱人格
+    3. 包含事件经过、性质认定、处理决定、希望要求
+    4. 给出完整范文，不要只列框架
+
+    输出格式：
+    - 完整通报正文
+    - 写作要点提醒（哪里容易出错）
+  variables:
+    - name: type
+      description: "通报类型"
+      options: ["表彰通报", "批评通报", "情况通报", "事故通报"]
+      required: true
+    - name: incident
+      description: "事件概述"
+      required: true
+    - name: subject
+      description: "涉及人员或单位"
+      required: true
+    - name: decision
+      description: "表彰内容或处理决定"
+      required: true
+    - name: department
+      description: "发文单位"
+      required: true
+  intent_tags: ["通报怎么写", "工作通报", "表彰通报", "批评通报", "公文模板", "情况通报", "帮我写通报"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_business_005
+  domain: writing
+  sub_domain: writing_business
+  title: "情况说明怎么写，出了事要给领导交代"
+  template: |
+    你是一位危机处理经验丰富的办公室主任，深知"情况说明写得好，处分能减轻"。
+
+    说明信息：
+    - 说明事项：{matter}
+    - 事情经过：{process}
+    - 原因分析：{cause}
+    - 已采取的措施：{measures}
+    - 后续整改计划：{plan}
+    - 呈报单位：{department}
+
+    请直接输出一份完整的情况说明/情况报告，可直接提交给上级。
+
+    要求：
+    1. 态度诚恳，不推卸责任，但也不盲目背锅
+    2. 事实清楚，时间线明确
+    3. 包含事情经过、原因分析、已采取措施、后续计划
+    4. 给出完整范文，不要只给提纲
+
+    输出格式：
+    - 完整情况说明正文
+    - 提交注意事项（给谁看、要不要附件）
+  variables:
+    - name: matter
+      description: "说明的事项标题"
+      required: true
+    - name: process
+      description: "事情经过"
+      required: true
+    - name: cause
+      description: "原因分析"
+      required: true
+    - name: measures
+      description: "已采取的措施"
+      required: false
+      default_value: "已启动初步处理"
+    - name: plan
+      description: "后续整改计划"
+      required: false
+      default_value: "将进一步完善制度"
+    - name: department
+      description: "呈报单位"
+      required: true
+  intent_tags: ["情况说明", "情况报告", "怎么写说明", "给领导的情况说明", "事故说明", "问题说明", "书面说明"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_business_006
+  domain: writing
+  sub_domain: writing_business
+  title: "请示怎么写，向上级要钱要人要政策"
+  template: |
+    你是一位体制内笔杆子，写过几百份请示，深知"请示写得好，批复来得快"。
+
+    请示信息：
+    - 请示事项：{matter}
+    - 请示理由/依据：{reason}
+    - 具体请求内容：{request}
+    - 建议方案：{proposal}
+    - 请示单位：{department}
+
+    请直接输出一份完整的请示，格式符合公文规范，可直接呈报。
+
+    要求：
+    1. 一文一事，不夹带多个请求
+    2. 理由充分，让上级觉得"确实应该批"
+    3. 包含请示缘由、具体事项、建议方案、妥否请批示
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整请示正文
+    - 格式模板（标题、主送机关、落款标准格式）
+  variables:
+    - name: matter
+      description: "请示的核心事项"
+      required: true
+    - name: reason
+      description: "请示的理由和依据"
+      required: true
+    - name: request
+      description: "具体请求内容"
+      required: true
+    - name: proposal
+      description: "建议方案或备选方案"
+      required: false
+      default_value: "（用户未提供，给出通用建议框架）"
+    - name: department
+      description: "请示单位"
+      required: true
+  intent_tags: ["请示怎么写", "向上级请示", "公文请示", "请示报告", "帮我写请示", "申请批复", "呈报公文"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_business_007
+  domain: writing
+  sub_domain: writing_business
+  title: "批复怎么写，回复下级的申请"
+  template: |
+    你是一位资深机关领导秘书，擅长拟写既明确又留有余地的批复。
+
+    批复信息：
+    - 来文单位：{from_unit}
+    - 来文标题/文号：{document_ref}
+    - 批复意见：{decision}
+    - 具体要求/指示：{requirements}
+    - 批复单位：{department}
+
+    请直接输出一份完整的批复，格式规范，可直接印发。
+
+    要求：
+    1. 态度明确，同意就同意，不同意就说明理由
+    2. 如果部分同意，要把同意和不同意的部分分清楚
+    3. 包含引述来文、批复意见、具体要求、落款
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整批复正文
+    - 批复写作禁忌（模棱两可、越权批复等）
+  variables:
+    - name: from_unit
+      description: "来文单位名称"
+      required: true
+    - name: document_ref
+      description: "来文标题或文号"
+      required: true
+    - name: decision
+      description: "批复意见"
+      options: ["同意", "原则同意", "不同意", "部分同意", "暂缓执行"]
+      required: true
+    - name: requirements
+      description: "具体要求或执行指示"
+      required: false
+      default_value: "按相关规定执行"
+    - name: department
+      description: "批复单位"
+      required: true
+  intent_tags: ["批复怎么写", "回复请示", "公文批复", "批准申请", "上级批复", "帮我写批复", "公文回复"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: writing_business_008
+  domain: writing
+  sub_domain: writing_business
+  title: "工作简报怎么写，让领导快速了解进展"
+  template: |
+    你是一位给领导写了8年简报的材料高手，深知"领导没时间看长文，简报要短要有料"。
+
+    简报信息：
+    - 简报主题：{topic}
+    - 工作进展：{progress}
+    - 存在问题：{problems}
+    - 下一步计划：{plan}
+    - 报送单位：{department}
+
+    请直接输出一份完整的工作简报，500-800字，可直接报送。
+
+    要求：
+    1. 结构清晰：背景→进展→问题→计划
+    2. 用数据和事实说话，不空泛
+    3. 语言精练，一句废话不要
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整简报正文
+    - 简报格式说明（报头、编号、报送范围）
+  variables:
+    - name: topic
+      description: "简报主题"
+      required: true
+    - name: progress
+      description: "工作进展情况"
+      required: true
+    - name: problems
+      description: "目前存在的问题"
+      required: false
+      default_value: "暂无重大问题"
+    - name: plan
+      description: "下一步工作计划"
+      required: true
+    - name: department
+      description: "报送单位"
+      required: true
+  intent_tags: ["工作简报", "简报怎么写", "给领导的简报", "工作进展", "帮我写简报", "信息简报", "情况简报"]
+  difficulty: beginner
+  quality_score: 0.93
+
+- id: writing_business_009
+  domain: writing
+  sub_domain: writing_business
+  title: "整改报告怎么写，检查完要交材料"
+  template: |
+    你是一位擅长"化危为机"的行政主管，深知整改报告写得好，检查就能变成加分项。
+
+    整改信息：
+    - 检查/审计发现的问题：{issues}
+    - 问题原因分析：{cause}
+    - 已采取的整改措施：{measures}
+    - 整改完成时间：{deadline}
+    - 长效机制：{long_term}
+    - 报告单位：{department}
+
+    请直接输出一份完整的整改报告，可直接提交。
+
+    要求：
+    1. 不回避问题，但也不夸大
+    2. 整改措施要具体、可验证，不说空话
+    3. 包含问题清单、原因分析、整改措施、完成时限、长效机制
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整整改报告正文
+    - 整改清单表格（问题+措施+责任人+时限）
+  variables:
+    - name: issues
+      description: "检查发现的问题"
+      required: true
+    - name: cause
+      description: "问题原因分析"
+      required: true
+    - name: measures
+      description: "已采取或拟采取的整改措施"
+      required: true
+    - name: deadline
+      description: "整改完成时限"
+      required: true
+    - name: long_term
+      description: "防止再犯的长效机制"
+      required: false
+      default_value: "建立定期自查机制"
+    - name: department
+      description: "报告单位"
+      required: true
+  intent_tags: ["整改报告", "检查整改", "整改方案", "怎么写整改", "整改材料", "帮我写整改", "整改汇报"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_business_010
+  domain: writing
+  sub_domain: writing_business
+  title: "督查报告怎么写，上级来检查了要汇报"
+  template: |
+    你是一位督查室主任，深知督查报告"不是挑刺，是推动工作落实"。
+
+    督查信息：
+    - 督查事项：{topic}
+    - 督查范围：{scope}
+    - 发现的问题：{findings}
+    - 典型经验：{good_examples}
+    - 工作建议：{suggestions}
+    - 报告单位：{department}
+
+    请直接输出一份完整的督查报告，可直接呈报。
+
+    要求：
+    1. 既指出问题，也肯定成绩，不一边倒
+    2. 问题要具体，点到单位/环节，但不点名批评个人
+    3. 建议要可操作，不说"加强领导"之类的空话
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整督查报告正文
+    - 问题清单（条目化）
+  variables:
+    - name: topic
+      description: "督查事项"
+      required: true
+    - name: scope
+      description: "督查范围"
+      required: true
+    - name: findings
+      description: "发现的问题"
+      required: true
+    - name: good_examples
+      description: "值得推广的典型经验"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: suggestions
+      description: "工作建议"
+      required: true
+    - name: department
+      description: "报告单位"
+      required: true
+  intent_tags: ["督查报告", "检查汇报", "督查汇报", "怎么写督查", "工作督查", "帮我写督查", "检查报告"]
+  difficulty: advanced
+  quality_score: 0.93
+
+- id: writing_business_011
+  domain: writing
+  sub_domain: writing_business
+  title: "个人工作总结怎么写，年终要交了"
+  template: |
+    你是一位HR总监，看过上万份工作总结，深知"写得好不好，直接影响年终奖"。
+
+    总结信息：
+    - 岗位/职务：{position}
+    - 工作时间段：{period}
+    - 主要工作内容：{work_content}
+    - 取得的成绩/数据：{achievements}
+    - 存在的不足：{weaknesses}
+    - 下一步计划：{plan}
+
+    请直接输出一份完整的个人工作总结，800-1500字，可直接提交。
+
+    要求：
+    1. 用{style}风格，适合{audience}阅读
+    2. 成绩用数据说话，不空泛
+    3. 不足要诚恳但不致命，同时带改进措施
+    4. 结构：回顾→成绩→不足→计划
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整工作总结正文
+    - 写作技巧（哪里该详写、哪里该略写）
+  variables:
+    - name: position
+      description: "岗位或职务"
+      required: true
+    - name: period
+      description: "总结时间段，如：2026年上半年"
+      required: true
+    - name: work_content
+      description: "主要工作内容简述"
+      required: true
+    - name: achievements
+      description: "取得的成绩或关键数据"
+      required: true
+    - name: weaknesses
+      description: "存在的不足"
+      required: false
+      default_value: "（用户未提供，给出通用诚恳表述）"
+    - name: plan
+      description: "下一步工作计划"
+      required: false
+      default_value: "（用户未提供，给出通用计划框架）"
+    - name: style
+      description: "写作风格"
+      options: ["务实低调", "适当展示", "谦虚谨慎", "自信大方"]
+      required: false
+      default_value: "务实低调"
+    - name: audience
+      description: "阅读对象"
+      options: ["直属领导", "部门负责人", "公司高层", "评审委员会"]
+      required: false
+      default_value: "直属领导"
+  intent_tags: ["工作总结", "年终总结", "个人总结", "总结怎么写", "帮我写总结", "年度总结", "工作汇报", "述职"]
+  difficulty: beginner
+  quality_score: 0.95
+
+- id: writing_business_012
+  domain: writing
+  sub_domain: writing_business
+  title: "部门工作总结怎么写，要代表整个团队"
+  template: |
+    你是一位部门负责人，每年写部门总结，深知"部门总结不是个人总结的放大版"。
+
+    总结信息：
+    - 部门名称：{department}
+    - 总结时间段：{period}
+    - 部门主要工作：{work_content}
+    - 关键业绩指标：{kpi}
+    - 团队建设情况：{team}
+    - 存在问题和改进方向：{issues}
+
+    请直接输出一份完整的部门工作总结，1200-2000字，可直接提交。
+
+    要求：
+    1. 既讲成绩，也讲团队成长
+    2. 用数据对比（目标vs实际）
+    3. 问题要客观，不甩锅给其他部门
+    4. 结构：总体回顾→业务成绩→团队建设→存在问题→明年计划
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整部门总结正文
+    - 数据呈现建议（哪里用表格、哪里用对比）
+  variables:
+    - name: department
+      description: "部门名称"
+      required: true
+    - name: period
+      description: "总结时间段"
+      required: true
+    - name: work_content
+      description: "部门主要工作内容"
+      required: true
+    - name: kpi
+      description: "关键业绩指标完成情况"
+      required: true
+    - name: team
+      description: "团队建设情况"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+    - name: issues
+      description: "存在的问题"
+      required: false
+      default_value: "（用户未提供，给出通用表述）"
+  intent_tags: ["部门总结", "团队总结", "部门汇报", "年终总结", "总结怎么写", "帮我写总结", "部门述职"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_business_013
+  domain: writing
+  sub_domain: writing_business
+  title: "工作计划怎么写，新年/新季度要定目标"
+  template: |
+    你是一位战略管理专家，深知"计划写得好，执行不跑偏"。
+
+    计划信息：
+    - 计划周期：{period}
+    - 计划主体：{subject}
+    - 总体目标：{goal}
+    - 重点工作事项：{key_tasks}
+    - 资源需求：{resources}
+    - 风险预判：{risks}
+
+    请直接输出一份完整的工作计划/工作要点，可直接提交或印发。
+
+    要求：
+    1. 目标要SMART，可衡量
+    2. 任务要分解到季度/月份，责任到人
+    3. 不说空话，每项工作都有验收标准
+    4. 结构：指导思想→总体目标→重点任务→保障措施
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整计划正文
+    - 任务分解表（事项+时间节点+责任人+验收标准）
+  variables:
+    - name: period
+      description: "计划周期"
+      options: ["年度", "半年", "季度", "月度"]
+      required: true
+    - name: subject
+      description: "计划主体，如：XX部门/个人/项目组"
+      required: true
+    - name: goal
+      description: "总体目标"
+      required: true
+    - name: key_tasks
+      description: "重点工作事项"
+      required: true
+    - name: resources
+      description: "需要的资源支持"
+      required: false
+      default_value: "按现有资源配置"
+    - name: risks
+      description: "可能遇到的风险"
+      required: false
+      default_value: "（用户未提供，给出通用风险预判）"
+  intent_tags: ["工作计划", "年度规划", "工作要点", "计划怎么写", "帮我写计划", "目标设定", "工作方案"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_business_014
+  domain: writing
+  sub_domain: writing_business
+  title: "述职报告怎么写，要让领导觉得我没白干"
+  template: |
+    你是一位给领导写了10年述职报告的材料高手，深知"述职不是流水账，是价值展示"。
+
+    述职信息：
+    - 述职人岗位：{position}
+    - 述职时间段：{period}
+    - 主要职责：{responsibilities}
+    - 业绩亮点：{achievements}
+    - 廉洁自律/作风情况：{integrity}
+    - 下一步打算：{plan}
+
+    请直接输出一份完整的述职报告，1500-2500字，可直接使用。
+
+    要求：
+    1. 用{style}风格，适合{audience}
+    2. 德能勤绩廉/德能勤绩，五个方面都要覆盖（根据岗位调整）
+    3. 业绩部分用"做了什么+怎么做的+效果怎样"结构
+    4. 不夸大、不谦虚过度
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整述职报告正文
+    - 述职演讲建议（如果还要口头述职）
+  variables:
+    - name: position
+      description: "述职人岗位"
+      required: true
+    - name: period
+      description: "述职时间段"
+      required: true
+    - name: responsibilities
+      description: "主要职责范围"
+      required: true
+    - name: achievements
+      description: "业绩亮点或关键成果"
+      required: true
+    - name: integrity
+      description: "廉洁自律或作风情况"
+      required: false
+      default_value: "（用户未提供，给出通用正面表述）"
+    - name: plan
+      description: "下一步工作打算"
+      required: false
+      default_value: "（用户未提供，给出通用计划框架）"
+    - name: style
+      description: "写作风格"
+      options: ["务实低调", "自信展示", "谦虚稳重", "激情饱满"]
+      required: false
+      default_value: "务实低调"
+    - name: audience
+      description: "述职对象"
+      options: ["上级领导", "考核组", "全体职工", "党委会", "评审专家"]
+      required: false
+      default_value: "上级领导"
+  intent_tags: ["述职报告", "述职怎么写", "年终述职", "干部述职", "帮我写述职", "述职汇报", "述职材料"]
+  difficulty: intermediate
+  quality_score: 0.95
+
+- id: writing_business_015
+  domain: writing
+  sub_domain: writing_business
+  title: "工作方案怎么写，领导要我把活干明白"
+  template: |
+    你是一位项目管理专家，深知"方案写清楚，执行少扯皮"。
+
+    方案信息：
+    - 方案名称：{name}
+    - 工作目标：{goal}
+    - 实施步骤：{steps}
+    - 责任分工：{division}
+    - 时间安排：{timeline}
+    - 经费预算：{budget}
+    - 保障措施：{guarantee}
+
+    请直接输出一份完整的工作方案/实施方案，可直接印发执行。
+
+    要求：
+    1. 目标明确，步骤清晰，责任到人
+    2. 时间节点具体，不说"尽快""适时"
+    3. 经费预算要明细，不笼统
+    4. 结构：背景→目标→任务→步骤→分工→保障
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整方案正文
+    - 任务分工表（谁+干什么+什么时候完成）
+  variables:
+    - name: name
+      description: "方案名称"
+      required: true
+    - name: goal
+      description: "工作目标"
+      required: true
+    - name: steps
+      description: "实施步骤"
+      required: true
+    - name: division
+      description: "责任分工"
+      required: true
+    - name: timeline
+      description: "时间安排"
+      required: true
+    - name: budget
+      description: "经费预算"
+      required: false
+      default_value: "（用户未提供，给出通用预算框架）"
+    - name: guarantee
+      description: "保障措施"
+      required: false
+      default_value: "加强组织领导，强化督查考核"
+  intent_tags: ["工作方案", "实施方案", "方案怎么写", "帮我写方案", "工作计划", "活动方案", "执行方案"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: writing_business_016
+  domain: writing
+  sub_domain: writing_business
+  title: "会议纪要怎么写，开完会要留记录"
+  template: |
+    你是一位资深会议秘书，深知"纪要写得好，扯皮少一半"。
+
+    会议信息：
+    - 会议主题：{topic}
+    - 会议时间地点：{time_location}
+    - 参会人员：{attendees}
+    - 会议内容/决议：{content}
+    - 待办事项/责任人：{action_items}
+    - 记录人：{recorder}
+
+    请直接输出一份完整的会议纪要，可直接归档或发送。
+
+    要求：
+    1. 忠实记录，不添油加醋，也不遗漏关键决议
+    2. 决议部分用"会议明确""会议决定""会议要求"等规范用语
+    3. 待办事项要责任到人、时限明确
+    4. 结构：会议基本信息→会议内容→会议决议→待办事项
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整会议纪要正文
+    - 待办事项清单（责任人+完成时限）
+  variables:
+    - name: topic
+      description: "会议主题"
+      required: true
+    - name: time_location
+      description: "会议时间和地点"
+      required: true
+    - name: attendees
+      description: "参会人员"
+      required: true
+    - name: content
+      description: "会议讨论的主要内容和决议"
+      required: true
+    - name: action_items
+      description: "待办事项及责任人"
+      required: false
+      default_value: "（用户未提供，给出通用待办框架）"
+    - name: recorder
+      description: "记录人姓名"
+      required: true
+  intent_tags: ["会议纪要", "会议记录", "纪要怎么写", "帮我写纪要", "会议要点", "会议决议", "会议备忘"]
+  difficulty: beginner
+  quality_score: 0.94
+
+- id: writing_business_017
+  domain: writing
+  sub_domain: writing_business
+  title: "领导讲话稿怎么写，要我代拟发言"
+  template: |
+    你是一位给领导写了15年讲话稿的"首席笔杆子"，深知"讲话稿不是文章，是声音"。
+
+    讲话信息：
+    - 讲话场合：{occasion}
+    - 领导职务/身份：{leader}
+    - 讲话主题：{topic}
+    - 核心要点：{key_points}
+    - 听众对象：{audience}
+    - 讲话时长：{duration}
+
+    请直接输出一份完整的领导讲话稿，领导拿起来就能念。
+
+    要求：
+    1. 口语化，适合念出来，不用长句和生僻词
+    2. 有气势但不空洞，有数据但不枯燥
+    3. 结构：开场→主体（分3点）→结尾号召
+    4. 根据{style}调整语气
+    5. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整讲话稿正文（含停顿、语气提示）
+    - 脱稿建议（哪些部分可以即兴发挥）
+  variables:
+    - name: occasion
+      description: "讲话场合"
+      options: ["年终总结大会", "项目启动会", "表彰大会", "动员部署会", "调研座谈会", "签约仪式", "毕业典礼", "开学典礼"]
+      required: true
+    - name: leader
+      description: "领导职务"
+      required: true
+    - name: topic
+      description: "讲话主题"
+      required: true
+    - name: key_points
+      description: "核心要点或必须提到的内容"
+      required: true
+    - name: audience
+      description: "听众对象"
+      required: true
+    - name: duration
+      description: "讲话时长"
+      options: ["5分钟", "10分钟", "15分钟", "20分钟", "30分钟"]
+      required: false
+      default_value: "10分钟"
+    - name: style
+      description: "讲话风格"
+      options: ["亲切务实", "严肃正式", "激情动员", "幽默轻松", "循循善诱"]
+      required: false
+      default_value: "亲切务实"
+  intent_tags: ["讲话稿", "领导发言", "代拟讲话", "发言稿怎么写", "帮我写讲话稿", "领导讲话", "致辞稿"]
+  difficulty: advanced
+  quality_score: 0.95
+
+- id: writing_business_018
+  domain: writing
+  sub_domain: writing_business
+  title: "公告/通告怎么写，要公开发布"
+  template: |
+    你是一位政府公报编辑，深知"公告一字千金，写错就是事故"。
+
+    公告信息：
+    - 公告类型：{type}
+    - 公告事项：{matter}
+    - 适用范围：{scope}
+    - 生效时间：{effective_date}
+    - 发布单位：{department}
+
+    请直接输出一份完整的公告/通告，可直接发布。
+
+    要求：
+    1. 用词准确，不产生歧义
+    2. 格式规范：标题→正文→落款→日期
+    3. 如果是限制性公告，要把禁止事项列清楚
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整公告正文
+    - 发布注意事项（哪里需要盖章、张贴范围）
+  variables:
+    - name: type
+      description: "公告类型"
+      options: ["事项公告", "招聘/招考公告", "招标公告", "停业/放假公告", "更名公告", "遗失声明", "处罚通告", "迁址通告"]
+      required: true
+    - name: matter
+      description: "公告具体事项"
+      required: true
+    - name: scope
+      description: "适用范围或告知对象"
+      required: true
+    - name: effective_date
+      description: "生效时间"
+      required: false
+      default_value: "自发布之日起"
+    - name: department
+      description: "发布单位"
+      required: true
+  intent_tags: ["公告怎么写", "通告模板", "发布公告", "公文公告", "帮我写公告", "事项通告", "公开告知"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: writing_business_019
+  domain: writing
+  sub_domain: writing_business
+  title: "公务邀请函怎么写，邀请上级或合作单位"
+  template: |
+    你是一位外事/会务专家，深知"邀请函是门面，写不好活动就掉价"。
+
+    邀请信息：
+    - 活动名称：{event}
+    - 活动时间地点：{time_location}
+    - 邀请对象：{guest}
+    - 活动内容/议程：{agenda}
+    - 邀请单位：{host}
+
+    请直接输出一份正式的公务邀请函，可直接发送。
+
+    要求：
+    1. 语气恭敬但不卑微
+    2. 把活动价值说清楚，让对方觉得"值得去"
+    3. 包含时间、地点、议程、联系人、回执方式
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整邀请函正文
+    - 回执模板（方便对方确认是否出席）
+  variables:
+    - name: event
+      description: "活动名称"
+      required: true
+    - name: time_location
+      description: "活动时间和地点"
+      required: true
+    - name: guest
+      description: "邀请对象身份"
+      required: true
+    - name: agenda
+      description: "活动内容或议程亮点"
+      required: true
+    - name: host
+      description: "邀请单位"
+      required: true
+  intent_tags: ["邀请函", "公务邀请", "邀请怎么写", "帮我写邀请函", "活动邀请", "正式邀请", "会议邀请"]
+  difficulty: beginner
+  quality_score: 0.93
+
+- id: writing_business_020
+  domain: writing
+  sub_domain: writing_business
+  title: "公务感谢信怎么写，对方帮了大忙"
+  template: |
+    你是一位深谙人情世故的办公室主任，深知"感谢信写得好，关系处得牢"。
+
+    感谢信息：
+    - 感谢对象：{recipient}
+    - 感谢事由：{reason}
+    - 对方具体帮助：{help}
+    - 产生的效果：{effect}
+    - 写信单位：{sender}
+
+    请直接输出一份正式的公务感谢信，可直接寄送或发送。
+
+    要求：
+    1. 真诚具体，不空洞，提到对方具体做了什么
+    2. 既表达感谢，也表达继续合作的意愿
+    3. 语气{style}，符合{audience}关系
+    4. 给出完整范文，不要只给框架
+
+    输出格式：
+    - 完整感谢信正文
+    - 发送建议（什么时候发、用什么方式发）
+  variables:
+    - name: recipient
+      description: "感谢对象单位或个人"
+      required: true
+    - name: reason
+      description: "感谢的事由背景"
+      required: true
+    - name: help
+      description: "对方提供的具体帮助"
+      required: true
+    - name: effect
+      description: "帮助产生的效果"
+      required: true
+    - name: sender
+      description: "写信单位"
+      required: true
+    - name: style
+      description: "语气风格"
+      options: ["正式庄重", "亲切真诚", "简洁明了"]
+      required: false
+      default_value: "亲切真诚"
+    - name: audience
+      description: "双方关系"
+      options: ["上级对下级", "平级单位", "下级对上级", "政企之间", "校际之间"]
+      required: false
+      default_value: "平级单位"
+  intent_tags: ["感谢信", "公务感谢", "感谢怎么写", "帮我写感谢信", "致谢信", "感谢函", "公文感谢"]
+  difficulty: beginner
+  quality_score: 0.92

@@ -1,0 +1,1173 @@
+- id: daily_summary_001
+  domain: daily
+  sub_domain: daily_summary
+  title: 睡前5分钟：今日份成长日记
+  template: '你是一位个人成长教练，擅长把"普通的一天"提炼出"值得记录的成长颗粒"。
+
+
+    今日信息：
+
+    - 今天主要做了什么：{today_activities}
+
+    - 情绪波动点：{emotions}
+
+    - 一个小收获（选填）：{small_win}
+
+
+    请帮我：
+
+    1. 用"3行日记法"总结今天（事实→感受→洞察）
+
+    2. 找出1个"今天比昨天好一点"的证据
+
+    3. 标出1个"可以优化"的微动作（明天就能试）
+
+    4. 给出"明日1个期待"，带着希望入睡
+
+
+    输出格式：
+
+    - 今日3行：事实线 | 感受线 | 洞察线
+
+    - 成长颗粒：具体行为 + 能力标签 + 可复用场景
+
+    - 优化微动作：问题→假设→实验→验证
+
+    - 明日期待：1件值得期待的小事
+
+    '
+  variables:
+  - name: today_activities
+    description: 今天主要做的事情
+    required: true
+  - name: emotions
+    description: 今天的情绪起伏，如：上午焦虑/下午满足/晚上平静
+    required: true
+  - name: small_win
+    description: 今天的一个小成就
+    required: false
+    default_value: （请从活动中挖掘）
+  intent_tags:
+  - 日记
+  - 每日复盘
+  - 成长日记
+  - 睡前复盘
+  - 自我反思
+  - 情绪管理
+  difficulty: beginner
+  quality_score: 0.91
+- id: daily_summary_002
+  domain: daily
+  sub_domain: daily_summary
+  title: 打工人的周五救赎：周复盘模板
+  template: '你是一位职场导师，深知"没有复盘的周一是重蹈覆辙的开始"。
+
+
+    本周信息：
+
+    - 本周主线任务：{main_tasks}
+
+    - 意外/插曲：{surprises}
+
+    - 能量高低点：{energy_high_low}
+
+
+    请帮我：
+
+    1. 按"结果→过程→情绪→认知"四层做周复盘
+
+    2. 用"继续/停止/开始"三分法提炼行动清单
+
+    3. 标出本周"最大的时间黑洞"和"最高效时段"
+
+    4. 给出下周"1个必须保留的好习惯+1个必须砍掉的动作"
+
+
+    输出格式：
+
+    - 四层复盘表：维度 | 本周实况 | 洞察 | 下周调整
+
+    - 继续/停止/开始清单：各3项，附理由
+
+    - 时间审计：高效时段 | 黑洞时段 | 优化建议
+
+    - 附"下周启动语"（一句话点燃周一动力）
+
+    '
+  variables:
+  - name: main_tasks
+    description: 本周主要完成的任务
+    required: true
+  - name: surprises
+    description: 本周的意外、插曲或突发事件
+    required: true
+  - name: energy_high_low
+    description: 本周能量最高和最低的时刻
+    required: true
+  intent_tags:
+  - 周复盘
+  - 工作总结
+  - 职场复盘
+  - 周五复盘
+  - 工作反思
+  - 效率
+  difficulty: beginner
+  quality_score: 0.92
+- id: daily_summary_003
+  domain: daily
+  sub_domain: daily_summary
+  title: 月度人生体检报告
+  template: '你是一位人生系统架构师，擅长用数据+故事给月度生活做"全面体检"。
+
+
+    本月信息：
+
+    - 月初设定的目标：{monthly_goals}
+
+    - 实际完成度：{completion}
+
+    - 本月高光/低谷时刻：{highlights_lowlights}
+
+    - 健康/财务/关系数据（选填）：{life_data}
+
+
+    请帮我：
+
+    1. 按"工作→学习→健康→关系→财务→乐趣"六维打分并写诊断
+
+    2. 找出"目标未达成"的根因（是目标问题还是执行问题）
+
+    3. 标出本月"最值的一笔花费"和"最浪费的3小时"
+
+    4. 给出下月"1个主题词"和"3个必赢之战"
+
+
+    输出格式：
+
+    - 六维体检表：维度 | 月初目标 | 实际结果 | 得分 | 诊断 | 处方
+
+    - 根因分析：5Why法拆解最大未达成项
+
+    - 价值盘点：最值花费 | 最值时间 | 最值关系 | 最值学习
+
+    - 下月主题：主题词 | 必赢之战 | 资源分配 | 风险预警
+
+    '
+  variables:
+  - name: monthly_goals
+    description: 月初设定的目标清单
+    required: true
+  - name: completion
+    description: 各目标的实际完成情况
+    required: true
+  - name: highlights_lowlights
+    description: 本月最亮和最暗的时刻
+    required: true
+  - name: life_data
+    description: 健康、财务、社交等量化数据
+    required: false
+    default_value: （用户未提供，做定性复盘）
+  intent_tags:
+  - 月度复盘
+  - 月度总结
+  - 生活体检
+  - 目标复盘
+  - 人生管理
+  - 自我提升
+  difficulty: intermediate
+  quality_score: 0.93
+- id: daily_summary_004
+  domain: daily
+  sub_domain: daily_summary
+  title: 季度OKR复盘：到底完成了没
+  template: '你是一位OKR教练，擅长用"残酷的现实+温柔的归因"做季度复盘。
+
+
+    季度信息：
+
+    - 季度OKR：{quarterly_okr}
+
+    - 关键结果进度：{kr_progress}
+
+    - 过程中做的调整：{adjustments}
+
+    - 团队/个人状态：{team_status}
+
+
+    请帮我：
+
+    1. 逐条KR做"信心指数→实际完成→偏差分析→根因"
+
+    2. 区分"目标定错了"和"执行没到位"两类问题
+
+    3. 标出本季度"超出预期的惊喜"和"本可避免的失误"
+
+    4. 给出下季度OKR的"3个改进假设"
+
+
+    输出格式：
+
+    - KR复盘表：KR | 目标值 | 实际值 | 完成度 | 根因 | 归类
+
+    - 惊喜与失误：事件 | 影响 | 可复制/可避免要素
+
+    - 能力盘点：本季度新增能力 | 待补能力 | 过度依赖
+
+    - 下季假设：3个改进假设 | 验证方法 | 资源需求
+
+    '
+  variables:
+  - name: quarterly_okr
+    description: 季度OKR原文
+    required: true
+  - name: kr_progress
+    description: 各关键结果的完成进度
+    required: true
+  - name: adjustments
+    description: 季度中做的调整或转向
+    required: true
+  - name: team_status
+    description: 团队或个人本季度的整体状态
+    required: false
+    default_value: （用户未提供，做通用分析）
+  intent_tags:
+  - 季度复盘
+  - OKR复盘
+  - 绩效复盘
+  - 目标回顾
+  - 季度总结
+  - 工作复盘
+  difficulty: intermediate
+  quality_score: 0.94
+- id: daily_summary_005
+  domain: daily
+  sub_domain: daily_summary
+  title: 年终总结：这一年我干了啥
+  template: '你是一位年度叙事师，擅长把365天的碎片拼成"一个值得讲述的成长故事"。
+
+
+    年度信息：
+
+    - 年初目标：{year_goals}
+
+    - 重大事件：{major_events}
+
+    - 数据/成果：{achievements_data}
+
+    - 遗憾/失去（选填）：{regrets}
+
+
+    请帮我：
+
+    1. 按"成就→转折→成长→关系→健康→财务"六章写年度叙事
+
+    2. 用"3个数字+2个故事+1个顿悟"结构呈现核心收获
+
+    3. 标出"年初的我"和"年末的我"最大的3个不同
+
+    4. 给出明年"1个大胆目标+3个保守目标+1个放弃清单"
+
+
+    输出格式：
+
+    - 年度六章：每章含标题、故事、数据、洞察
+
+    - 对比卡片：年初vs年末（认知/能力/关系/身体/财务）
+
+    - 成就清单：Top10成就及背后的支持系统
+
+    - 明年蓝图：大胆目标 | 保守目标 | 放弃清单 | 主题词
+
+    '
+  variables:
+  - name: year_goals
+    description: 年初设定的目标
+    required: true
+  - name: major_events
+    description: 今年发生的重大事件
+    required: true
+  - name: achievements_data
+    description: 可量化的成果或数据
+    required: true
+  - name: regrets
+    description: 今年的遗憾或失去
+    required: false
+    default_value: （用户未提供，聚焦成长面）
+  intent_tags:
+  - 年终总结
+  - 年度复盘
+  - 年终回顾
+  - 年度总结
+  - 人生复盘
+  - 新年计划
+  difficulty: intermediate
+  quality_score: 0.93
+- id: daily_summary_006
+  domain: daily
+  sub_domain: daily_summary
+  title: 项目复盘：别白交学费
+  template: '你是一位项目复盘专家，相信"没有失败的项目，只有没提取的教训"。
+
+
+    项目信息：
+
+    - 项目背景与目标：{project_background}
+
+    - 实际结果：{actual_result}
+
+    - 关键决策点：{key_decisions}
+
+    - 团队反馈（选填）：{team_feedback}
+
+
+    请帮我：
+
+    1. 按"目标→结果→过程→决策→协作→个人"六维做复盘
+
+    2. 用"事实→归因→教训→行动"四步拆解每个关键节点
+
+    3. 标出"如果重来一次"的3个关键改变点
+
+    4. 给出"可沉淀为SOP"的经验和"需要更新认知"的误区
+
+
+    输出格式：
+
+    - 六维复盘表：维度 | 预期 | 实际 | 偏差 | 根因 | 教训 | 行动
+
+    - 关键决策回放：决策点 | 当时信息 | 决策逻辑 | 结果 | 复盘
+
+    - 重来模拟：3个改变点 | 预期影响 | 实施成本
+
+    - 知识沉淀：SOP更新 | 认知更新 | 工具更新 | 关系更新
+
+    '
+  variables:
+  - name: project_background
+    description: 项目背景、目标和范围
+    required: true
+  - name: actual_result
+    description: 项目实际结果和交付物
+    required: true
+  - name: key_decisions
+    description: 项目中的关键决策节点
+    required: true
+  - name: team_feedback
+    description: 团队成员的反馈或360评价
+    required: false
+    default_value: （用户未提供，做个人视角复盘）
+  intent_tags:
+  - 项目复盘
+  - 项目总结
+  - 事后复盘
+  - 经验提取
+  - 项目管理
+  - 教训
+  difficulty: intermediate
+  quality_score: 0.94
+- id: daily_summary_007
+  domain: daily
+  sub_domain: daily_summary
+  title: 会议纪要秒变行动清单
+  template: '你是一位会议效能专家，擅长把"2小时的废话"变成"5分钟能执行的行动"。
+
+
+    会议信息：
+
+    - 会议主题：{meeting_topic}
+
+    - 讨论要点：{discussion_points}
+
+    - 决议事项：{decisions}
+
+    - 待办事项（选填）：{action_items}
+
+
+    请帮我：
+
+    1. 按"信息→决策→行动→风险"四类重新组织会议内容
+
+    2. 每个行动项明确"负责人+ deadline + 交付标准 + 验收人"
+
+    3. 标出"需要二次确认"的模糊决议和"潜在冲突点"
+
+    4. 给出"会议后24小时"的标准跟进流程
+
+
+    输出格式：
+
+    - 会议精华：决策清单 | 信息同步 | 风险预警
+
+    - 行动清单：任务 | 负责人 | Deadline | 标准 | 验收人 | 状态
+
+    - 跟进日历：24h/48h/1周/1月的检查节点
+
+    - 附"下次会议议程建议"（基于本次未决事项）
+
+    '
+  variables:
+  - name: meeting_topic
+    description: 会议主题
+    required: true
+  - name: discussion_points
+    description: 会议讨论的主要要点
+    required: true
+  - name: decisions
+    description: 会议达成的决议
+    required: true
+  - name: action_items
+    description: 会议中提到的待办事项
+    required: false
+    default_value: （从讨论要点中提取）
+  intent_tags:
+  - 会议纪要
+  - 会议总结
+  - 行动清单
+  - 会议复盘
+  - 会议效率
+  - 待办
+  difficulty: beginner
+  quality_score: 0.92
+- id: daily_summary_008
+  domain: daily
+  sub_domain: daily_summary
+  title: 读书笔记：把书读薄再读厚
+  template: '你是一位知识管理专家，信奉"读过的书必须变成能调用的知识模块"。
+
+
+    书籍信息：
+
+    - 书名与作者：{book_info}
+
+    - 核心论点：{core_argument}
+
+    - 最有启发的3个点：{insights}
+
+    - 与现实的连接（选填）：{connections}
+
+
+    请帮我：
+
+    1. 用"一张图说清全书"做结构拆解（金字塔/流程图/矩阵）
+
+    2. 把启发点变成"行动指令"（如果…那么…）
+
+    3. 标出"需要二次阅读"的难点和"可以跳过"的冗余
+
+    4. 给出"30天/90天/1年后"的三次回顾触发器
+
+
+    输出格式：
+
+    - 全书地图：核心问题→子论点→证据→结论→局限
+
+    - 知识卡片：概念 | 定义 | 案例 | 我的场景 | 行动指令
+
+    - 批判性思考：同意点 | 质疑点 | 补充点 | 应用边界
+
+    - 回顾计划：30天/90天/1年各1个触发问题和检验标准
+
+    '
+  variables:
+  - name: book_info
+    description: 书名和作者
+    required: true
+  - name: core_argument
+    description: 全书核心论点
+    required: true
+  - name: insights
+    description: 最有启发的3个点
+    required: true
+  - name: connections
+    description: 与自身经验或现实的连接
+    required: false
+    default_value: （请结合通用场景推导）
+  intent_tags:
+  - 读书笔记
+  - 阅读总结
+  - 知识管理
+  - 书评
+  - 阅读方法
+  - 学习复盘
+  difficulty: intermediate
+  quality_score: 0.93
+- id: daily_summary_009
+  domain: daily
+  sub_domain: daily_summary
+  title: 观影笔记：不只写观后感
+  template: '你是一位影视分析评论家，擅长从"娱乐消费"中提取"认知升级"的养分。
+
+
+    影片信息：
+
+    - 片名与导演：{film_info}
+
+    - 类型与主题：{genre_theme}
+
+    - 最触动的场景：{touching_scenes}
+
+    - 联想到的现实（选填）：{real_life}
+
+
+    请帮我：
+
+    1. 按"叙事→视听→表演→主题→个人"五维做结构化分析
+
+    2. 把触动场景拆解为"情绪触发器+认知冲突+价值选择"
+
+    3. 标出导演/编剧的"隐藏表达"和"技术巧思"
+
+    4. 给出"如果我是主角"的决策替代方案
+
+
+    输出格式：
+
+    - 五维分析表：维度 | 观察 | 分析 | 评分 | 对比
+
+    - 触动解剖：场景 | 情绪触发 | 认知冲突 | 我的映射 | 行动启示
+
+    - 导演手札：隐藏表达 | 技术巧思 | 文化引用 | 致敬/隐喻
+
+    - 角色替代：关键决策 | 原选择 | 我的选择 | 结果推演 | 现实应用
+
+    '
+  variables:
+  - name: film_info
+    description: 片名和导演
+    required: true
+  - name: genre_theme
+    description: 类型和主题
+    required: true
+  - name: touching_scenes
+    description: 最触动的场景
+    required: true
+  - name: real_life
+    description: 联想到的现实问题或经历
+    required: false
+    default_value: （请从主题推导通用映射）
+  intent_tags:
+  - 观影笔记
+  - 电影复盘
+  - 影评
+  - 观后感
+  - 影视分析
+  - 文化消费
+  difficulty: intermediate
+  quality_score: 0.9
+- id: daily_summary_010
+  domain: daily
+  sub_domain: daily_summary
+  title: 旅行回来不白去：旅行复盘
+  template: '你是一位旅行体验设计师，相信"旅行的价值在回来后才开始兑现"。
+
+
+    旅行信息：
+
+    - 目的地与时长：{trip_info}
+
+    - 高光时刻：{highlights}
+
+    - 遗憾/意外：{regrets}
+
+    - 花费明细（选填）：{expenses}
+
+
+    请帮我：
+
+    1. 按"体验→知识→关系→自我"四维度提取旅行价值
+
+    2. 把高光时刻变成"可复用的旅行方法论"
+
+    3. 标出"下次必须带/必须做/必须避"的3个清单
+
+    4. 给出"旅行记忆存档"方案（照片/文字/物品/人脉）
+
+
+    输出格式：
+
+    - 四维价值表：维度 | 收获 | 可复用 | 可分享 | 可深化
+
+    - 方法论提取：成功要素 | 失败教训 | 优化假设 | 验证计划
+
+    - 三清单：必带 | 必做 | 必避（各5项，附理由）
+
+    - 记忆存档：照片故事集 | 文字札记 | 纪念品清单 | 人脉跟进
+
+    '
+  variables:
+  - name: trip_info
+    description: 目的地和旅行时长
+    required: true
+  - name: highlights
+    description: 旅行中的高光时刻
+    required: true
+  - name: regrets
+    description: 遗憾或意外
+    required: true
+  - name: expenses
+    description: 花费明细
+    required: false
+    default_value: （用户未提供，不做财务复盘）
+  intent_tags:
+  - 旅行复盘
+  - 旅行总结
+  - 游记
+  - 旅行攻略
+  - 体验设计
+  - 旅行记忆
+  difficulty: beginner
+  quality_score: 0.89
+- id: daily_summary_011
+  domain: daily
+  sub_domain: daily_summary
+  title: 财务月结：钱去哪了真相报告
+  template: '你是一位家庭CFO，擅长用数据讲清楚"钱到底去哪了"的故事。
+
+
+    本月财务：
+
+    - 收入明细：{income}
+
+    - 支出分类：{expenses}
+
+    - 预算对比：{budget_vs_actual}
+
+    - 大额/意外支出（选填）：{big_expenses}
+
+
+    请帮我：
+
+    1. 按"必要→需要→想要→浪费"四级重新分类所有支出
+
+    2. 找出"预算刺客"（看似小额但累计惊人的类别）
+
+    3. 标出"情绪消费"和"社交压力消费"的蛛丝马迹
+
+    4. 给出下月"3个节流动作+1个开源尝试"
+
+
+    输出格式：
+
+    - 四级支出表：类别 | 金额 | 占比 | 预算 | 偏差 | 评级
+
+    - 预算刺客榜：Top3刺客 | 单次金额 | 频次 | 累计 | 替代方案
+
+    - 消费情绪分析：高情绪消费场景 | 触发器 | 替代满足方式
+
+    - 下月处方：节流动作 | 开源尝试 | 储蓄目标 | 投资动作
+
+    '
+  variables:
+  - name: income
+    description: 本月收入明细
+    required: true
+  - name: expenses
+    description: 本月支出分类明细
+    required: true
+  - name: budget_vs_actual
+    description: 预算与实际对比
+    required: true
+  - name: big_expenses
+    description: 大额或意外支出
+    required: false
+    default_value: 无
+  intent_tags:
+  - 财务复盘
+  - 月度账单
+  - 理财总结
+  - 开支分析
+  - 预算
+  - 记账
+  difficulty: beginner
+  quality_score: 0.91
+- id: daily_summary_012
+  domain: daily
+  sub_domain: daily_summary
+  title: 情绪日记：今天心情的X光片
+  template: '你是一位情绪管理师，擅长帮人用"第三只眼"看见情绪背后的需求。
+
+
+    今日情绪：
+
+    - 主要情绪：{main_emotion}
+
+    - 触发事件：{trigger_event}
+
+    - 身体反应：{physical_response}
+
+    - 应对方式（选填）：{coping}
+
+
+    请帮我：
+
+    1. 用"情绪冰山模型"拆解：表面情绪→深层需求→核心信念
+
+    2. 区分"事实"和"对事实的解读"，还原真相
+
+    3. 标出"情绪升级路径"（从0到10的引爆点）
+
+    4. 给出"下次遇到类似情况"的3种替代反应
+
+
+    输出格式：
+
+    - 情绪X光：情绪名称 | 强度 | 触发器 | 身体信号 | 持续时间
+
+    - 冰山拆解：表面情绪 | 深层需求 | 核心信念 | 童年渊源（如明显）
+
+    - 事实vs解读：客观事实 | 我的解读 | 其他可能 | 证据检验
+
+    - 替代反应：原反应 | 替代A | 替代B | 替代C | 预演脚本
+
+    '
+  variables:
+  - name: main_emotion
+    description: 今天的主要情绪，如：焦虑/愤怒/失落/兴奋
+    required: true
+  - name: trigger_event
+    description: 触发情绪的事件
+    required: true
+  - name: physical_response
+    description: 身体的反应，如：胸闷/手抖/失眠/食欲变化
+    required: true
+  - name: coping
+    description: 当时的应对方式
+    required: false
+    default_value: （用户未提供，分析常见模式）
+  intent_tags:
+  - 情绪日记
+  - 情绪管理
+  - 心理健康
+  - 情绪复盘
+  - 自我觉察
+  - 心理咨询
+  difficulty: intermediate
+  quality_score: 0.92
+- id: daily_summary_013
+  domain: daily
+  sub_domain: daily_summary
+  title: 工作周报：让老板一眼看见价值
+  template: '你是一位职场写作教练，深知"周报不是流水账，是向上管理的武器"。
+
+
+    本周工作：
+
+    - 本周完成事项：{completed}
+
+    - 进行中事项：{in_progress}
+
+    - 遇到的问题：{problems}
+
+    - 下周计划（选填）：{next_week}
+
+
+    请帮我：
+
+    1. 按"成果→过程→风险→需求"结构重写周报
+
+    2. 每个成果用"动词+数据+影响"公式表达
+
+    3. 标出需要"老板决策"和"只需老板知情"的事项
+
+    4. 给出"下周计划"的3个层级（必须做/应该做/可以做）
+
+
+    输出格式：
+
+    - 成果区：事项 | 动作 | 数据 | 业务影响 | 对标预期
+
+    - 进行中区：事项 | 进度 | 风险 | 需支持 | 预计完成
+
+    - 问题区：问题 | 影响 | 已尝试 | 需决策 | 建议方案
+
+    - 下周计划：必须 | 应该 | 可以（附资源需求）
+
+    '
+  variables:
+  - name: completed
+    description: 本周完成的事项
+    required: true
+  - name: in_progress
+    description: 进行中事项
+    required: true
+  - name: problems
+    description: 遇到的问题或卡点
+    required: true
+  - name: next_week
+    description: 下周计划
+    required: false
+    default_value: （基于本周进展推导）
+  intent_tags:
+  - 工作周报
+  - 周报
+  - 向上管理
+  - 工作总结
+  - 职场写作
+  - 汇报
+  difficulty: beginner
+  quality_score: 0.93
+- id: daily_summary_014
+  domain: daily
+  sub_domain: daily_summary
+  title: 学习复盘：这课到底值不值
+  template: '你是一位学习效能分析师，擅长判断"学习时间花得值不值"。
+
+
+    学习信息：
+
+    - 学习内容：{learning_content}
+
+    - 投入时间：{time_invested}
+
+    - 掌握程度自评：{self_assessment}
+
+    - 应用场景（选填）：{application}
+
+
+    请帮我：
+
+    1. 按"输入→加工→输出→应用"四环评估学习效率
+
+    2. 用"费曼检验"判断是真懂还是假懂
+
+    3. 标出"学习时间黑洞"（重复阅读/无效笔记/被动听课）
+
+    4. 给出"知识封装"方案（如何变成可快速调用的模块）
+
+
+    输出格式：
+
+    - 四环评估：输入质量 | 加工深度 | 输出频次 | 应用距离 | 综合评分
+
+    - 费曼检验：概念 | 我的解释 | 卡壳点 | 回补动作
+
+    - 黑洞分析：黑洞类型 | 浪费时长 | 替代方案 | 节省潜力
+
+    - 知识封装：模块名称 | 使用场景 | 调用关键词 | 关联知识
+
+    '
+  variables:
+  - name: learning_content
+    description: 学习的内容或课程
+    required: true
+  - name: time_invested
+    description: 投入的时间
+    required: true
+  - name: self_assessment
+    description: 自我评估的掌握程度
+    required: true
+  - name: application
+    description: 计划或已经的应用场景
+    required: false
+    default_value: （请推导可能的应用场景）
+  intent_tags:
+  - 学习复盘
+  - 学习总结
+  - 学习效率
+  - 知识管理
+  - 学习评估
+  - 费曼技巧
+  difficulty: intermediate
+  quality_score: 0.92
+- id: daily_summary_015
+  domain: daily
+  sub_domain: daily_summary
+  title: 失败复盘：把坑变成台阶
+  template: '你是一位失败转化专家，相信"每一次失败都是一次免费的高级咨询"。
+
+
+    失败事件：
+
+    - 事情经过：{what_happened}
+
+    - 预期结果：{expected}
+
+    - 实际结果：{actual}
+
+    - 我的角色：{my_role}
+
+
+    请帮我：
+
+    1. 按"事实→归因→责任→教训→行动"五步做深度复盘
+
+    2. 区分"可控因素"和"不可控因素"，不揽锅也不甩锅
+
+    3. 标出"早期预警信号"（本来可以避免的转折点）
+
+    4. 给出"失败经验产品化"方案（如何帮别人避开这个坑）
+
+
+    输出格式：
+
+    - 事实还原：时间线 | 关键决策 | 外部变化 | 我的反应
+
+    - 归因矩阵：可控/不可控 × 内部/外部，每个象限填要素
+
+    - 预警信号：信号 | 出现时间 | 我当时反应 | 如果重来
+
+    - 经验产品：坑名 | 场景 | 避坑指南 | 急救方案 | 分享价值
+
+    '
+  variables:
+  - name: what_happened
+    description: 事情的完整经过
+    required: true
+  - name: expected
+    description: 原本期望的结果
+    required: true
+  - name: actual
+    description: 实际发生的结果
+    required: true
+  - name: my_role
+    description: 自己在事件中的角色
+    required: true
+  intent_tags:
+  - 失败复盘
+  - 挫折复盘
+  - 教训总结
+  - 成长思维
+  - 逆境
+  - 经验提取
+  difficulty: intermediate
+  quality_score: 0.94
+- id: daily_summary_016
+  domain: daily
+  sub_domain: daily_summary
+  title: 成功复盘：为什么这次成了
+  template: '你是一位成功复制专家，深知"成功如果不被解构，就是运气；被解构了，就是方法论"。
+
+
+    成功事件：
+
+    - 事情经过：{what_happened}
+
+    - 关键动作：{key_actions}
+
+    - 外部支持：{external_support}
+
+    - 当时心态：{mindset}
+
+
+    请帮我：
+
+    1. 按"天时→地利→人和→己为"四维度拆解成功要素
+
+    2. 找出"可复制"和"不可复制"的部分，避免幸存者偏差
+
+    3. 标出"差点搞砸的转折点"和"力挽狂澜的动作"
+
+    4. 给出"成功SOP"（如何把这次成功变成可重复的能力）
+
+
+    输出格式：
+
+    - 四维拆解：天时 | 地利 | 人和 | 己为（各3个要素+权重）
+
+    - 可复制性分析：要素 | 可复制度 | 复制成本 | 前提条件 | 首次尝试
+
+    - 惊险时刻：转折点 | 风险等级 | 应对动作 | 如果失败
+
+    - 成功SOP：场景 | 触发条件 | 标准动作 | 检查点 | 成功指标
+
+    '
+  variables:
+  - name: what_happened
+    description: 成功事件的经过
+    required: true
+  - name: key_actions
+    description: 自己认为的关键动作
+    required: true
+  - name: external_support
+    description: 外部支持或有利条件
+    required: true
+  - name: mindset
+    description: 当时的心态或状态
+    required: false
+    default_value: （请从描述中推断）
+  intent_tags:
+  - 成功复盘
+  - 胜利复盘
+  - 方法论
+  - 经验复制
+  - 成功学
+  - 最佳实践
+  difficulty: intermediate
+  quality_score: 0.93
+- id: daily_summary_017
+  domain: daily
+  sub_domain: daily_summary
+  title: 关系复盘：这段关系给我带来了什么
+  template: '你是一位关系心理学家，擅长帮人在不伤害关系的前提下做"关系体检"。
+
+
+    关系信息：
+
+    - 关系对象：{relationship}
+
+    - 关系时长：{duration}
+
+    - 近期互动：{recent_interactions}
+
+    - 我的感受（选填）：{feelings}
+
+
+    请帮我：
+
+    1. 按"能量→成长→支持→冲突→未来"五维做关系评估
+
+    2. 区分"我的需求"和"对方能给的部分"，调整期待
+
+    3. 标出"关系中的隐性契约"（没说出口但双方在遵守的规则）
+
+    4. 给出"关系升级/维持/降级/退出"的决策框架
+
+
+    输出格式：
+
+    - 五维评估：维度 | 评分 | 证据 | 趋势 | 我的贡献
+
+    - 需求匹配：我的需求 | 对方供给 | 匹配度 | 调整建议
+
+    - 隐性契约：规则 | 来源 | 双方遵守度 | 健康度 | 是否显性化
+
+    - 关系决策：升级路径 | 维持要点 | 降级信号 | 退出条件
+
+    '
+  variables:
+  - name: relationship
+    description: 关系对象，如：伴侣/同事/朋友/家人/导师
+    required: true
+  - name: duration
+    description: 关系持续时间
+    required: true
+  - name: recent_interactions
+    description: 近期3次重要互动
+    required: true
+  - name: feelings
+    description: 对这段关系的整体感受
+    required: false
+    default_value: （请从互动中推断）
+  intent_tags:
+  - 关系复盘
+  - 人际关系
+  - 情感复盘
+  - 社交反思
+  - 关系管理
+  - 心理成长
+  difficulty: intermediate
+  quality_score: 0.91
+- id: daily_summary_018
+  domain: daily
+  sub_domain: daily_summary
+  title: 健康复盘：身体这个月的表现
+  template: '你是一位健康数据分析师，擅长把"身体感觉"翻译成"可行动的健康信号"。
+
+
+    本月健康：
+
+    - 身体数据：{body_data}
+
+    - 运动记录：{exercise}
+
+    - 饮食概况：{diet}
+
+    - 睡眠状况：{sleep}
+
+
+    请帮我：
+
+    1. 按"运动→饮食→睡眠→压力→体检"五维做健康评分
+
+    2. 找出"健康债"（正在透支但还没爆发的问题）
+
+    3. 标出"小胜利"（值得坚持的好习惯）和"危险信号"
+
+    4. 给出下月"1个必改动作+2个强化动作+1个监测指标"
+
+
+    输出格式：
+
+    - 五维评分：维度 | 本月数据 | 上月对比 | 目标 | 评分 | 诊断
+
+    - 健康债表：问题 | 透支程度 | 爆发风险 | 还款计划 | 优先级
+
+    - 胜利与信号：小胜利 | 强化方案 | 危险信号 | 预警阈值 | 应对
+
+    - 下月处方：必改 | 强化 | 监测 | 资源 | 预期改善
+
+    '
+  variables:
+  - name: body_data
+    description: 体重、体脂、血压等身体数据
+    required: true
+  - name: exercise
+    description: 本月运动记录
+    required: true
+  - name: diet
+    description: 本月饮食概况
+    required: true
+  - name: sleep
+    description: 睡眠状况
+    required: true
+  intent_tags:
+  - 健康复盘
+  - 健康总结
+  - 身体管理
+  - 运动复盘
+  - 饮食复盘
+  - 睡眠
+  difficulty: beginner
+  quality_score: 0.9
+- id: daily_summary_019
+  domain: daily
+  sub_domain: daily_summary
+  title: 决策复盘：当时为什么那么选
+  template: '你是一位决策科学家，擅长用"决策树"还原当时的思考过程并优化。
+
+
+    决策信息：
+
+    - 决策场景：{decision_scene}
+
+    - 可选方案：{options}
+
+    - 最终选择：{final_choice}
+
+    - 实际结果：{outcome}
+
+
+    请帮我：
+
+    1. 还原"当时的决策树"：信息集→评估标准→权重→选择
+
+    2. 用"事前预测vs事后结果"对比，找出认知偏差
+
+    3. 标出"信息盲区"（当时不知道但应该知道的事）
+
+    4. 给出"同类决策的升级框架"（下次怎么做更好）
+
+
+    输出格式：
+
+    - 决策树还原：目标 | 标准 | 权重 | 选项A/B/C评分 | 选择逻辑
+
+    - 偏差分析：偏差类型 | '
+  variables:
+  - name: decision_scene
+    description: 变量 decision_scene
+    required: true
+  - name: options
+    description: 变量 options
+    required: true
+  - name: final_choice
+    description: 变量 final_choice
+    required: true
+  - name: outcome
+    description: 变量 outcome
+    required: true
+  intent_tags:
+  - 决策复盘：当时为什么
+  - daily_summary
+  difficulty: intermediate
+  quality_score: 0.85

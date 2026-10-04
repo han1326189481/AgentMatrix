@@ -1,0 +1,46 @@
+# AgentMatrix Backend Dependencies
+# Python 3.13 (verified 2026-09-22 on .venv313; minimum 3.10)
+# Install: pip install -r requirements.txt
+
+# ── Web Framework ──
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+starlette
+python-socketio
+
+# ── Data Validation & Config ──
+pydantic>=2.6.0
+pydantic-settings
+python-dotenv
+PyYAML
+
+# ── Database ──
+sqlalchemy>=2.0.0
+# MySQL support (optional, SQLite is used by default)
+pymysql
+cryptography
+
+# ── HTTP Clients ──
+httpx
+aiohttp
+requests
+
+# ── System Monitoring ──
+psutil
+
+# ── Export: Fallback Libraries (optional, used when pandoc/marp/markmap are not installed) ──
+python-docx
+python-pptx
+pyecharts
+# pypandoc_binary bundles the pandoc binary — no separate pandoc installation needed
+pypandoc_binary
+
+# ── Optional: Skill Graph similarity computation ──
+numpy
+
+# ── Code Retrieval: jCodeMunch MCP (AST-based code search) ──
+jcodemunch-mcp
+
+# ── Dev / Testing (not required for runtime) ──
+# pytest
+# pytest-asyncio

@@ -1,0 +1,95 @@
+﻿py : 2026-08-17 13:36:36,758 [validate] INFO: 项目路径: D:\AgentMatrix
+At line:15 char:3472
++ ... win32\lib"; py -3.11 -u scripts\validate_codemunch.py > D:\AgentMatri ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (2026-08-17 13:3... D:\AgentMatrix:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+2026-08-17 13:36:36,758 [core.llm.code_munch_plugin] INFO: CodeMunchPlugin created: project_path=D:\AgentMatrix
+2026-08-17 13:36:36,758 [validate] INFO: === Step 1: 初始化 ===
+2026-08-17 13:36:37,461 [core.llm.code_munch_plugin] INFO: [CodeMunch] 通过 MCP SDK 建立 stdio 连接...
+jcodemunch-mcp 1.108.282 by jgravelle · https://github.com/jgravelle/jcodemunch-mcp
+2026-08-17 13:36:39,363 [core.llm.code_munch_plugin] INFO: [CodeMunch] MCP 会话初始化成功
+2026-08-17 13:36:39,468 [core.llm.code_munch_plugin] DEBUG: [CodeMunch] order 原始响应: {"found":true,"indexed":true,"repo"
+:"han1326189481/AgentMatrix","index_present":true,"loadable":true,"status":"loadable","backend":"sqlite","source_root":
+"D:\\AgentMatrix","display_name":"AgentMatrix"
+2026-08-17 13:36:39,468 [core.llm.code_munch_plugin] INFO: [CodeMunch] 仓库已解析: repo=han1326189481/AgentMatrix, indexed=T
+rue
+2026-08-17 13:36:39,468 [validate] INFO: repo_id=han1326189481/AgentMatrix, indexed=True
+2026-08-17 13:36:39,468 [validate] INFO: === Step 2: 索引（已跳过，已索引）===
+2026-08-17 13:36:39,468 [validate] INFO: === Step 3: get_repo_map ===
+2026-08-17 13:36:51,767 [core.llm.code_munch_plugin] DEBUG: [CodeMunch] order 原始响应: {"files":[{"path":"backend/libs/sql
+alchemy/__init__.py","rank":1,"score":0.015645,"in_degree":151,"tokens":6,"symbols":[{"id":"backend/libs/sqlalchemy/__i
+nit__.py::__go#function","name":"__go","kind":
+2026-08-17 13:36:51,767 [validate] INFO: === Step 4: search_symbols ===
+2026-08-17 13:36:57,981 [core.llm.code_munch_plugin] DEBUG: [CodeMunch] order 原始响应: #MUNCH/1 tool=search_symbols enc=ss
+1
+
+@1=backend/core/llm/code_munch_plugin.py
+@2=backend/libs/jcodemunch_mcp/org/license.py
+
+result_count=10 __stypes=result_count:int __tables=s:results:id|name|kind|
+2026-08-17 13:36:57,981 [validate] WARNING: 搜索 'CodeMunchPlugin': 无结果
+2026-08-17 13:36:58,004 [core.llm.code_munch_plugin] DEBUG: [CodeMunch] order 原始响应: #MUNCH/1 tool=search_symbols enc=ss
+1
+
+@1=backend/libs/jcodemunch_mcp/tools/search_symbols.py
+@2=backend/libs/jcodemunch_mcp/encoding/schemas/search_symbols.py
+
+result_count=10 __stypes=result_count:in
+2026-08-17 13:36:58,004 [validate] WARNING: 搜索 'search_symbols': 无结果
+2026-08-17 13:36:58,027 [core.llm.code_munch_plugin] DEBUG: [CodeMunch] order 原始响应: {"result_count":10,"results":[{"id"
+:"backend/models/workflow.py::WorkflowInput#class","kind":"class","name":"WorkflowInput","file":"backend/models/workflo
+w.py","line":6,"signature":"class WorkflowInpu
+2026-08-17 13:36:58,027 [validate] WARNING: 搜索 'WorkflowInput': 无结果
+2026-08-17 13:36:58,027 [validate] INFO: === Step 5: get_symbol_source ===
+2026-08-17 13:36:58,031 [core.llm.code_munch_plugin] DEBUG: [CodeMunch] order 原始响应: #MUNCH/1 tool=search_symbols enc=ss
+1
+
+@1=backend/core/llm/code_munch_plugin.py
+@2=backend/libs/jcodemunch_mcp/org/license.py
+
+result_count=10 __stypes=result_count:int __tables=s:results:id|name|kind|
+2026-08-17 13:36:58,031 [validate] INFO: === Step 6: search_and_extract ===
+2026-08-17 13:36:58,041 [core.llm.code_munch_plugin] DEBUG: [CodeMunch] order 原始响应: #MUNCH/1 tool=search_symbols enc=ss
+1
+
+@1=backend/core/llm/code_munch_plugin.py
+@2=backend/libs/jcodemunch_mcp/org/license.py
+
+result_count=10 __stypes=result_count:int __tables=s:results:id|name|kind|
+2026-08-17 13:36:58,041 [validate] INFO: used=False, symbols=0, sources=0, knowledge_items=0
+2026-08-17 13:36:58,041 [validate] WARNING: error: 未找到匹配的代码符号
+2026-08-17 13:36:58,041 [validate] INFO: === 验证完成 ===
+2026-08-17 13:36:58,754 [asyncio] ERROR: unhandled exception during asyncio.run() shutdown
+task: <Task finished name='Task-10' coro=<<async_generator_athrow without __name__>()> exception=RuntimeError('Attempte
+d to exit cancel scope in a different task than it was entered in')>
+  + Exception Group Traceback (most recent call last):
+  |   File "D:\AgentMatrix\backend\libs\anyio\_backends\_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  | BaseExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "D:\AgentMatrix\backend\libs\mcp\client\stdio\__init__.py", line 189, in stdio_client
+    |     yield read_stream, write_stream
+    | asyncio.exceptions.CancelledError
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "D:\AgentMatrix\backend\libs\mcp\client\stdio\__init__.py", line 197, in stdio_client
+    |     await process.stdin.aclose()
+    | GeneratorExit
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\AgentMatrix\backend\libs\mcp\client\stdio\__init__.py", line 182, in stdio_client
+    async with (
+  File "D:\AgentMatrix\backend\libs\anyio\_backends\_asyncio.py", line 821, in __aexit__
+    if self.cancel_scope.__exit__(type(exc), exc, exc.__traceback__):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\AgentMatrix\backend\libs\anyio\_backends\_asyncio.py", line 464, in __exit__
+    raise RuntimeError(
+RuntimeError: Attempted to exit cancel scope in a different task than it was entered in

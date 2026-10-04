@@ -1,0 +1,127 @@
+# ============================================================
+# Skill Engine V2 — Review Agent 基础评分配置
+# ============================================================
+# 定义 6 维评审体系的基础权重和评分规则
+# 评审维度: accuracy / professional / completeness / reasoning / structure / actionable
+# ============================================================
+
+# 评分维度及默认权重（总和=1.0）
+dimensions:
+  accuracy:
+    weight: 0.25
+    description: "内容准确性 — 事实是否正确、信息是否准确"
+    min_score: 0.0
+    max_score: 1.0
+  professional:
+    weight: 0.20
+    description: "专业性 — 术语使用、行业深度、专业水准"
+    min_score: 0.0
+    max_score: 1.0
+  completeness:
+    weight: 0.20
+    description: "完整性 — 是否覆盖用户问题的所有方面"
+    min_score: 0.0
+    max_score: 1.0
+  reasoning:
+    weight: 0.15
+    description: "逻辑性 — 论证链条是否清晰、推理是否合理"
+    min_score: 0.0
+    max_score: 1.0
+  structure:
+    weight: 0.10
+    description: "结构性 — 内容组织、层次、格式规范性"
+    min_score: 0.0
+    max_score: 1.0
+  actionable:
+    weight: 0.10
+    description: "可执行性 — 建议是否具体可操作、是否有实用价值"
+    min_score: 0.0
+    max_score: 1.0
+
+# 综合评分阈值
+# V2.4 (2026-07-30): weak_threshold 从 0.70 → 0.60
+#   原因: completeness 基础分 0.65 天然 < 0.70，导致几乎所有回答都被标记为弱维度，
+#         形成「弱维度多 → 难度反向加成 → 更易触发云端增强」的恶性反馈环。
+#         降到 0.60 后，只有真正低于 0.60 的维度才被判弱，避免误判。
+scoring:
+  pass_threshold: 0.65        # 整体通过阈值
+  weak_threshold: 0.60        # 单维度弱项阈值 (< 0.60 标记为弱维度)
+  excellent_threshold: 0.85   # 优秀阈值
+  min_acceptable_score: 0.40  # 最低可接受分数
+
+# 内容长度评分调整
+length_scoring:
+  - threshold: 50
+    operator: "<"
+    adjustments:
+      completeness: -0.25
+      reasoning: -0.15
+    issues: ["内容过短，缺乏完整性"]
+  - threshold: 150
+    operator: "<"
+    adjustments:
+      completeness: -0.10
+  - threshold: 500
+    operator: ">"
+    adjustments:
+      completeness: 0.10
+      structure: 0.05
+  - threshold: 1000
+    operator: ">"
+    adjustments:
+      completeness: 0.15
+      professional: 0.05
+
+# Markdown 格式检测
+markdown_checks:
+  - pattern: "#{1,3}\\s"
+    bonus:
+      structure: 0.15
+      professional: 0.05
+    description: "使用 Markdown 标题分级"
+  - pattern: "\\*\\*|__"
+    bonus:
+      structure: 0.05
+    description: "使用加粗强调"
+  - pattern: "- |\\* |\\d+\\."
+    bonus:
+      structure: 0.10
+    description: "使用列表组织"
+
+# 简单对话快速评分
+simple_conversation:
+  dimensions:
+    accuracy: 0.90
+    professional: 0.85
+    completeness: 0.80
+    reasoning: 0.85
+    structure: 0.80
+    actionable: 0.85
+  weighted_score: 0.85
+  difficulty_threshold: 0.15
+  difficulty_level: "simple"
+  pass: true
+
+# 模板化内容检测（自动扣分项）
+template_detection:
+  patterns:
+    - "任务概述"
+    - "核心需求"
+    - "解决方案"
+    - "实施计划"
+  penalty:
+    structure: -0.15
+    professional: -0.10
+  min_header_count: 3  # 至少匹配3个模板标题才触发
+
+# 电子邮件格式检测
+email_detection:
+  patterns:
+    - "From:"
+    - "To:"
+    - "Subject:"
+    - "Date:"
+  bonus:
+    structure: 0.10
+    professional: 0.05
+  min_match_count: 2

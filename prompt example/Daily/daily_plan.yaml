@@ -1,0 +1,811 @@
+- id: daily_plan_001
+  domain: daily
+  sub_domain: daily_plan
+  title: "早起不迷茫：晨间10分钟规划"
+  template: |
+    你是一位时间管理教练，擅长帮人用10分钟把一天从"混乱"变"清晰"。
+    
+    我的信息：
+    - 今天最重要的3件事：{top3_tasks}
+    - 可用时间段：{time_slots}
+    - 精力高峰/低谷（选填）：{energy_pattern}
+    
+    请帮我：
+    1. 按"优先级→时间块→缓冲带"生成今日执行地图
+    2. 给出每个时间块的"启动话术"，降低行动阻力
+    3. 标出必须预留的"防打断时间"和"应急窗口"
+    4. 如果任务超时，给出3种降级方案
+    
+    输出格式：
+    - 时间轴表格：时间段 | 任务 | 预计时长 | 启动话术
+    - 附"今日不做的清单"（明确边界，防止过度承诺）
+    - 附"晚间复盘检查点"（3个 yes/no 问题）
+  variables:
+    - name: top3_tasks
+      description: "今天必须完成的3件最重要的事"
+      required: true
+    - name: time_slots
+      description: "今天可用的时间段，如：9:00-12:00, 14:00-18:00"
+      required: true
+    - name: energy_pattern
+      description: "精力分布，如：上午高、下午低、晚上回升"
+      required: false
+      default_value: "（用户未提供，按常规上午高效处理）"
+  intent_tags: ["晨间计划", "日程规划", "时间管理", "每日计划", "待办清单", "效率"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: daily_plan_002
+  domain: daily
+  sub_domain: daily_plan
+  title: "打工人的救命周计划"
+  template: |
+    你是一位职场效率顾问，专治"周一茫然、周五崩溃"的打工人。
+    
+    我的信息：
+    - 本周核心目标：{weekly_goal}
+    - 固定会议/事务：{fixed_commitments}
+    - 个人提升事项（选填）：{growth_tasks}
+    
+    请帮我：
+    1. 按"战略日→执行日→缓冲日"划分周一至周五的节奏
+    2. 每天只设1个"主线任务"+2个"支线任务"，防止贪多
+    3. 标出需要提前准备的"前置动作"（如周三汇报需周二做PPT）
+    4. 给出周五下午"收尾仪式"的标准流程
+    
+    输出格式：
+    - 周一至周五每日一页：主线/支线/前置/风险
+    - 附"周中检查点"（周三中午快速校准清单）
+    - 附"下周种子清单"（本周涌现的新任务暂存区）
+  variables:
+    - name: weekly_goal
+      description: "本周最想达成的1个核心目标"
+      required: true
+    - name: fixed_commitments
+      description: "本周已确定的会议、约会等固定占用时间的事项"
+      required: true
+    - name: growth_tasks
+      description: "本周计划的个人学习或提升事项"
+      required: false
+      default_value: "（用户未提供，预留30分钟学习窗口）"
+  intent_tags: ["周计划", "职场效率", "工作计划", "时间管理", "目标拆解"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: daily_plan_003
+  domain: daily
+  sub_domain: daily_plan
+  title: "月度OKR拆解：从口号到动作"
+  template: |
+    你是一位OKR落地专家，擅长把"月度目标"拆成"每天能打卡的动作"。
+    
+    我的信息：
+    - 月度O（目标）：{monthly_objective}
+    - 关键结果KR：{key_results}
+    - 当前资源/限制：{constraints}
+    
+    请帮我：
+    1. 将每条KR拆成4周的"周里程碑"
+    2. 每周再拆成"每日最小行动单元"（15-30分钟可完成）
+    3. 标出需要"外部依赖"或"他人协作"的关键节点
+    4. 给出每周五"进度校准会"的3个必问问题
+    
+    输出格式：
+    - 4周甘特图风格：周次 | KR进展 | 关键行动 | 风险信号
+    - 每日行动卡片：动作名称 | 预计时长 | 完成标准 | 失败预案
+    - 附"月度仪表盘"（5个核心指标追踪表）
+  variables:
+    - name: monthly_objective
+      description: "本月要达成的核心目标（Objective）"
+      required: true
+    - name: key_results
+      description: "衡量目标达成的3-5个关键结果（KR）"
+      required: true
+    - name: constraints
+      description: "当前的时间、预算、人力等限制条件"
+      required: false
+      default_value: "（用户未提供，按单人单线程规划）"
+  intent_tags: ["OKR", "月度计划", "目标管理", "目标拆解", "绩效", "工作规划"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: daily_plan_004
+  domain: daily
+  sub_domain: daily_plan
+  title: "说走就走的旅行计划生成器"
+  template: |
+    你是一位资深旅行规划师，能在10分钟内把"想去"变成"出发"。
+    
+    我的信息：
+    - 目的地：{destination}
+    - 出行天数：{duration}
+    - 预算范围：{budget}
+    - 旅行风格（选填）：{travel_style}
+    
+    请帮我：
+    1. 按"抵达→探索→深度→返程"设计每日动线
+    2. 每天安排"1个必打卡+2个顺路点+1个备选"，防止行程太满
+    3. 标出需要提前预约的景点/餐厅/体验
+    4. 给出"交通接驳方案"和"当地应急信息"
+    
+    输出格式：
+    - 每日行程卡：上午 | 下午 | 晚上 | 交通 | 预算
+    - 附"行李清单"（按天气和行程自动生成）
+    - 附"备用方案"（雨天/闭馆/体力不支时的替代路线）
+  variables:
+    - name: destination
+      description: "旅行目的地"
+      required: true
+    - name: duration
+      description: "出行天数"
+      required: true
+    - name: budget
+      description: "预算范围，如：人均3000元"
+      required: true
+    - name: travel_style
+      description: "旅行偏好，如：特种兵/休闲游/美食探店/文化深度"
+      required: false
+      default_value: "休闲游"
+  intent_tags: ["旅行计划", "旅游攻略", "行程规划", "出游", "自由行", "旅行"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: daily_plan_005
+  domain: daily
+  sub_domain: daily_plan
+  title: "30天技能突击学习计划"
+  template: |
+    你是一位学习科学专家，擅长设计"高强度但可持续"的短期技能冲刺计划。
+    
+    我的信息：
+    - 学习目标：{learning_goal}
+    - 当前水平：{current_level}
+    - 每日可投入时间：{daily_time}
+    - 可用资源（选填）：{resources}
+    
+    请帮我：
+    1. 按"基础期→强化期→实战期→复盘期"划分4周
+    2. 每天给出"输入→输出→检验"的闭环学习动作
+    3. 标出需要"刻意练习"而非"被动阅读"的关键日
+    4. 给出每周"里程碑测试"和"失败补救方案"
+    
+    输出格式：
+    - 30天日历视图：日期 | 学习模块 | 具体动作 | 预计时长 | 输出物
+    - 附"学习资源清单"（书籍/课程/工具/社区）
+    - 附"防放弃机制"（第3天/第10天/第20天的倦怠应对策略）
+  variables:
+    - name: learning_goal
+      description: "想学习的技能或知识，如：Python入门、摄影构图"
+      required: true
+    - name: current_level
+      description: "当前水平，如：完全零基础/有理论基础/练过但荒废"
+      required: true
+    - name: daily_time
+      description: "每天可投入的学习时间"
+      required: true
+    - name: resources
+      description: "已有或计划使用的学习资源"
+      required: false
+      default_value: "（用户未提供，推荐通用优质资源）"
+  intent_tags: ["学习计划", "技能提升", "自我提升", "学习规划", "30天挑战", "刻意练习"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: daily_plan_006
+  domain: daily
+  sub_domain: daily_plan
+  title: "健身小白的第一张训练表"
+  template: |
+    你是一位NSCA认证私人教练，擅长给零基础学员设计"不受伤、能坚持"的入门计划。
+    
+    我的信息：
+    - 健身目标：{fitness_goal}
+    - 身体状况：{physical_condition}
+    - 可用器械：{equipment}
+    - 每周可练天数：{weekly_days}
+    
+    请帮我：
+    1. 按"适应期→基础期→进阶期"设计4-8周渐进计划
+    2. 每次训练给出"热身→主训→冷身"的完整流程
+    3. 标出需要"动作录像自查"或"请教练纠正"的高风险动作
+    4. 给出"饮食配合建议"和"休息恢复方案"
+    
+    输出格式：
+    - 每周训练表：日期 | 部位 | 动作 | 组数×次数 | 休息时间 | 备注
+    - 附"动作图解说明"（关键发力点和常见错误）
+    - 附"进度记录表"（体重/围度/力量/体能4维度）
+  variables:
+    - name: fitness_goal
+      description: "健身目标，如：减脂/增肌/塑形/提升体能"
+      required: true
+    - name: physical_condition
+      description: "身体状况，如：无运动经验/有旧伤/轻度肥胖"
+      required: true
+    - name: equipment
+      description: "可用器械，如：居家无器械/健身房/哑铃"
+      required: true
+    - name: weekly_days
+      description: "每周可训练天数"
+      required: true
+  intent_tags: ["健身计划", "运动计划", "减脂", "增肌", "训练计划", "健身入门"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: daily_plan_007
+  domain: daily
+  sub_domain: daily_plan
+  title: "家庭月度开支预算管家"
+  template: |
+    你是一位家庭理财规划师，擅长把"糊涂账"变成"可控的现金流地图"。
+    
+    我的信息：
+    - 家庭月收入：{monthly_income}
+    - 固定支出项：{fixed_expenses}
+    - 储蓄目标（选填）：{savings_goal}
+    - 特殊月份支出（选填）：{special_expenses}
+    
+    请帮我：
+    1. 按"必要支出→储蓄投资→弹性消费→娱乐享受"设计预算分配
+    2. 给出每周"花钱检查点"，防止月初大手大脚月底吃土
+    3. 标出容易超支的"黑洞类别"和预警阈值
+    4. 给出"意外支出"的3级应急预案（小额/中额/大额）
+    
+    输出格式：
+    - 月度预算表：类别 | 预算金额 | 占比 | 实际支出栏 | 差异预警
+    - 每周消费日历：建议每日可支配额度
+    - 附"省钱动作清单"（10个不影响生活质量的节流技巧）
+    - 附"下月优化建议"（基于本月数据的调整方向）
+  variables:
+    - name: monthly_income
+      description: "家庭每月税后总收入"
+      required: true
+    - name: fixed_expenses
+      description: "固定支出，如：房贷、保险、学费、交通"
+      required: true
+    - name: savings_goal
+      description: "每月计划储蓄或投资金额"
+      required: false
+      default_value: "收入的20%"
+    - name: special_expenses
+      description: "本月特殊大额支出，如：旅游、医疗、人情"
+      required: false
+      default_value: "无"
+  intent_tags: ["预算", "理财计划", "家庭财务", "开支规划", "省钱", "记账"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: daily_plan_008
+  domain: daily
+  sub_domain: daily_plan
+  title: "项目经理的甘特图口述计划"
+  template: |
+    你是一位PMP认证项目经理，擅长把"口头需求"变成"可执行的项目路线图"。
+    
+    项目信息：
+    - 项目名称：{project_name}
+    - 交付物：{deliverables}
+    - 截止日期：{deadline}
+    - 团队成员：{team_members}
+    
+    请帮我：
+    1. 按WBS（工作分解结构）拆解出3级任务清单
+    2. 识别关键路径，标出"延期会导致整体延期"的任务
+    3. 给每个任务分配"负责人+预计工期+前置依赖"
+    4. 给出"周站会"的3个必问问题和"风险升级机制"
+    
+    输出格式：
+    - 项目甘特图文本版：任务 | 负责人 | 起止时间 | 依赖 | 状态
+    - 里程碑清单：日期 | 交付物 | 验收标准 | 风险
+    - 附"沟通计划"（例会/汇报/文档/工具）
+    - 附"变更管理流程"（需求变了怎么办）
+  variables:
+    - name: project_name
+      description: "项目或任务名称"
+      required: true
+    - name: deliverables
+      description: "最终需要交付的成果"
+      required: true
+    - name: deadline
+      description: "项目最终截止日期"
+      required: true
+    - name: team_members
+      description: "参与人员及角色"
+      required: false
+      default_value: "（用户未提供，按单人项目规划）"
+  intent_tags: ["项目管理", "甘特图", "项目计划", "任务拆解", "进度管理", "团队协作"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: daily_plan_009
+  domain: daily
+  sub_domain: daily_plan
+  title: "会议满满的一天怎么排"
+  template: |
+    你是一位高管助理，擅长在"会议地狱"中帮老板挤出深度工作时间。
+    
+    我的信息：
+    - 今日已确定会议：{meetings}
+    - 必须完成的独立工作：{solo_work}
+    - 精力状态（选填）：{energy_today}
+    
+    请帮我：
+    1. 按"会议前缓冲→会议中高效→会议后出活"设计每段间隙
+    2. 把碎片时间变成"微任务窗口"（15-30分钟可完成的小动作）
+    3. 标出可以"合并/委派/取消"的低效会议
+    4. 给出"会议间5分钟快速切换"的标准动作
+    
+    输出格式：
+    - 时间轴：时间段 | 事项 | 类型 | 间隙利用建议
+    - 附"会议准备清单"（每个会议前必须确认的3件事）
+    - 附"深度工作保护罩"（如何拒绝临时插入的干扰）
+  variables:
+    - name: meetings
+      description: "今天已确定的会议列表，含时间和主题"
+      required: true
+    - name: solo_work
+      description: "今天需要独立完成的重点工作"
+      required: true
+    - name: energy_today
+      description: "今天的精力预估，如：满血/一般/疲惫"
+      required: false
+      default_value: "一般"
+  intent_tags: ["会议管理", "日程安排", "时间管理", "职场效率", "碎片时间"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: daily_plan_010
+  domain: daily
+  sub_domain: daily_plan
+  title: "考试倒计时冲刺排期表"
+  template: |
+    你是一位考试策略专家，擅长把"来不及"变成"刚好够"。
+    
+    考试信息：
+    - 考试科目：{exam_subject}
+    - 距离考试天数：{days_left}
+    - 当前掌握程度：{mastery_level}
+    - 每日可用学习时间：{study_hours}
+    
+    请帮我：
+    1. 按"扫盲→强化→模考→押题"倒排每日学习量
+    2. 每天分配"新学+复习+刷题"的黄金比例
+    3. 标出必须完成的"真题套卷"时间节点
+    4. 给出"考前3天"和"考前1天"的特殊安排
+    
+    输出格式：
+    - 倒计时日历：日期 | 学习模块 | 具体内容 | 时长 | 输出检验
+    - 附"错题复盘模板"（错因分类+对应补救动作）
+    - 附"心态调节指南"（焦虑/倦怠/自我怀疑的应对）
+    - 附"考试当天流程"（从起床到交卷的每分钟安排）
+  variables:
+    - name: exam_subject
+      description: "考试科目或证书名称"
+      required: true
+    - name: days_left
+      description: "距离考试还剩多少天"
+      required: true
+    - name: mastery_level
+      description: "当前掌握程度，如：零基础/过半/复习阶段"
+      required: true
+    - name: study_hours
+      description: "每天可投入的学习小时数"
+      required: true
+  intent_tags: ["备考计划", "考试冲刺", "学习计划", "考证", "复习规划", "时间管理"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: daily_plan_011
+  domain: daily
+  sub_domain: daily_plan
+  title: "写作打卡：从选题到交稿30天"
+  template: |
+    你是一位专栏主编，擅长把"想写"变成"每天3000字的稳定输出"。
+    
+    写作信息：
+    - 写作主题/领域：{writing_topic}
+    - 目标字数：{target_word_count}
+    - 交稿截止日期：{deadline}
+    - 当前进度（选填）：{current_progress}
+    
+    请帮我：
+    1. 按"选题库→大纲→初稿→修改→定稿"设计30天流水线
+    2. 每天给出"写作启动语"（降低空白页恐惧）
+    3. 标出需要"查资料/采访/验证"的调研日
+    4. 给出"卡壳急救包"（3种突破写作瓶颈的方法）
+    
+    输出格式：
+    - 30天写作日历：日期 | 阶段 | 任务 | 字数目标 | 验收标准
+    - 附"选题矩阵"（10个备选选题及角度）
+    - 附"修改检查清单"（逻辑/语言/数据/格式4维度）
+    - 附"交稿前24小时冲刺清单"
+  variables:
+    - name: writing_topic
+      description: "写作主题或领域"
+      required: true
+    - name: target_word_count
+      description: "目标总字数"
+      required: true
+    - name: deadline
+      description: "最终交稿日期"
+      required: true
+    - name: current_progress
+      description: "当前写作进度"
+      required: false
+      default_value: "从零开始"
+  intent_tags: ["写作计划", "写作打卡", "内容创作", "写作训练", "创作规划", "日更"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: daily_plan_012
+  domain: daily
+  sub_domain: daily_plan
+  title: "创业者的一周作战地图"
+  template: |
+    你是一位连续创业者的COO，深知创业不是996，是"每天都在救火但必须往前冲"。
+    
+    本周战场：
+    - 公司阶段：{company_stage}
+    - 本周生死线：{weekly_critical}
+    - 团队人数：{team_size}
+    - 资金状况（选填）：{cash_status}
+    
+    请帮我：
+    1. 按"生存→增长→融资/变现"划分每日优先级
+    2. 每天只设1个"必须赢的战役"，其他都是支援
+    3. 标出需要"创始人亲自出马"和"可以授权"的事项
+    4. 给出"每日15分钟站会"的标准议程
+    
+    输出格式：
+    - 每日作战卡：主线任务 | 支援任务 | 风险预警 | 胜利标准
+    - 附"团队能量管理"（防止 burnout 的轮休建议）
+    - 附"投资人/客户沟通窗口"（本周必须触达的关键人）
+    - 附"周末复盘模板"（3个数据+2个故事+1个决策）
+  variables:
+    - name: company_stage
+      description: "公司阶段，如：idea/种子/A轮/盈利期"
+      required: true
+    - name: weekly_critical
+      description: "本周最关键的目标或里程碑"
+      required: true
+    - name: team_size
+      description: "当前团队人数"
+      required: true
+    - name: cash_status
+      description: "现金流状况，如：充裕/紧张/倒计时"
+      required: false
+      default_value: "正常运营"
+  intent_tags: ["创业计划", "创业管理", "周计划", "作战地图", "创始人", "创业日常"]
+  difficulty: advanced
+  quality_score: 0.93
+
+- id: daily_plan_013
+  domain: daily
+  sub_domain: daily_plan
+  title: "搬家不慌：7天无痛迁移计划"
+  template: |
+    你是一位生活规划师，擅长把"搬家噩梦"变成"7天无痛迁移"。
+    
+    搬家信息：
+    - 搬家日期：{move_date}
+    - 新旧住址距离：{distance}
+    - 物品量级：{volume}
+    - 特殊物品（选填）：{special_items}
+    
+    请帮我：
+    1. 按"D-7到D-Day"倒排每日打包任务（每天只处理1个区域）
+    2. 给出"断舍离"决策树（留/扔/送/卖/存）
+    3. 标出需要提前预约的"搬家公司/物业/宽带迁移"
+    4. 给出"新家首日生存包"清单（24小时必需品）
+    
+    输出格式：
+    - 7天任务日历：日期 | 区域 | 动作 | 所需材料 | 完成标准
+    - 附"物品分类标签系统"（颜色+编号+内容清单）
+    - 附"搬家当天流程"（从起床到入睡的每分钟）
+    - 附"新家归位地图"（大件家具摆放方案）
+  variables:
+    - name: move_date
+      description: "搬家日期"
+      required: true
+    - name: distance
+      description: "新旧住址距离"
+      required: true
+    - name: volume
+      description: "物品量级，如：单身公寓/两居室/全家老小"
+      required: true
+    - name: special_items
+      description: "特殊物品，如：钢琴/宠物/易碎品/贵重物品"
+      required: false
+      default_value: "无特殊物品"
+  intent_tags: ["搬家计划", "生活规划", "搬家攻略", "断舍离", "家居整理"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: daily_plan_014
+  domain: daily
+  sub_domain: daily_plan
+  title: "婚礼筹备100天倒计时"
+  template: |
+    你是一位婚礼策划总监，擅长把"备婚焦虑"变成"每天打勾的甜蜜进度"。
+    
+    婚礼信息：
+    - 婚礼日期：{wedding_date}
+    - 婚礼规模：{scale}
+    - 预算范围：{budget}
+    - 风格偏好（选填）：{style}
+    
+    请帮我：
+    1. 按"100天→30天→7天→当天"四级节点设计任务流
+    2. 每周聚焦1个主题（场地/婚纱/宾客/流程/蜜月）
+    3. 标出必须"提前N天锁定"的稀缺资源（四大金刚/场地/婚纱）
+    4. 给出"婚礼前一周"的每日检查清单和应急预案
+    
+    输出格式：
+    - 百日进度表：阶段 | 主题 | 任务清单 | 负责人 | 截止日期 | 状态
+    - 附"供应商对接模板"（问什么/怎么砍价/合同陷阱）
+    - 附"宾客管理表"（邀请/回复/座位/住宿/接送）
+    - 附"婚礼当天时间轴"（从化妆到送客的每分钟）
+  variables:
+    - name: wedding_date
+      description: "婚礼日期"
+      required: true
+    - name: scale
+      description: "婚礼规模，如： intimate小型/中型宴会/大型婚礼"
+      required: true
+    - name: budget
+      description: "预算范围"
+      required: true
+    - name: style
+      description: "婚礼风格，如：中式/西式/户外/旅行婚礼"
+      required: false
+      default_value: "经典西式"
+  intent_tags: ["婚礼筹备", "备婚", "婚礼计划", "结婚", "婚礼策划", "倒计时"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: daily_plan_015
+  domain: daily
+  sub_domain: daily_plan
+  title: "新手爸妈的育儿周计划"
+  template: |
+    你是一位育儿顾问和儿科护士的结合体，擅长给新手爸妈"有章可循但不焦虑"的养育节奏。
+    
+    宝宝信息：
+    - 宝宝月龄：{baby_age}
+    - 喂养方式：{feeding_method}
+    - 主要照护人：{caregivers}
+    - 本周关注点（选填）：{weekly_focus}
+    
+    请帮我：
+    1. 按"吃→玩→睡→护理→亲子互动"设计每日作息框架
+    2. 给出每个时间段的"标准动作+灵活调整空间"
+    3. 标出需要"记录观察"的发育信号和异常预警
+    4. 给出"爸妈自我照顾"的每日15分钟充电时间
+    
+    输出格式：
+    - 每日作息表：时间段 | 活动 | 参考时长 | 注意事项 | 替代方案
+    - 附"本周发育里程碑"（大运动/精细动作/语言/社交）
+    - 附"常见问题速查"（哭闹/睡眠/辅食/疫苗）
+    - 附"周末家庭活动建议"（适合月龄的亲子游戏）
+  variables:
+    - name: baby_age
+      description: "宝宝月龄"
+      required: true
+    - name: feeding_method
+      description: "喂养方式，如：母乳/配方奶/混合/已加辅食"
+      required: true
+    - name: caregivers
+      description: "主要照护人，如：妈妈/爸爸/老人/月嫂"
+      required: true
+    - name: weekly_focus
+      description: "本周特别关注，如：睡眠训练/辅食添加/翻身练习"
+      required: false
+      default_value: "常规照护"
+  intent_tags: ["育儿计划", "新手爸妈", "宝宝作息", "育儿周计划", "婴儿护理", "亲子"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: daily_plan_016
+  domain: daily
+  sub_domain: daily_plan
+  title: "退休生活365天兴趣地图"
+  template: |
+    你是一位退休生活规划师，擅长帮银发族把"空闲时间"变成"充实人生第二春"。
+    
+    退休信息：
+    - 退休前职业：{previous_career}
+    - 身体状况：{health_status}
+    - 兴趣爱好：{interests}
+    - 社交需求（选填）：{social_needs}
+    
+    请帮我：
+    1. 按"身体→脑力→社交→贡献"四维度设计每日/每周/每月节奏
+    2. 给出"动静结合"的日程模板（上午动/下午静/晚上社交）
+    3. 标出需要"循序渐进"的新技能学习路径
+    4. 给出"年度12主题"（每月探索一个新领域）
+    
+    输出格式：
+    - 每日建议模板：时段 | 活动类型 | 具体建议 | 时长 | 伙伴
+    - 每周节奏：固定活动+弹性探索+家庭日+独处日
+    - 附"兴趣学习路线图"（从入门到精进的阶段规划）
+    - 附"健康监测日历"（体检/疫苗/慢病管理提醒）
+  variables:
+    - name: previous_career
+      description: "退休前职业"
+      required: true
+    - name: health_status
+      description: "身体状况，如：健康/慢性病/术后恢复/行动不便"
+      required: true
+    - name: interests
+      description: "兴趣爱好，如：书法/旅游/烹饪/园艺/摄影"
+      required: true
+    - name: social_needs
+      description: "社交偏好，如：喜欢热闹/小圈子/独处为主"
+      required: false
+      default_value: "适度社交"
+  intent_tags: ["退休计划", "退休生活", "银发族", "兴趣规划", "养老", "生活规划"]
+  difficulty: beginner
+  quality_score: 0.88
+
+- id: daily_plan_017
+  domain: daily
+  sub_domain: daily_plan
+  title: "21天习惯养成打卡表"
+  template: |
+    你是一位行为心理学家，深谙"习惯不是意志力，是环境设计"。
+    
+    习惯目标：
+    - 想养成的习惯：{habit_goal}
+    - 触发场景：{trigger}
+    - 当前阻碍：{obstacles}
+    - 奖励机制（选填）：{reward}
+    
+    请帮我：
+    1. 按"第1周提示→第2周强化→第3周固化"设计渐进计划
+    2. 每天给出"最小行动版本"（2分钟也能完成）
+    3. 标出"危险期"（第3天/第7天/第14天的放弃高峰及对策）
+    4. 给出"习惯链"设计（把新习惯挂在旧习惯后面）
+    
+    输出格式：
+    - 21天打卡表：日期 | 最小行动 | 标准行动 | 超额行动 | 完成标记 | 情绪分
+    - 附"环境改造清单"（物理环境+数字环境+社交环境）
+    - 附"如果今天失败了怎么办"（不完美的补救方案）
+    - 附"21天后维持计划"（如何防止习惯反弹）
+  variables:
+    - name: habit_goal
+      description: "想养成的具体习惯，如：每天阅读30分钟/早起/冥想"
+      required: true
+    - name: trigger
+      description: "触发场景，如：早起后/午饭后/睡前"
+      required: true
+    - name: obstacles
+      description: "当前最大的阻碍，如：没时间/没动力/容易忘"
+      required: true
+    - name: reward
+      description: "计划给自己的奖励"
+      required: false
+      default_value: "（用户未提供，建议内在奖励+外在奖励结合）"
+  intent_tags: ["习惯养成", "21天打卡", "自律", "行为改变", "微习惯", "自我提升"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: daily_plan_018
+  domain: daily
+  sub_domain: daily_plan
+  title: "时间块管理：把一天切成6块"
+  template: |
+    你是一位生产力专家，Cal Newport的信徒，相信"深度工作靠时间块，不是待办清单"。
+    
+    我的信息：
+    - 今日核心深度任务：{deep_work}
+    - 必须处理的浅层事务：{shallow_work}
+    - 个人时间偏好（选填）：{time_preference}
+    
+    请帮我：
+    1. 把一天切成6个时间块（每块60-120分钟），分别分配不同"工作模式"
+    2. 每个时间块明确"模式→任务→产出→关闭动作"
+    3. 标出"不可侵犯的深度工作块"和"弹性缓冲块"
+    4. 给出"时间块被意外打断"的3种恢复策略
+    
+    输出格式：
+    - 6块时间地图：块号 | 时段 | 模式 | 任务 | 产出物 | 关闭动作
+    - 附"模式切换仪式"（从深度到浅层/从工作到生活的过渡动作）
+    - 附"晚间审计表"（计划vs实际的时间偏差分析）
+    - 附"明日时间块预排模板"
+  variables:
+    - name: deep_work
+      description: "今天需要深度专注完成的核心任务"
+      required: true
+    - name: shallow_work
+      description: "邮件、会议、审批等浅层事务"
+      required: true
+    - name: time_preference
+      description: "个人高效时段，如：早起型/夜猫子/下午爆发"
+      required: false
+      default_value: "上午高效"
+  intent_tags: ["时间块", "深度工作", "时间管理", "生产力", "日程规划", "专注"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: daily_plan_019
+  domain: daily
+  sub_domain: daily_plan
+  title: "紧急事务24小时灭火计划"
+  template: |
+    你是一位危机管理专家，擅长在"火烧眉毛"时快速理清优先级并行动。
+    
+    危机信息：
+    - 紧急事项：{crisis}
+    - 截止时间：{deadline}
+    - 可用资源：{resources}
+    - 相关方（选填）：{stakeholders}
+    
+    请帮我：
+    1. 按"止损→评估→行动→复盘"设计24小时作战节奏
+    2. 前4小时给出"必须立即做的5件事"（按致命程度排序）
+    3. 标出需要"向上汇报"和"对外沟通"的关键时间点
+    4. 给出"防止次生灾害"的监控清单
+    
+    输出格式：
+    - 24小时时间轴：小时 | 行动 | 负责人 | 交付物 | 验收标准
+    - 附"利益相关方沟通脚本"（对上级/对客户/对团队的统一口径）
+    - 附"资源调配清单"（人力/资金/信息/外部支援）
+    - 附"事后复盘框架"（24小时后必须回答的5个问题）
+  variables:
+    - name: crisis
+      description: "紧急事项描述"
+      required: true
+    - name: deadline
+      description: "解决或缓解的截止时间"
+      required: true
+    - name: resources
+      description: "当前可调用的资源"
+      required: true
+    - name: stakeholders
+      description: "受影响的利益相关方"
+      required: false
+      default_value: "（用户未提供，按最小范围处理）"
+  intent_tags: ["紧急计划", "危机处理", "应急管理", "灭火", "优先级", "24小时"]
+  difficulty: advanced
+  quality_score: 0.93
+
+- id: daily_plan_020
+  domain: daily
+  sub_domain: daily_plan
+  title: "周末充电48小时不浪费指南"
+  template: |
+    你是一位生活设计师，相信"周末不是工作的尾巴，是下一周的能量源"。
+    
+    周末信息：
+    - 本周疲惫程度：{fatigue_level}
+    - 想做的事：{wants}
+    - 必须做的事：{musts}
+    - 下周压力预告（选填）：{next_week_stress}
+    
+    请帮我：
+    1. 按"释放→恢复→准备"设计周六和周日的不同主题
+    2. 周六主打"身体恢复+社交/兴趣"，周日主打"整理+下周预演"
+    3. 标出"必须留白的无计划时段"，防止周末比工作日还累
+    4. 给出"周日晚上30分钟"的标准动作（降低周一焦虑）
+    
+    输出格式：
+    - 周六日程：时段 | 活动 | 目的 | 能量值变化
+    - 周日日程：时段 | 活动 | 目的 | 能量值变化
+    - 附"周末禁忌清单"（5件周末绝对不做的事）
+    - 附"周一启动包"（周日晚上准备好的3样东西）
+  variables:
+    - name: fatigue_level
+      description: "本周疲惫程度，如：累瘫/一般/还行"
+      required: true
+    - name: wants
+      description: "周末想做的事"
+      required: true
+    - name: musts
+      description: "周末必须做的事（家务/ errands等）"
+      required: true
+    - name: next_week_stress
+      description: "下周已知的高压事项"
+      required: false
+      default_value: "（用户未提供，按常规准备）"
+  intent_tags: ["周末计划", "生活平衡", "周末安排", "充电", "休息", "生活设计"]
+  difficulty: beginner
+  quality_score: 0.90

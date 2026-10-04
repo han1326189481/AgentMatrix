@@ -1,0 +1,737 @@
+- id: speech_opening_001
+  domain: speech
+  sub_domain: speech_opening
+  title: "年会开场白"
+  template: |
+    你是一位企业年会金牌主持人，擅长用第一句话把全场气氛点燃。
+
+    我的信息：
+    - 公司/组织：{org_name}
+    - 年会主题：{theme}
+    - 我的身份：{my_role}
+
+    请帮我：
+    1. 写5种不同风格的开场白（幽默型/温情型/霸气型/文艺型/互动型），每种50-100字
+    2. 给出"开场30秒抓住注意力"的3个钩子技巧
+    3. 设计一个"全场互动"的开场小游戏或提问
+    4. 给出开场后如何自然过渡到第一个环节的衔接语
+
+    输出格式：
+    - 5种风格开场白逐条列出，标注适用氛围
+    - 钩子技巧用"原理+示例"说明
+    - 互动设计包含：问题/动作/预期反应
+  variables:
+    - name: org_name
+      description: "公司或组织名称"
+      required: true
+    - name: theme
+      description: "年会主题"
+      required: true
+    - name: my_role
+      description: "你的身份，如：总经理、部门代表、主持人"
+      required: true
+  intent_tags: ["年会开场", "开场白", "年会主持", "开场", "致辞开头", "年会致辞", "暖场"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: speech_opening_002
+  domain: speech
+  sub_domain: speech_opening
+  title: "婚礼开场白"
+  template: |
+    你是一位婚礼司仪，擅长用第一句话让全场安静、第二句话让人微笑、第三句话让人想哭。
+
+    婚礼信息：
+    - 新人姓名：{couple_names}
+    - 新人关系：{relationship}（如：同学/同事/朋友介绍）
+    - 婚礼风格：{style}（温馨/搞笑/庄重）
+
+    请帮我：
+    1. 写5种婚礼开场白（故事型/祝福型/幽默型/诗词型/互动型），每种60-120字
+    2. 给出"3秒控场"的声音和肢体语言提示
+    3. 设计一个"让宾客鼓掌"的自然过渡点
+    4. 给出"突发安静"或"有人喧哗"的救场话术
+
+    输出格式：
+    - 5种开场白完整文稿
+    - 控场技巧用"要点+示范"列出
+    - 救场话术单独成节
+  variables:
+    - name: couple_names
+      description: "新人姓名"
+      required: true
+    - name: relationship
+      description: "新人怎么认识的"
+      required: false
+      default_value: "（用户未提供，用通用版本）"
+    - name: style
+      description: "婚礼整体风格"
+      required: false
+      default_value: "温馨"
+  intent_tags: ["婚礼开场", "婚礼致辞", "司仪", "开场白", "结婚", "婚礼主持", "证婚"]
+  difficulty: beginner
+  quality_score: 0.93
+
+- id: speech_opening_003
+  domain: speech
+  sub_domain: speech_opening
+  title: "毕业演讲开场"
+  template: |
+    你是一位毕业演讲导师，深知毕业典礼上"第一句话就定调"。
+
+    演讲信息：
+    - 学校/届别：{school_info}
+    - 演讲者身份：{speaker_role}
+    - 演讲基调：{tone}
+
+    请帮我：
+    1. 写5种毕业演讲开场（回忆型/感恩型/励志型/幽默型/哲理型），每种80-150字
+    2. 给出"让毕业生产生共鸣"的3个记忆锚点设计
+    3. 设计一个"全场呼应"的互动开头（举手/口号/回忆）
+    4. 给出从开场到正文的3种自然过渡方式
+
+    输出格式：
+    - 5种开场白完整文稿
+    - 记忆锚点用"场景+话术"说明
+    - 过渡方式单独列出
+  variables:
+    - name: school_info
+      description: "学校和届别"
+      required: true
+    - name: speaker_role
+      description: "演讲者身份，如：毕业生代表、校长、老师、家长"
+      required: true
+    - name: tone
+      description: "整体基调"
+      required: false
+      default_value: "感恩+励志"
+  intent_tags: ["毕业演讲", "毕业典礼", "毕业致辞", "开场白", "毕业季", "毕业生", "毕业感言"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: speech_opening_004
+  domain: speech
+  sub_domain: speech_opening
+  title: "竞聘演讲开场"
+  template: |
+    你是一位职场晋升教练，深知竞聘演讲"开场30秒决定评委是否认真听"。
+
+    竞聘信息：
+    - 竞聘岗位：{position}
+    - 当前岗位：{current_position}
+    - 个人标签：{tag}
+
+    请帮我：
+    1. 写5种竞聘开场（数据型/故事型/痛点型/使命型/幽默型），每种40-80字
+    2. 给出"让评委抬头"的3个钩子设计
+    3. 设计一个"建立信任"的自我介绍公式（不是念简历）
+    4. 给出从开场到"我为什么胜任"的自然过渡
+
+    输出格式：
+    - 5种开场白文稿
+    - 钩子设计用"原理+示例"说明
+    - 自我介绍公式：我是谁+我做过什么+我为什么站在这里
+  variables:
+    - name: position
+      description: "竞聘岗位"
+      required: true
+    - name: current_position
+      description: "当前岗位"
+      required: true
+    - name: tag
+      description: "个人标签，如：10年老兵、创新者、实干派"
+      required: false
+      default_value: "（用户未提供，用通用标签）"
+  intent_tags: ["竞聘开场", "竞聘演讲", "岗位竞聘", "开场白", "晋升答辩", "竞选", "述职开场"]
+  difficulty: intermediate
+  quality_score: 0.94
+
+- id: speech_opening_005
+  domain: speech
+  sub_domain: speech_opening
+  title: "产品发布开场"
+  template: |
+    你是一位产品发布会导演，深知"开场不是介绍产品，是制造期待"。
+
+    发布信息：
+    - 产品名：{product_name}
+    - 发布场景：{scene}
+    - 受众：{audience}
+
+    请帮我：
+    1. 写5种产品发布开场（悬念型/故事型/数据型/对比型/情怀型），每种60-100字
+    2. 给出"制造悬念"的3个技巧（不说产品名/不透露价格/只给暗示）
+    3. 设计一个"让全场安静"的静默或视频过渡
+    4. 给出从开场到产品亮相的"倒计时"话术
+
+    输出格式：
+    - 5种开场白文稿
+    - 悬念技巧单独说明
+    - 附"发布会开场禁忌"（直接报价、技术参数轰炸、自说自话）
+  variables:
+    - name: product_name
+      description: "产品名称"
+      required: true
+    - name: scene
+      description: "发布场景，如：发布会、线上直播、经销商大会"
+      required: true
+    - name: audience
+      description: "受众群体"
+      required: false
+      default_value: "消费者"
+  intent_tags: ["产品发布", "发布会", "开场白", "新品上市", "路演开场", "产品推介", "发布演讲"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: speech_opening_006
+  domain: speech
+  sub_domain: speech_opening
+  title: "家长会开场"
+  template: |
+    你是一位资深班主任，深知家长会开场"既要让家长放心，又要让家长重视"。
+
+    家长会信息：
+    - 年级班级：{class_info}
+    - 会议目的：{purpose}
+    - 家长群体特点：{parent_profile}
+
+    请帮我：
+    1. 写5种家长会开场（温馨型/数据型/故事型/互动型/严肃型），每种50-100字
+    2. 给出"缓解家长焦虑"的3个话术技巧
+    3. 设计一个"让家长参与"的提问或举手互动
+    4. 给出从开场到正题的自然过渡（不突兀）
+
+    输出格式：
+    - 5种开场白文稿
+    - 缓解焦虑话术用"家长常见担忧+回应"对照
+    - 过渡话术单独列出
+  variables:
+    - name: class_info
+      description: "年级和班级"
+      required: true
+    - name: purpose
+      description: "会议目的"
+      required: true
+    - name: parent_profile
+      description: "家长群体特点，如：双职工多、重视成绩、沟通少"
+      required: false
+      default_value: "（用户未提供，用通用版本）"
+  intent_tags: ["家长会", "家长沟通", "开场白", "班主任", "家校沟通", "家长会致辞", "学期初"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: speech_opening_007
+  domain: speech
+  sub_domain: speech_opening
+  title: "葬礼悼词开场"
+  template: |
+    你是一位生命礼仪师，深知悼词开场"第一句话就要让在场的人感到被理解"。
+
+    追悼信息：
+    - 逝者姓名：{deceased_name}
+    - 与逝者关系：{relationship}
+    - 逝者身份：{identity}
+
+    请帮我：
+    1. 写5种悼词开场（回忆型/感恩型/生平型/哲理型/告别型），每种60-120字
+    2. 给出"控制情绪"的3个呼吸和停顿技巧
+    3. 设计一个"让在场人共鸣"的共同记忆点
+    4. 给出从开场到回忆的温柔过渡
+
+    输出格式：
+    - 5种开场白文稿（语气庄重、真诚）
+    - 情绪控制技巧单独说明
+    - 附"悼词禁忌"（过度悲伤失控、说逝者缺点、比较、说教）
+  variables:
+    - name: deceased_name
+      description: "逝者姓名"
+      required: true
+    - name: relationship
+      description: "你与逝者的关系"
+      required: true
+    - name: identity
+      description: "逝者身份，如：父亲、老师、同事、战友"
+      required: true
+  intent_tags: ["悼词", "葬礼致辞", "追悼会", "开场白", "告别", "吊唁", "追思"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: speech_opening_008
+  domain: speech
+  sub_domain: speech_opening
+  title: "社团招新开场"
+  template: |
+    你是一位校园社团达人，深知招新演讲"第一句话就要让新生觉得'这个社团有意思'"。
+
+    招新信息：
+    - 社团名称：{club_name}
+    - 社团特色：{features}
+    - 招新对象：{target}
+
+    请帮我：
+    1. 写5种招新开场（故事型/数据型/互动型/悬念型/情怀型），每种40-80字
+    2. 给出"打破陌生感"的3个破冰技巧
+    3. 设计一个"让新生举手/鼓掌/笑出来"的互动开场
+    4. 给出从开场到"我们是谁"的过渡
+
+    输出格式：
+    - 5种开场白文稿（语气亲切、有活力）
+    - 破冰技巧用"做法+预期效果"说明
+    - 附"招新演讲禁忌"（过于官方、只讲历史不讲现在、不给福利）
+  variables:
+    - name: club_name
+      description: "社团名称"
+      required: true
+    - name: features
+      description: "社团最吸引人的地方"
+      required: true
+    - name: target
+      description: "招新对象，如：大一新生、全校学生"
+      required: false
+      default_value: "大一新生"
+  intent_tags: ["社团招新", "纳新演讲", "开场白", "学生会", "社团", "招新宣讲", "校园"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: speech_opening_009
+  domain: speech
+  sub_domain: speech_opening
+  title: "竞选演讲开场"
+  template: |
+    你是一位政治演讲顾问，深知竞选演讲"第一句话就要让选民觉得'这人靠谱'"。
+
+    竞选信息：
+    - 竞选职位：{position}
+    - 竞选场合：{occasion}
+    - 个人标签：{tag}
+
+    请帮我：
+    1. 写5种竞选开场（承诺型/故事型/对比型/愿景型/亲民型），每种50-100字
+    2. 给出"建立可信度"的3个技巧（不是吹自己，是展示理解）
+    3. 设计一个"让听众点头"的共鸣点
+    4. 给出从开场到竞选纲领的过渡
+
+    输出格式：
+    - 5种开场白文稿
+    - 可信度技巧用"错误做法+正确做法"对比
+    - 附"竞选开场禁忌"（攻击对手、空口承诺、过于谦卑、念简历）
+  variables:
+    - name: position
+      description: "竞选职位，如：学生会主席、班长、社团负责人"
+      required: true
+    - name: occasion
+      description: "竞选场合"
+      required: true
+    - name: tag
+      description: "个人标签"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["竞选演讲", "竞选开场", "学生会竞选", "班干部竞选", "开场白", "拉票", "竞选"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: speech_opening_010
+  domain: speech
+  sub_domain: speech_opening
+  title: "培训讲师开场"
+  template: |
+    你是一位企业培训名师，深知培训开场"不是自我介绍，是建立学习期待"。
+
+    培训信息：
+    - 培训主题：{topic}
+    - 学员群体：{audience}
+    - 培训时长：{duration}
+
+    请帮我：
+    1. 写5种培训开场（痛点型/收益型/故事型/数据型/互动型），每种50-100字
+    2. 给出"让学员放下手机"的3个注意力抓取技巧
+    3. 设计一个"课程路线图"的预览式开场
+    4. 给出从开场到第一个知识点的过渡
+
+    输出格式：
+    - 5种开场白文稿
+    - 注意力技巧用"场景+话术"说明
+    - 附"培训开场禁忌"（过度谦虚、只讲自己不讲学员、没有课程预览、超时）
+  variables:
+    - name: topic
+      description: "培训主题"
+      required: true
+    - name: audience
+      description: "学员群体"
+      required: true
+    - name: duration
+      description: "培训时长"
+      required: false
+      default_value: "2小时"
+  intent_tags: ["培训开场", "讲师开场", "开场白", "企业培训", "内训", "讲课开场", "培训师"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: speech_opening_011
+  domain: speech
+  sub_domain: speech_opening
+  title: "追悼会开场"
+  template: |
+    你是一位生命礼仪主持人，深知追悼会开场"需要给悲伤一个容器"。
+
+    追悼信息：
+    - 逝者姓名：{deceased_name}
+    - 生平身份：{identity}
+    - 追悼会规模：{scale}
+
+    请帮我：
+    1. 写5种追悼会开场（生平回顾型/感恩型/信仰型/告别型/集体缅怀型），每种80-150字
+    2. 给出"引导全场默哀/祈祷"的庄重话术
+    3. 设计一个"让家属感到被尊重"的致辞角度
+    4. 给出从开场到生平介绍的温柔过渡
+
+    输出格式：
+    - 5种开场白文稿（语气庄重、克制、温暖）
+    - 默哀引导话术单独标注
+    - 附"追悼会禁忌"（过度煽情、说错生平、忽视家属感受、时间过长）
+  variables:
+    - name: deceased_name
+      description: "逝者姓名"
+      required: true
+    - name: identity
+      description: "逝者生平身份"
+      required: true
+    - name: scale
+      description: "追悼会规模"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["追悼会", "追悼致辞", "开场白", "悼念", "告别仪式", "吊唁", "白事"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: speech_opening_012
+  domain: speech
+  sub_domain: speech_opening
+  title: "生日宴会开场"
+  template: |
+    你是一位派对策划师，深知生日开场"要让寿星觉得今天自己是宇宙中心"。
+
+    宴会信息：
+    - 寿星姓名/身份：{birthday_person}
+    - 宴会场合：{occasion}
+    - 宾客构成：{guests}
+
+    请帮我：
+    1. 写5种生日开场（温馨型/搞笑型/回忆型/惊喜型/感恩型），每种50-100字
+    2. 给出"让寿星笑/哭/感动"的3个情绪触发点设计
+    3. 设计一个"全场为寿星做一件事"的互动开场
+    4. 给出从开场到切蛋糕/送礼的过渡
+
+    输出格式：
+    - 5种开场白文稿（语气活泼、温暖）
+    - 情绪触发点用"做法+预期反应"说明
+    - 附"生日致辞禁忌"（揭短、说年龄敏感话题、忽视寿星感受、冷场）
+  variables:
+    - name: birthday_person
+      description: "寿星姓名和身份"
+      required: true
+    - name: occasion
+      description: "宴会场合，如：家庭聚会、朋友派对、公司生日会"
+      required: true
+    - name: guests
+      description: "宾客构成"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["生日致辞", "生日开场", "生日宴会", "祝寿", "生日派对", "开场白", "寿星"]
+  difficulty: beginner
+  quality_score: 0.88
+
+- id: speech_opening_013
+  domain: speech
+  sub_domain: speech_opening
+  title: "学术会议开场"
+  template: |
+    你是一位学术会议主席，深知学术开场"既要专业又要让非专业人士听懂"。
+
+    会议信息：
+    - 会议主题：{topic}
+    - 参会人员：{attendees}
+    - 你的身份：{my_role}
+
+    请帮我：
+    1. 写5种学术开场（背景型/数据型/故事型/挑战型/展望型），每种60-120字
+    2. 给出"建立学术权威性"的3个技巧（引用/数据/名人）
+    3. 设计一个"让全场进入研究状态"的问题或假设
+    4. 给出从开场到第一个报告的过渡
+
+    输出格式：
+    - 5种开场白文稿
+    - 权威性技巧单独说明
+    - 附"学术开场禁忌"（过度寒暄、跑题、贬低前人、技术门槛太高）
+  variables:
+    - name: topic
+      description: "会议或报告主题"
+      required: true
+    - name: attendees
+      description: "参会人员构成"
+      required: true
+    - name: my_role
+      description: "你的身份"
+      required: false
+      default_value: "主持人"
+  intent_tags: ["学术会议", "学术开场", "会议主持", "开场白", "学术报告", "研讨会", "学术致辞"]
+  difficulty: intermediate
+  quality_score: 0.90
+
+- id: speech_opening_014
+  domain: speech
+  sub_domain: speech_opening
+  title: "招商会开场"
+  template: |
+    你是一位招商总监，深知招商会开场"要让潜在客户觉得'这钱投得值'"。
+
+    招商信息：
+    - 品牌/项目名：{brand_name}
+    - 招商目标：{goal}
+    - 受众：{audience}
+
+    请帮我：
+    1. 写5种招商开场（数据型/故事型/痛点型/愿景型/案例型），每种50-100字
+    2. 给出"建立信任"的3个技巧（不是吹，是展示理解和成果）
+    3. 设计一个"让意向客户抬头"的利益点预告
+    4. 给出从开场到项目介绍的过渡
+
+    输出格式：
+    - 5种开场白文稿
+    - 信任建立技巧用"错误vs正确"对比
+    - 附"招商开场禁忌"（过度承诺、贬低同行、数据造假、只讲自己不讲客户）
+  variables:
+    - name: brand_name
+      description: "品牌或项目名称"
+      required: true
+    - name: goal
+      description: "招商目标"
+      required: true
+    - name: audience
+      description: "受众群体"
+      required: false
+      default_value: "潜在加盟商"
+  intent_tags: ["招商会", "招商开场", "开场白", "项目推介", "招商演讲", "加盟会", "路演开场"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: speech_opening_015
+  domain: speech
+  sub_domain: speech_opening
+  title: "团建活动开场"
+  template: |
+    你是一位团建教练，深知团建开场"要让平时不熟的同事瞬间破冰"。
+
+    团建信息：
+    - 团队名称/公司：{team_name}
+    - 团建目的：{purpose}
+    - 团队特点：{team_traits}
+
+    请帮我：
+    1. 写5种团建开场（游戏型/故事型/挑战型/感恩型/搞笑型），每种40-80字
+    2. 给出"打破尴尬"的3个破冰话术或动作
+    3. 设计一个"全员参与"的30秒热身互动
+    4. 给出从开场到第一个活动的过渡
+
+    输出格式：
+    - 5种开场白文稿（语气轻松、有能量）
+    - 破冰技巧单独说明
+    - 附"团建开场禁忌"（过于正式、强迫参与、忽视内向同事、时间过长）
+  variables:
+    - name: team_name
+      description: "团队或公司名字"
+      required: true
+    - name: purpose
+      description: "团建目的，如：凝聚力、迎新、庆功、减压"
+      required: true
+    - name: team_traits
+      description: "团队特点，如：新老混合、技术宅多、年龄差距大"
+      required: false
+      default_value: "（用户未提供，用通用版本）"
+  intent_tags: ["团建", "团建开场", "开场白", "破冰", "团队活动", "拓展", "团建主持"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: speech_opening_016
+  domain: speech
+  sub_domain: speech_opening
+  title: "客户答谢开场"
+  template: |
+    你是一位客户关系专家，深知答谢会开场"要让客户觉得被重视，不是被推销"。
+
+    答谢信息：
+    - 客户群体：{clients}
+    - 答谢原因：{reason}
+    - 公司/品牌：{brand}
+
+    请帮我：
+    1. 写5种答谢开场（感恩型/数据型/故事型/展望型/互动型），每种50-100字
+    2. 给出"让客户感到被看见"的3个技巧（点名/案例/专属感）
+    3. 设计一个"客户代表发言"的自然引入话术
+    4. 给出从开场到答谢环节的过渡
+
+    输出格式：
+    - 5种开场白文稿（语气真诚、不推销）
+    - 专属感技巧单独说明
+    - 附"答谢会禁忌"（借机推销、忽视小客户、数据造假、过于官方）
+  variables:
+    - name: clients
+      description: "客户群体描述"
+      required: true
+    - name: reason
+      description: "答谢原因，如：周年庆、合作10年、年度答谢"
+      required: true
+    - name: brand
+      description: "公司或品牌名"
+      required: true
+  intent_tags: ["客户答谢", "答谢会", "开场白", "客户会", "答谢致辞", "VIP客户", "感恩客户"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: speech_opening_017
+  domain: speech
+  sub_domain: speech_opening
+  title: "晚会主持开场"
+  template: |
+    你是一位晚会金牌主持，深知晚会开场"3秒内要让全场安静，10秒内要让全场鼓掌"。
+
+    晚会信息：
+    - 晚会名称/主题：{event_name}
+    - 晚会类型：{event_type}
+    - 嘉宾构成：{guests}
+
+    请帮我：
+    1. 写5种晚会开场（气势型/温馨型/搞笑型/文艺型/互动型），每种60-120字
+    2. 给出"控场"的3个声音和肢体语言技巧
+    3. 设计一个"介绍嘉宾"的流畅话术模板
+    4. 给出从开场到第一个节目的过渡
+
+    输出格式：
+    - 5种开场白文稿
+    - 控场技巧用"要点+示范"列出
+    - 附"晚会开场禁忌"（超时、冷场、念错名字、设备故障没预案）
+  variables:
+    - name: event_name
+      description: "晚会名称或主题"
+      required: true
+    - name: event_type
+      description: "晚会类型，如：元旦晚会、中秋晚会、周年庆、文艺汇演"
+      required: true
+    - name: guests
+      description: "嘉宾构成"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["晚会主持", "晚会开场", "开场白", "文艺晚会", "主持词", "晚会致辞", "联欢会"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: speech_opening_018
+  domain: speech
+  sub_domain: speech_opening
+  title: "新书发布开场"
+  template: |
+    你是一位出版界策划人，深知新书发布会开场"要让读者觉得这本书非读不可"。
+
+    发布信息：
+    - 书名：{book_title}
+    - 作者身份：{author_identity}
+    - 读者群体：{readers}
+
+    请帮我：
+    1. 写5种新书开场（故事型/痛点型/情怀型/数据型/悬念型），每种60-100字
+    2. 给出"制造阅读期待"的3个钩子设计
+    3. 设计一个"作者与读者连接"的情感锚点
+    4. 给出从开场到作者分享的过渡
+
+    输出格式：
+    - 5种开场白文稿
+    - 阅读期待钩子单独说明
+    - 附"新书发布禁忌"（剧透太多、过度吹嘘、忽视读者、时间过长）
+  variables:
+    - name: book_title
+      description: "书名"
+      required: true
+    - name: author_identity
+      description: "作者身份，如：作家、学者、企业家、素人"
+      required: true
+    - name: readers
+      description: "目标读者群体"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["新书发布", "发布会", "开场白", "读书分享", "作者致辞", "签售会", "新书推介"]
+  difficulty: intermediate
+  quality_score: 0.89
+
+- id: speech_opening_019
+  domain: speech
+  sub_domain: speech_opening
+  title: "志愿者动员开场"
+  template: |
+    你是一位公益领袖，深知动员开场"要让听众从'关我什么事'变成'算我一个'"。
+
+    动员信息：
+    - 公益项目：{project}
+    - 服务对象：{beneficiaries}
+    - 志愿者群体：{volunteers}
+
+    请帮我：
+    1. 写5种动员开场（故事型/数据型/痛点型/愿景型/互动型），每种50-100字
+    2. 给出"激发使命感"的3个情感触发点
+    3. 设计一个"让听众举手报名"的行动召唤
+    4. 给出从开场到项目介绍的过渡
+
+    输出格式：
+    - 5种开场白文稿（语气真诚、有感染力）
+    - 情感触发点用"场景+话术"说明
+    - 附"动员开场禁忌"（道德绑架、数据造假、忽视困难、过度煽情）
+  variables:
+    - name: project
+      description: "公益项目名称"
+      required: true
+    - name: beneficiaries
+      description: "服务对象，如：留守儿童、老人、环保、动物"
+      required: true
+    - name: volunteers
+      description: "志愿者群体特点"
+      required: false
+      default_value: "（用户未提供，用通用版本）"
+  intent_tags: ["志愿者", "公益动员", "开场白", "招募", "义工", "公益活动", "动员大会"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: speech_opening_020
+  domain: speech
+  sub_domain: speech_opening
+  title: "线上直播开场"
+  template: |
+    你是一位头部主播话术教练，深知直播开场"5秒留不住人就划走了"。
+
+    直播信息：
+    - 直播主题：{topic}
+    - 主播人设：{persona}
+    - 目标观众：{audience}
+
+    请帮我：
+    1. 写5种直播开场（福利型/悬念型/互动型/故事型/干货型），每种30-60字
+    2. 给出"留人"的3个钩子技巧（福袋/悬念/互动）
+    3. 设计一个"让观众扣1/点赞/关注"的话术
+    4. 给出从开场到正题的过渡
+
+    输出格式：
+    - 5种开场白文稿（短促、有节奏感）
+    - 留人钩子用"时机+话术+动作"说明
+    - 附"直播开场禁忌"（废话太多、没有互动、福利不说清楚、冷场超过3秒）
+  variables:
+    - name: topic
+      description: "直播主题"
+      required: true
+    - name: persona
+      description: "主播人设，如：专家型、闺蜜型、搞笑型、严肃型"
+      required: true
+    - name: audience
+      description: "目标观众"
+      required: false
+      default_value: "（用户未提供）"
+  intent_tags: ["直播开场", "直播间", "开场白", "主播话术", "直播技巧", "带货开场", "线上直播"]
+  difficulty: beginner
+  quality_score: 0.91

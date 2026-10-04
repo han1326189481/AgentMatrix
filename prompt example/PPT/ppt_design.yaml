@@ -1,0 +1,761 @@
+- id: ppt_design_001
+  domain: ppt
+  sub_domain: ppt_design
+  title: "商务蓝配色方案"
+  template: |
+    你是一位配色设计师，专治"PPT做得像Word"的朴素病。
+    
+    我的需求：
+    - 使用场景：{scene}
+    - 偏好色调（选填）：{color_pref}
+    - 大概页数：{pages}页
+    
+    请帮我：
+    1. 设计一套"商务蓝"主色调方案，给出主色/辅色/强调色的具体色值（RGB+十六进制）
+    2. 为封面/目录/内容页/结尾页分别配色
+    3. 给出字体搭配建议（标题字体+正文字体）
+    4. 提供3种不同深浅的蓝色搭配，适配不同行业
+    
+    输出格式：
+    - 用色块展示颜色，标注色值
+    - 每页类型给出配色示例（文字+背景）
+    - 附"配色禁忌"（哪些颜色不能和商务蓝一起用）
+  variables:
+    - name: scene
+      description: "使用场景，如：年终汇报、投标、客户提案"
+      required: true
+    - name: color_pref
+      description: "颜色偏好，如：偏深蓝、偏天蓝、偏灰蓝"
+      required: false
+      default_value: "（用户未指定，请提供标准商务蓝）"
+    - name: pages
+      description: "PPT页数"
+      required: false
+      default_value: "15"
+  intent_tags: ["配色", "商务蓝", "PPT配色", "颜色搭配", "商务风", "专业", "蓝色", "色调"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: ppt_design_002
+  domain: ppt
+  sub_domain: ppt_design
+  title: "党政红配色方案"
+  template: |
+    你是一位政务设计师，深知党政PPT"庄重但不老气"的分寸。
+    
+    我的需求：
+    - 会议类型：{meeting_type}
+    - 庄重程度：{seriousness}（正式/活泼）
+    - 是否需要金色元素：{gold_element}
+    
+    请帮我：
+    1. 设计一套"党政红"配色方案，给出标准红/深红/金/白的色值
+    2. 为标题页/内容页/图表页/结尾页分别设计配色
+    3. 给出字体建议（标题用粗黑/宋体，正文用黑体/楷体）
+    4. 提供"庄重版"和"活泼版"两套方案
+    
+    输出格式：
+    - 色块展示+色值标注
+    - 每页类型给出配色示例
+    - 附"党政PPT常见错误"（如颜色太艳、字体太花）
+  variables:
+    - name: meeting_type
+      description: "会议或学习类型"
+      required: true
+    - name: seriousness
+      description: "庄重还是活泼"
+      required: true
+    - name: gold_element
+      description: "是否需要金色装饰"
+      required: false
+      default_value: "是"
+  intent_tags: ["党政", "红色PPT", "党建配色", "政务", "机关", "庄重", "党课", "红色主题"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: ppt_design_003
+  domain: ppt
+  sub_domain: ppt_design
+  title: "学术简约风格"
+  template: |
+    你是一位学术排版专家，懂得"导师喜欢的PPT长什么样"。
+    
+    我的需求：
+    - 学科领域：{field}
+    - 学校/机构要求（选填）：{school_requirement}
+    - 是否需要校徽：{need_logo}
+    
+    请帮我：
+    1. 设计一套"学术简约风"模板规范（配色/字体/留白/页眉页脚）
+    2. 为封面/目录/正文/图表/参考文献
+    - id: ppt_design_003
+  domain: ppt
+  sub_domain: ppt_design
+  title: "学术简约风格"
+  template: |
+    你是一位学术排版专家，懂得"导师喜欢的PPT长什么样"。
+    
+    我的需求：
+    - 学科领域：{field}
+    - 学校/机构要求（选填）：{school_requirement}
+    - 是否需要校徽：{need_logo}
+    
+    请帮我：
+    1. 设计一套"学术简约风"模板规范（配色/字体/留白/页眉页脚）
+    2. 为封面/目录/正文/图表/参考文献页分别给出设计规范
+    3. 给出"一页不超过150字"的排版原则
+    4. 提供3种学术配色（理工蓝/文史棕/医学绿）
+    
+    输出格式：
+    - 每页类型给出：配色、字体、字号、行距、边距的具体数值
+    - 附"学术PPT雷区清单"（动画过多、颜色花哨、字体不统一等）
+    - 给出一页完整的学术排版示例（含文字和图表位置）
+  variables:
+    - name: field
+      description: "学科领域，如：计算机、文学、医学、经济学"
+      required: true
+    - name: school_requirement
+      description: "学校或导师的特殊要求"
+      required: false
+      default_value: "（用户未提供，按通用学术规范）"
+    - name: need_logo
+      description: "是否需要放校徽或机构logo"
+      required: false
+      default_value: "是"
+  intent_tags: ["学术PPT", "论文答辩", "简约风", "学术风格", "毕业答辩", "学术排版", "导师喜欢"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: ppt_design_004
+  domain: ppt
+  sub_domain: ppt_design
+  title: "科技风深色模板"
+  template: |
+    你是一位科技发布会设计师，擅长做"苹果发布会级别"的深色科技风PPT。
+    
+    我的需求：
+    - 产品/主题：{topic}
+    - 是否需要发光效果：{glow_effect}
+    - 主要展示内容：{content_type}
+    
+    请帮我：
+    1. 设计一套深色科技风规范（黑/深蓝背景+霓虹蓝/紫/青点缀）
+    2. 给出字体建议（标题用无衬线粗体，正文用细体）
+    3. 提供"渐变+发光+模糊"的视觉元素使用指南
+    4. 给出图片/视频/代码块的展示方式
+    
+    输出格式：
+    - 色值表（背景色/主色/强调色/文字色）
+    - 每页类型设计规范（封面/数据页/产品页/结尾）
+    - 附"深色PPT常见错误"（文字看不清、颜色太脏、对比度不够）
+  variables:
+    - name: topic
+      description: "产品或主题名称"
+      required: true
+    - name: glow_effect
+      description: "是否需要发光霓虹效果"
+      required: false
+      default_value: "是"
+    - name: content_type
+      description: "主要展示什么，如：数据、产品图、代码、概念"
+      required: true
+  intent_tags: ["科技风", "深色PPT", "发布会", "科技模板", "深色背景", "霓虹", "未来感"]
+  difficulty: intermediate
+  quality_score: 0.90
+
+- id: ppt_design_005
+  domain: ppt
+  sub_domain: ppt_design
+  title: "教育卡通风格"
+  template: |
+    你是一位儿童教育设计师，知道怎么让小朋友的眼睛离不开屏幕。
+    
+    我的需求：
+    - 教学对象：{target_age}
+    - 学科：{subject}
+    - 是否需要卡通人物：{need_character}
+    
+    请帮我：
+    1. 设计一套"活泼但不杂乱"的教育卡通风格（配色/字体/图标/背景）
+    2. 给出"每页一个视觉焦点"的排版原则
+    3. 提供互动环节的设计建议（翻牌/连线/填空动画位置）
+    4. 给出3种适合不同年龄段的颜色方案（幼儿/小学/中学）
+    
+    输出格式：
+    - 色值+字体+图标风格建议
+    - 每页类型示例（封面/知识点/练习/游戏/总结）
+    - 附"教育PPT禁忌"（字太小、颜色刺眼、内容太满）
+  variables:
+    - name: target_age
+      description: "教学对象年龄，如：幼儿园、小学低年级、小学高年级"
+      required: true
+    - name: subject
+      description: "学科"
+      required: true
+    - name: need_character
+      description: "是否需要卡通人物或吉祥物"
+      required: false
+      default_value: "是"
+  intent_tags: ["教育PPT", "卡通风格", "教学课件", "儿童教育", "幼儿园", "小学", "活泼"]
+  difficulty: beginner
+  quality_score: 0.88
+
+- id: ppt_design_006
+  domain: ppt
+  sub_domain: ppt_design
+  title: "中国风古风模板"
+  template: |
+    你是一位传统文化视觉设计师，擅长把水墨、书法、山水融入现代PPT。
+    
+    我的需求：
+    - 使用场景：{scene}
+    - 主色调偏好：{color_pref}
+    - 是否需要书法字体：{calligraphy}
+    
+    请帮我：
+    1. 设计一套"新中式"PPT规范（水墨背景+传统色+现代排版）
+    2. 给出传统配色方案（朱砂/石青/藤黄/墨色/留白）
+    3. 提供"书法标题+黑体正文"的字体搭配
+    4. 给出山水/祥云/窗棂等传统元素的使用位置建议
+    
+    输出格式：
+    - 色值表（传统色名+RGB+十六进制）
+    - 每页类型设计规范（封面/目录/内容/结尾）
+    - 附"中国风常见错误"（元素堆砌、颜色太艳、字体难辨认）
+  variables:
+    - name: scene
+      description: "使用场景，如：文化讲座、诗词大会、传统节日、企业年会"
+      required: true
+    - name: color_pref
+      description: "主色调偏好，如：水墨黑白、朱砂红、青瓷蓝"
+      required: false
+      default_value: "水墨黑白"
+    - name: calligraphy
+      description: "标题是否用书法字体"
+      required: false
+      default_value: "是"
+  intent_tags: ["中国风", "古风", "水墨", "传统文化", "中式PPT", "国风", "古典"]
+  difficulty: intermediate
+  quality_score: 0.89
+
+- id: ppt_design_007
+  domain: ppt
+  sub_domain: ppt_design
+  title: "极简留白风格"
+  template: |
+    你是一位极简主义设计师，信奉"少即是多"，擅长用大量留白营造高级感。
+    
+    我的需求：
+    - 使用场景：{scene}
+    - 内容密度：{density}（极简/适中）
+    - 主色调：{main_color}
+    
+    请帮我：
+    1. 设计一套"大面积留白"的排版规范（边距/行距/字间距/对齐）
+    2. 给出"一页只说一件事"的结构原则
+    3. 提供"大图+一句话"的封面设计公式
+    4. 给出3种留白比例（1:2/1:3/黄金分割）
+    
+    输出格式：
+    - 排版参数表（边距/字号/行距的具体数值）
+    - 每页类型示例（封面/过渡页/内容页/金句页）
+    - 附"留白PPT常见错误"（留白变成空白、内容太少显得敷衍）
+  variables:
+    - name: scene
+      description: "使用场景，如：品牌发布、艺术展览、高端汇报"
+      required: true
+    - name: density
+      description: "内容密度"
+      required: false
+      default_value: "极简"
+    - name: main_color
+      description: "主色调"
+      required: false
+      default_value: "黑白灰"
+  intent_tags: ["极简", "留白", "高级感", "简约", "极简风", "设计感", "高端PPT"]
+  difficulty: intermediate
+  quality_score: 0.90
+
+- id: ppt_design_008
+  domain: ppt
+  sub_domain: ppt_design
+  title: "数据大屏风格"
+  template: |
+    你是一位数据可视化设计师，擅长把枯燥数字变成"一眼震撼"的大屏展示。
+    
+    我的需求：
+    - 展示场景：{scene}
+    - 屏幕比例：{ratio}（16:9/21:9/4:3）
+    - 数据类型：{data_type}
+    
+    请帮我：
+    1. 设计一套"数据大屏"视觉规范（深色背景+高对比数据色+卡片式布局）
+    2. 给出KPI/趋势/对比/占比四类数据的展示组件设计
+    3. 提供"实时数据更新"的视觉提示设计（闪烁/进度条/时间戳）
+    4. 给出3种行业配色方案（金融蓝/政务红/科技紫）
+    
+    输出格式：
+    - 色值表+字体表
+    - 4种数据组件的设计规范（尺寸/颜色/字体）
+    - 附"大屏设计禁忌"（颜色太多、字太小、信息过载）
+  variables:
+    - name: scene
+      description: "展示场景，如：展厅、会议室、监控中心"
+      required: true
+    - name: ratio
+      description: "屏幕比例"
+      required: false
+      default_value: "16:9"
+    - name: data_type
+      description: "主要数据类型，如：销售数据、运营指标、实时监控"
+      required: true
+  intent_tags: ["数据大屏", "可视化", "Dashboard", "数据展示", "大屏设计", "监控", "数据墙"]
+  difficulty: advanced
+  quality_score: 0.91
+
+- id: ppt_design_009
+  domain: ppt
+  sub_domain: ppt_design
+  title: "医疗专业风格"
+  template: |
+    你是一位医疗行业设计师，深知医学PPT"专业但不冰冷"的平衡点。
+    
+    我的需求：
+    - 使用场景：{scene}
+    - 受众：{audience}
+    - 是否需要解剖图/影像：{need_medical_img}
+    
+    请帮我：
+    1. 设计一套医疗专业风格（白/浅蓝/浅绿为主，干净卫生感）
+    2. 给出"病例展示/手术流程/药物说明"的专用版式
+    3. 提供医学图表的配色建议（避免红绿色盲不友好组合）
+    4. 给出"患者教育"和"学术汇报"两个版本的设计差异
+    
+    输出格式：
+    - 色值+字体+图标规范
+    - 3种医疗专用页面版式（病例页/数据页/流程页）
+    - 附"医学PPT禁忌"（过于血腥、颜色不专业、字体太小）
+  variables:
+    - name: scene
+      description: "使用场景，如：病例汇报、学术会议、患者宣教、医院介绍"
+      required: true
+    - name: audience
+      description: "受众，如：医生同行、患者、医学生、医院领导"
+      required: true
+    - name: need_medical_img
+      description: "是否需要放置医学影像或解剖图"
+      required: false
+      default_value: "否"
+  intent_tags: ["医疗PPT", "医学", "医院", "病例汇报", "学术医学", "健康", "专业医疗"]
+  difficulty: intermediate
+  quality_score: 0.88
+
+- id: ppt_design_010
+  domain: ppt
+  sub_domain: ppt_design
+  title: "节日庆典风格"
+  template: |
+    你是一位节庆设计师，擅长做"一看就有节日气氛"的PPT。
+    
+    我的需求：
+    - 节日/庆典：{festival}
+    - 使用场景：{scene}
+    - 喜庆程度：{festivity}（温馨/热烈/庄重）
+    
+    请帮我：
+    1. 设计一套节日庆典风格（配色/字体/装饰元素/动画建议）
+    2. 给出"封面→节目单→内容→祝福"的页面设计
+    3. 提供传统元素使用指南（灯笼/烟花/圣诞树/爱心等）
+    4. 给出3种喜庆程度的配色差异（温馨 pastel/热烈大红/庄重金红）
+    
+    输出格式：
+    - 色值表+装饰元素清单
+    - 每页类型设计示例
+    - 附"节日PPT禁忌"（元素太土、颜色太杂、像广告传单）
+  variables:
+    - name: festival
+      description: "节日名称，如：春节、中秋、圣诞、年会、婚礼"
+      required: true
+    - name: scene
+      description: "使用场景，如：晚会、班会、家庭聚会、公司年会"
+      required: true
+    - name: festivity
+      description: "喜庆程度"
+      required: false
+      default_value: "热烈"
+  intent_tags: ["节日PPT", "庆典", "年会", "晚会", "节日", "喜庆", "活动", "庆祝"]
+  difficulty: beginner
+  quality_score: 0.87
+
+- id: ppt_design_011
+  domain: ppt
+  sub_domain: ppt_design
+  title: "地图信息可视化"
+  template: |
+    你是一位地理信息可视化专家，擅长让地图"会说话"。
+    
+    我的需求：
+    - 展示区域：{region}
+    - 数据类型：{data_type}
+    - 地图精度：{precision}（省级/市级/区县级）
+    
+    请帮我：
+    1. 设计一套"地图+PPT"的可视化规范（配色/标注/图例/比例）
+    2. 给出热力图/气泡图/区域填充图的设计方案
+    3. 提供"重点突出+周边淡化"的视觉层次技巧
+    4. 给出3种行业配色（经济金/环保绿/疫情红）
+    
+    输出格式：
+    - 地图配色方案（色阶/边界/标注）
+    - 3种地图图表的设计规范
+    - 附"地图PPT禁忌"（颜色太杂、标注重叠、缺少图例）
+  variables:
+    - name: region
+      description: "展示区域，如：中国、广东省、长三角、北京市"
+      required: true
+    - name: data_type
+      description: "数据类型，如：GDP、人口、疫情、销售额、温度"
+      required: true
+    - name: precision
+      description: "地图精度"
+      required: false
+      default_value: "市级"
+  intent_tags: ["地图", "地理", "可视化", "区域数据", "热力图", "分布图", "地图PPT"]
+  difficulty: advanced
+  quality_score: 0.89
+
+- id: ppt_design_012
+  domain: ppt
+  sub_domain: ppt_design
+  title: "时间轴设计美化"
+  template: |
+    你是一位信息图表设计师，专治"时间轴做得像流水账"的问题。
+    
+    我的需求：
+    - 时间跨度：{time_span}
+    - 节点数量：{node_count}
+    - 风格偏好：{style}
+    
+    请帮我：
+    1. 设计5种时间轴版式（横向/纵向/S形/环形/阶梯式）
+    2. 给出每个节点的"图标+时间+标题+简述"排版规范
+    3. 提供"重点节点突出"的视觉技巧（放大/变色/加框）
+    4. 给出配色和字体建议
+    
+    输出格式：
+    - 5种时间轴的示意图描述（用文字描述布局）
+    - 每种的适用场景和优缺点对比表
+    - 附"时间轴常见错误"（节点太密、文字太多、没有重点）
+  variables:
+    - name: time_span
+      description: "时间跨度，如：1年、5年、20年"
+      required: true
+    - name: node_count
+      description: "节点数量"
+      required: true
+    - name: style
+      description: "风格偏好，如：商务、历史、科技、简约"
+      required: false
+      default_value: "商务"
+  intent_tags: ["时间轴", "历程", "发展史", "时间线", "里程碑", "历史回顾", "进程"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: ppt_design_013
+  domain: ppt
+  sub_domain: ppt_design
+  title: "组织架构图美化"
+  template: |
+    你是一位企业信息设计师，擅长把"复杂的汇报关系"变成"一眼看懂"的组织图。
+    
+    我的需求：
+    - 组织规模：{scale}
+    - 层级数：{levels}
+    - 风格：{style}
+    
+    请帮我：
+    1. 设计3种组织架构图版式（树状/矩阵/扁平网络）
+    2. 给出不同层级的颜色/形状/大小区分规范
+    3. 提供"重点部门突出"和"虚线汇报关系"的设计方案
+    4. 给出配色和字体建议
+    
+    输出格式：
+    - 3种版式的布局描述和适用场景
+    - 层级设计规范表（颜色/形状/字号）
+    - 附"组织图常见错误"（层级不清、颜色混乱、线条交叉）
+  variables:
+    - name: scale
+      description: "组织规模，如：10人团队、100人公司、万人集团"
+      required: true
+    - name: levels
+      description: "层级数量"
+      required: true
+    - name: style
+      description: "风格，如：商务、扁平、立体、手绘"
+      required: false
+      default_value: "商务"
+  intent_tags: ["组织架构", "组织图", "公司结构", "汇报关系", "架构图", "团队", "管理层"]
+  difficulty: beginner
+  quality_score: 0.88
+
+- id: ppt_design_014
+  domain: ppt
+  sub_domain: ppt_design
+  title: "SWOT矩阵设计"
+  template: |
+    你是一位战略咨询设计师，擅长把SWOT分析做得"像麦肯锡出品"。
+    
+    我的需求：
+    - 分析对象：{subject}
+    - 展示场景：{scene}
+    - 是否需要配图：{need_image}
+    
+    请帮我：
+    1. 设计3种SWOT矩阵版式（四象限/十字交叉/环形）
+    2. 给出S/W/O/T四区的配色方案（优势绿/劣势红/机会蓝/威胁橙）
+    3. 提供"每个象限3-5个要点"的排版规范
+    4. 给出图标建议（每个象限配一个代表性图标）
+    
+    输出格式：
+    - 3种版式的布局描述
+    - 配色表+图标建议
+    - 附"SWOT常见错误"（四区内容不平衡、颜色无区分、文字太多）
+  variables:
+    - name: subject
+      description: "分析对象，如：公司、产品、个人、项目"
+      required: true
+    - name: scene
+      description: "展示场景"
+      required: false
+      default_value: "商务汇报"
+    - name: need_image
+      description: "是否需要配图"
+      required: false
+      default_value: "是"
+  intent_tags: ["SWOT", "矩阵", "分析", "战略", "四象限", "优劣势", "分析图"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: ppt_design_015
+  domain: ppt
+  sub_domain: ppt_design
+  title: "流程图设计规范"
+  template: |
+    你是一位流程可视化专家，擅长把"复杂的流程"变成"顺着箭头就能看懂"的图。
+    
+    我的需求：
+    - 流程类型：{flow_type}
+    - 步骤数量：{step_count}
+    - 是否需要判断分支：{has_branch}
+    
+    请帮我：
+    1. 设计一套流程图视觉规范（形状/颜色/箭头/连线/字体）
+    2. 给出"开始→过程→判断→结束"的标准符号配色
+    3. 提供"主流程+子流程"的嵌套展示方案
+    4. 给出3种风格（商务蓝/科技黑/手绘风）
+    
+    输出格式：
+    - 符号规范表（形状+颜色+用途）
+    - 3种风格的配色和字体建议
+    - 附"流程图常见错误"（箭头交叉、步骤太多一页放不下、缺少判断）
+  variables:
+    - name: flow_type
+      description: "流程类型，如：审批流程、生产流程、算法流程、业务流程"
+      required: true
+    - name: step_count
+      description: "大概多少步骤"
+      required: true
+    - name: has_branch
+      description: "是否有判断分支（是/否节点）"
+      required: false
+      default_value: "是"
+  intent_tags: ["流程图", "流程", "步骤", "审批", "业务流程", "算法", "可视化"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: ppt_design_016
+  domain: ppt
+  sub_domain: ppt_design
+  title: "封面设计公式"
+  template: |
+    你是一位封面设计大师，深知"封面定生死"——观众3秒内决定是否认真看。
+    
+    我的需求：
+    - PPT主题：{topic}
+    - 使用场景：{scene}
+    - 风格偏好：{style}
+    
+    请帮我：
+    1. 给出5种"高点击率"封面公式（大图+文字/纯文字排版/图形遮罩/分屏/极简）
+    2. 每种公式给出"标题位置+副标题位置+视觉焦点"的具体参数
+    3. 提供"标题字体+字号+颜色"的搭配方案
+    4. 给出3种不同场景的封面案例描述
+    
+    输出格式：
+    - 5种公式的布局示意图（文字描述）
+    - 每种公式的适用场景和优缺点
+    - 附"封面禁忌"（信息太多、标题太小、图片太花、没有留白）
+  variables:
+    - name: topic
+      description: "PPT主题或标题"
+      required: true
+    - name: scene
+      description: "使用场景"
+      required: true
+    - name: style
+      description: "风格偏好"
+      required: false
+      default_value: "商务"
+  intent_tags: ["封面", "PPT封面", "标题页", "封面设计", "首页", "封面模板", "第一眼"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: ppt_design_017
+  domain: ppt
+  sub_domain: ppt_design
+  title: "结尾页设计公式"
+  template: |
+    你是一位演讲收尾专家，知道"结尾是观众唯一会记住的部分"。
+    
+    我的需求：
+    - PPT主题：{topic}
+    - 结尾目的：{ending_goal}
+    - 风格：{style}
+    
+    请帮我：
+    1. 给出5种结尾页公式（金句型/号召型/感谢型/联系方式型/悬念型）
+    2. 每种公式给出"最后一句话"的3个版本
+    3. 提供"二维码/联系方式/致谢"的排版位置建议
+    4. 给出配色和字体建议（结尾页通常比封面更简洁）
+    
+    输出格式：
+    - 5种结尾公式的话术模板
+    - 排版参数（位置/字号/颜色）
+    - 附"结尾禁忌"（突然结束、新信息太多、没有感谢）
+  variables:
+    - name: topic
+      description: "PPT主题"
+      required: true
+    - name: ending_goal
+      description: "结尾目的，如：号召行动、表达感谢、留下联系方式、发人深省"
+      required: true
+    - name: style
+      description: "整体风格"
+      required: false
+      default_value: "商务"
+  intent_tags: ["结尾", "结束页", "PPT结尾", "收尾", "最后一页", "致谢", "金句"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: ppt_design_018
+  domain: ppt
+  sub_domain: ppt_design
+  title: "图文混排技巧"
+  template: |
+    你是一位杂志排版设计师，擅长让"图和文"互相成就而不是互相打架。
+    
+    我的需求：
+    - 页面类型：{page_type}
+    - 图片数量：{image_count}
+    - 文字量：{text_amount}
+    
+    请帮我：
+    1. 给出6种图文混排版式（左图右文/上图下文/包围式/穿插式/全底图/卡片式）
+    2. 每种版式给出"图片比例+文字区域+对齐方式"的具体参数
+    3. 提供"图片不够清晰"时的处理方案（遮罩/模糊/黑白/插画化）
+    4. 给出"一图一文/一图多文/多图一文"的排版差异
+    
+    输出格式：
+    - 6种版式的布局描述和适用场景
+    - 图片处理技巧清单
+    - 附"图文混排禁忌"（图文无关、图片变形、文字压图看不清）
+  variables:
+    - name: page_type
+      description: "页面类型，如：产品介绍、团队介绍、案例展示、新闻报道"
+      required: true
+    - name: image_count
+      description: "每页图片数量"
+      required: true
+    - name: text_amount
+      description: "文字量，如：一句话/一段话/多段"
+      required: false
+      default_value: "一段话"
+  intent_tags: ["图文混排", "排版", "图片文字", "杂志风", "图文搭配", "版面设计", "布局"]
+  difficulty: beginner
+  quality_score: 0.89
+
+- id: ppt_design_019
+  domain: ppt
+  sub_domain: ppt_design
+  title: "动画使用指南"
+  template: |
+    你是一位PPT动画导演，深知"动画是盐，少了无味，多了齁死"。
+    
+    我的需求：
+    - PPT类型：{ppt_type}
+    - 使用场景：{scene}
+    - 是否需要复杂动画：{complex_anim}
+    
+    请帮我：
+    1. 给出"必用动画清单"（淡入/擦除/缩放/路径）及适用场景
+    2. 提供"动画节奏"建议（什么时候该快、什么时候该慢、什么时候该停）
+    3. 给出"切换动画"和"对象动画"的搭配原则
+    4. 提供"一键删除所有动画"的应急方案
+    
+    输出格式：
+    - 动画推荐表（动画名+适用场景+持续时间+速度）
+    - 节奏建议表（页面类型+动画数量+总时长）
+    - 附"动画禁忌"（每个元素都飞入、动画太慢、音效太吵、路径太花哨）
+  variables:
+    - name: ppt_type
+      description: "PPT类型，如：汇报、教学、演讲、展示"
+      required: true
+    - name: scene
+      description: "使用场景"
+      required: false
+      default_value: "商务汇报"
+    - name: complex_anim
+      description: "是否需要复杂动画"
+      required: false
+      default_value: "否"
+  intent_tags: ["动画", "PPT动画", "切换效果", "动态", "演示动画", "动画效果", "动画节奏"]
+  difficulty: beginner
+  quality_score: 0.88
+
+- id: ppt_design_020
+  domain: ppt
+  sub_domain: ppt_design
+  title: "字体搭配方案"
+  template: |
+    你是一位字体设计师，深知"字体选对了，PPT就成功了一半"。
+    
+    我的需求：
+    - 使用场景：{scene}
+    - 风格偏好：{style}
+    - 是否需要免费商用字体：{free_font}
+    
+    请帮我：
+    1. 给出5组"标题+正文"字体搭配方案（每组含字体名+适用场景+气质描述）
+    2. 提供"中文字体+英文字体"的混排建议
+    3. 给出字号层级规范（封面标题/页面标题/正文/注释的具体字号）
+    4. 提供"字体嵌入"和"字体替换"的应急方案
+    
+    输出格式：
+    - 5组搭配表（标题字体+正文字体+气质+场景）
+    - 字号层级表（元素+字号+字重+颜色）
+    - 附"字体禁忌"（字体太多、艺术字滥用、宋体当标题、字号小于16）
+  variables:
+    - name: scene
+      description: "使用场景"
+      required: true
+    - name: style
+      description: "风格偏好，如：商务、文艺、科技、教育、政务"
+      required: false
+      default_value: "商务"
+    - name: free_font
+      description: "是否只推荐免费商用字体"
+      required: false
+      default_value: "是"
+  intent_tags: ["字体", "字体搭配", "PPT字体", "排版", "字号", "字体设计", "文字排版"]
+  difficulty: beginner
+  quality_score: 0.90

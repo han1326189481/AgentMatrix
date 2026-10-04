@@ -1,0 +1,137 @@
+# ============================================================
+# AgentMatrix Skill Engine V2 — 技能树定义
+# ============================================================
+# 定义技能领域层级结构，支持多级子节点
+# Knowledge Agent 沿树从根到叶检测领域路径
+# ============================================================
+
+tree:
+  root:
+    id: "root"
+    name: "通用技能"
+    model: ""
+
+    children:
+      - id: "daily"
+        name: "日常对话"
+        model: ""
+        children: []
+
+      - id: "creative"
+        name: "创意写作"
+        model: ""
+        children: []
+
+      - id: "business"
+        name: "商业应用"
+        model: ""
+        children:
+          - id: "business.planning"
+            name: "活动策划"
+            model: ""
+            children: []
+
+          - id: "business.report"
+            name: "分析报告"
+            model: ""
+            children: []
+
+          - id: "business.proposal"
+            name: "方案设计"
+            model: ""
+            children: []
+
+      - id: "tech"
+        name: "技术领域"
+        model: ""
+        children:
+          - id: "tech.ai"
+            name: "人工智能"
+            model: ""
+            children:
+              - id: "tech.ai.prompt"
+                name: "Prompt Engineering"
+                model: ""
+                children: []
+
+              - id: "tech.ai.rag"
+                name: "RAG 检索增强"
+                model: ""
+                children:
+                  - id: "tech.ai.rag.chunking"
+                    name: "文档分块策略"
+                    model: ""
+                    children: []
+
+                  - id: "tech.ai.rag.embedding"
+                    name: "嵌入模型选择"
+                    model: ""
+                    children: []
+
+                  - id: "tech.ai.rag.retrieval"
+                    name: "检索优化"
+                    model: ""
+                    children: []
+
+              - id: "tech.ai.agent"
+                name: "Agent 开发"
+                model: ""
+                children:
+                  - id: "tech.ai.agent.multi"
+                    name: "多智能体系统"
+                    model: ""
+                    children: []
+
+                  - id: "tech.ai.agent.memory"
+                    name: "记忆管理"
+                    model: ""
+                    children: []
+
+                  - id: "tech.ai.agent.tool"
+                    name: "工具调用"
+                    model: ""
+                    children: []
+
+                  - id: "tech.ai.agent.mcp"
+                    name: "MCP 协议"
+                    model: ""
+                    children: []
+
+              - id: "tech.ai.llm"
+                name: "大语言模型"
+                model: ""
+                children: []
+
+          - id: "tech.crypto"
+            name: "密码学"
+            model: ""
+            children:
+              - id: "tech.crypto.quantum"
+                name: "量子密码学"
+                model: ""
+                children: []
+
+              - id: "tech.crypto.post_quantum"
+                name: "后量子密码学"
+                model: ""
+                children: []
+
+              - id: "tech.crypto.classical"
+                name: "经典密码学"
+                model: ""
+                children: []
+
+          - id: "tech.network"
+            name: "网络技术"
+            model: ""
+            children: []
+
+          - id: "tech.compiler"
+            name: "编译原理"
+            model: ""
+            children: []
+
+          - id: "tech.os"
+            name: "操作系统"
+            model: ""
+            children: []

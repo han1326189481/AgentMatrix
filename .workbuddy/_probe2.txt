@@ -1,0 +1,29 @@
+﻿=== 自学习闭环：_pending_patches 现状 ===
+D:\AgentMatrix\backend\prompts\skills\_pending_patches  -> 34 files
+    tech_ai_agent_20260721_093923.yaml  399B  07/21/2026 09:39:23
+    tech_ai_agent_20260721_093947.yaml  399B  07/21/2026 09:39:47
+    tech_ai_agent_20260721_094502.yaml  399B  07/21/2026 09:45:02
+    tech_ai_agent_20260721_172323.yaml  399B  07/21/2026 17:23:23
+    tech_ai_agent_20260721_172535.yaml  399B  07/21/2026 17:25:35
+    tech_ai_agent_20260721_173804.yaml  399B  07/21/2026 17:38:04
+    tech_ai_agent_20260721_184428.yaml  399B  07/21/2026 18:44:28
+    tech_ai_agent_20260722_113911.yaml  399B  07/22/2026 11:39:11
+=== 图算法相关文件 ===
+core\engines\patch_validator.py  6219B
+core\graphs\capability_graph.py  2819B
+core\graphs\graph_builder.py  6988B
+core\graphs\intent_graph.py  4321B
+core\graphs\reasoning_graph.py  11443B
+core\graphs\skill_graph.py  12000B
+core\skill_engine\intent_analyzer.py  4316B
+core\skill_engine\intent_cache.py  9513B
+libs\aiohttp\web_urldispatcher.py  45174B
+libs\jcodemunch_mcp\encoding\schemas\get_dependency_graph.py  1274B
+libs\jcodemunch_mcp\evidence\capability.py  10884B
+libs\jcodemunch_mcp\tools\get_dependency_graph.py  9334B
+libs\jcodemunch_mcp\tools\_call_graph.py  30592B
+libs\pythonwin\pywin\idle\FormatParagraph.py  5850B
+libs\win32com\server\dispatcher.py  8273B
+libs\win32comext\axscript\client\scriptdispatch.py  3856B
+tests\test_graph_builder.py  5900B
+tests\test_skill_graph.py  10715B

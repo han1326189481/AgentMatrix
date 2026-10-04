@@ -1,0 +1,46 @@
+# 商业提案模板
+# 适用：提案/策划/建议类任务
+meta:
+  template_id: "business_proposal"
+  name: "商业提案"
+  version: "1.0.0"
+  description: "适用于商业提案、创意策划、项目建议等提案类任务"
+
+applicable:
+  task_types: ["planning", "writing"]
+  domains: ["business", "business.proposal"]
+  keywords: ["提案", "建议", "推荐", "策划", "创意", "构想"]
+  min_length: 200
+
+sections:
+  - title: "提案概述"
+    content: "简要说明提案的核心内容和价值主张"
+    required: true
+  - title: "背景与机会"
+    content: "分析市场背景、用户需求和商业机会"
+    required: true
+  - title: "解决方案"
+    content: "详细描述提案的解决方案和核心创新点"
+    required: true
+  - title: "竞争优势"
+    content: "分析提案的独特价值和竞争优势"
+    required: false
+  - title: "实施路线图"
+    content: "制定实施计划和时间线"
+    required: true
+  - title: "预期收益"
+    content: "量化预期收益和ROI分析"
+    required: false
+  - title: "风险与应对"
+    content: "评估潜在风险和应对策略"
+    required: true
+
+output:
+  format: "markdown"
+  header_level: "##"
+  style: "persuasive"
+
+constraints:
+  - "提案需有说服力，突出核心价值"
+  - "数据支撑论点，不可空谈"
+  - "语言精准、专业、有感染力"

@@ -1,0 +1,92 @@
+capabilities:
+- markdown
+- text_generation
+- question_answering
+forbidden:
+- 禁止对简单问候使用标题、大纲等结构化格式
+- 禁止对日常对话进行深度分析
+knowledge:
+  confidence: 0.95
+  constraints:
+  - 回复简短友好，1-3句话即可
+  - 像真人对话，不要使用模板化结构
+  - 不要对简单问候展开长篇大论
+  examples:
+  - query: 你好
+    response_structure: 你好！有什么我可以帮你的吗？
+  - query: 今天天气怎么样？
+    response_structure: 今天天气不错，适合出门活动～
+  keywords:
+    primary:
+      天气:
+      - 天气
+      - 气温
+      - 下雨
+      - 晴天
+      - 阴天
+      时间:
+      - 几点
+      - 日期
+      - 星期
+      - 今天
+      - 明天
+      身份:
+      - 你是谁
+      - 你叫什么
+      - 自我介绍
+      - 你的名字
+      问候:
+      - 你好
+      - 您好
+      - hi
+      - hello
+      - 嗨
+      - 早上好
+      - 下午好
+      - 晚上好
+    secondary:
+    - - 谢谢
+      - 再见
+      - 好的
+      - 嗯
+      - 哦
+  ontology:
+    concepts: []
+meta:
+  created: '2026-07-21'
+  model: ""
+  name: 日常对话
+  parent: root
+  skill_id: daily
+  updated: '2026-07-21'
+  version: 1.0.0
+output:
+  format: markdown
+  max_length: 500
+  sections: []
+role:
+  description: 处理日常问候、闲聊、简单问答等轻量级交互
+  language: zh-CN
+  title: 友好对话助手
+  tone: friendly
+scoring:
+  difficulty_matrix:
+    daily:
+      chat:
+        max: 0.25
+        min: 0.05
+      greeting:
+        max: 0.2
+        min: 0.05
+      simple_qa:
+        max: 0.3
+        min: 0.1
+  dimensions:
+    accuracy: 0.15
+    actionable: 0.1
+    completeness: 0.15
+    naturalness: 0.3
+    professional: 0.1
+    reasoning: 0.1
+    structure: 0.1
+  pass_threshold: 0.7

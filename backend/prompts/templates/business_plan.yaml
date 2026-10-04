@@ -1,0 +1,47 @@
+# 商业方案模板
+# 适用：方案/计划/设计类任务
+meta:
+  template_id: "business_plan"
+  name: "商业方案"
+  version: "1.0.0"
+  description: "适用于商业方案、项目计划、活动策划等需要结构化输出的任务"
+
+applicable:
+  task_types: ["planning", "writing"]
+  domains: ["business", "business.planning"]
+  keywords: ["方案", "计划", "设计", "规划", "策划"]
+  min_length: 200
+
+sections:
+  - title: "项目背景"
+    content: "说明项目的起因、背景和必要性，分析现状和存在的问题"
+    required: true
+  - title: "项目目标"
+    content: "明确项目的具体目标、预期成果和衡量标准"
+    required: true
+  - title: "方案设计"
+    content: "详细描述方案的具体内容、架构设计和核心思路"
+    required: true
+  - title: "实施步骤"
+    content: "制定分阶段的实施计划，包含时间节点和里程碑"
+    required: true
+  - title: "资源配置"
+    content: "列出所需的人员、物资、预算等资源需求"
+    required: false
+  - title: "风险评估"
+    content: "识别可能的风险因素，制定应对预案"
+    required: true
+  - title: "效果评估"
+    content: "如何评估方案执行效果，设定关键指标"
+    required: false
+
+output:
+  format: "markdown"
+  header_level: "##"
+  style: "professional"
+
+constraints:
+  - "结构必须完整，不允许跳过任何 required 章节"
+  - "数据需尽可能量化，避免空泛描述"
+  - "建议需具备可执行性，给出具体步骤"
+  - "专业术语使用准确"

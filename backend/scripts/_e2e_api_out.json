@@ -1,0 +1,61 @@
+{
+  "repair_docx": {
+    "doc_task": {
+      "task_type": "repair_docx",
+      "target_path": "_e2e_fixture/测试报告.docx",
+      "rules_path": "_e2e_fixture/格式规范.md",
+      "detection_source": "implicit",
+      "reason": "目标 _e2e_fixture/测试报告.docx + 规则 _e2e_fixture/格式规范.md + 修复意图"
+    },
+    "doc_result": {
+      "doc_action": "repair_docx",
+      "file_path": "_e2e_fixture/测试报告.docx",
+      "compliance_rate": 1.0,
+      "rounds": 2,
+      "status": "compliant",
+      "remaining_violations": 0
+    },
+    "has_report": true
+  },
+  "generate_docx": {
+    "doc_task": {
+      "task_type": "generate_docx",
+      "rules_path": "_e2e_fixture/格式规范.md",
+      "output_path": "generated/项目方案文档.docx",
+      "detection_source": "implicit",
+      "reason": "生成意图 + 规则 _e2e_fixture/格式规范.md"
+    },
+    "doc_result": {
+      "doc_action": "generate_docx",
+      "file_path": "generated/项目方案文档.docx",
+      "compliance_rate": 1.0,
+      "status": "success"
+    },
+    "has_report": true
+  },
+  "fix_pptx": {
+    "doc_task": {
+      "task_type": "fix_pptx",
+      "target_path": "_e2e_fixture/演示文稿.pptx",
+      "detection_source": "implicit",
+      "reason": "检测到 PPT 修复意图 + 目标 _e2e_fixture/演示文稿.pptx"
+    },
+    "doc_result": {
+      "doc_action": "fix_pptx",
+      "file_path": "_e2e_fixture/演示文稿.pptx",
+      "slides_before": 4,
+      "slides_after": 1
+    },
+    "has_report": true
+  },
+  "read_only": {
+    "doc_task": {
+      "task_type": "read_only",
+      "target_path": "_e2e_fixture/测试报告.docx",
+      "detection_source": "implicit",
+      "reason": "引用文档 _e2e_fixture/测试报告.docx，无修改/生成意图（含读取提示词）"
+    },
+    "doc_result": {},
+    "has_report": false
+  }
+}

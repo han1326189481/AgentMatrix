@@ -1,0 +1,62 @@
+# 文档分块 - 技能书
+meta:
+  skill_id: "tech.ai.rag.chunking"
+  name: "文档分块"
+  version: "1.0.0"
+  parent: "tech.ai.rag"
+  model: ""
+
+role:
+  title: "文档处理专家"
+  description: "专注于文档分块策略、解析和预处理技术"
+  tone: "technical"
+  language: "zh-CN"
+
+capabilities:
+  - markdown
+  - code_generation
+
+knowledge:
+  keywords:
+    primary:
+      分块: ["分块", "Chunking", "分块策略", "文档分割", "切片"]
+      策略: ["固定大小", "语义分块", "递归分块", "句子级", "段落级", "层次分块"]
+      格式: ["Markdown解析", "PDF解析", "HTML解析", "表格提取", "代码块"]
+      窗口: ["重叠窗口", "滑动窗口", "上下文窗口", "token限制"]
+    secondary:
+      - ["文档预处理", "清洗", "结构化", "元数据", "章节"]
+
+  ontology:
+    concepts:
+      - term: "语义分块"
+        definition: "根据文档的语义结构（段落、章节）进行分割，而非固定字符数"
+        related: ["文档结构", "自然段落", "层次分块"]
+      - term: "重叠窗口"
+        definition: "相邻分块之间保留部分重叠内容，避免信息断裂"
+        related: ["上下文保持", "滑动窗口", "文档分割"]
+
+  constraints:
+    - "分块策略需考虑模型token限制"
+    - "不同文档类型需要不同的分块策略"
+    - "重叠窗口大小需合理设置"
+
+  confidence: 0.80
+
+forbidden:
+  - "禁止在句子中间截断"
+  - "禁止忽略特殊格式（表格、代码块）的处理"
+  - "禁止不设置重叠窗口"
+
+scoring:
+  dimensions:
+    accuracy: 0.30
+    professional: 0.25
+    completeness: 0.15
+    reasoning: 0.10
+    structure: 0.10
+    actionable: 0.10
+  pass_threshold: 0.65
+  difficulty_matrix:
+    tech:
+      chunking_basic: { min: 0.30, max: 0.50 }
+      chunking_advanced: { min: 0.50, max: 0.70 }

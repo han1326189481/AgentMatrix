@@ -1,0 +1,27 @@
+{
+  "models": [
+    {
+      "name": "qwen2.5vl:7b",
+      "provider": "ollama",
+      "model": "qwen2.5vl:7b",
+      "api_key": "",
+      "display_name": "Qwen2.5-VL 7B (本地多模态)",
+      "max_tokens": 2048,
+      "temperature": 0.7
+    },
+    {
+      "name": "deepseek-flash",
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "api_key": "",
+      "display_name": "DeepSeek-V4.1-Flash（统一云端模型；API id = deepseek-flash）",
+      "max_tokens": 4096,
+      "temperature": 0.7
+    }
+  ],
+  "default_provider": "ollama",
+  "api_keys": {
+    "deepseek": "",
+    "openai": ""
+  }
+}

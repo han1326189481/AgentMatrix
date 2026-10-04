@@ -1,0 +1,1409 @@
+- id: writing_creative_001
+  domain: writing
+  sub_domain: writing_creative
+  title: 帮我写个朋友圈文案，旅行打卡要文艺
+  template: '你是一位文案达人，深知"朋友圈写得好，点赞过百；写不好，无人问津"。
+
+
+    旅行信息：
+
+    - 地点：{location}
+
+    - 同行的人：{companions}
+
+    - 最难忘的场景：{scene}
+
+    - 当时的心情：{mood}
+
+    - 想表达的感觉：{feeling}
+
+    - 配图风格：{photo_style}
+
+
+    请直接输出{count}条朋友圈文案，可直接复制发布。
+
+
+    要求：
+
+    1. 风格{style}，适合{audience}
+
+    2. 不堆砌辞藻，有画面感
+
+    3. 有金句，让人想转发
+
+    4. 给出完整文案，不要只给思路
+
+
+    输出格式：
+
+    - {count}条完整文案（含emoji建议位置）
+
+    - 配图建议（每张配什么图）
+
+    '
+  variables:
+  - name: location
+    description: 旅行地点
+    required: true
+  - name: companions
+    description: 同行的人
+    options:
+    - 独自
+    - 伴侣
+    - 朋友
+    - 家人
+    - 同事
+    required: true
+  - name: scene
+    description: 最难忘的场景
+    required: true
+  - name: mood
+    description: 当时的心情
+    required: true
+  - name: feeling
+    description: 想表达的感觉
+    required: true
+  - name: photo_style
+    description: 配图风格
+    options:
+    - 风景大片
+    - 人像
+    - 美食
+    - 人文
+    - 随拍
+    required: false
+    default_value: 风景大片
+  - name: style
+    description: 文案风格
+    options:
+    - 文艺清新
+    - 幽默搞笑
+    - 深情走心
+    - 极简高级
+    - 热血励志
+    required: false
+    default_value: 文艺清新
+  - name: audience
+    description: 受众
+    options:
+    - 朋友
+    - 客户
+    - 粉丝
+    - 家人
+    required: false
+    default_value: 朋友
+  - name: count
+    description: 文案条数
+    options:
+    - '1'
+    - '3'
+    - '5'
+    required: false
+    default_value: '3'
+  intent_tags:
+  - 朋友圈文案
+  - 旅行文案
+  - 打卡文案
+  - 帮我写朋友圈
+  - 文艺文案
+  - 旅行打卡
+  - 社交媒体
+  difficulty: beginner
+  quality_score: 0.92
+- id: writing_creative_002
+  domain: writing
+  sub_domain: writing_creative
+  title: 小红书种草文案怎么写，让人想下单
+  template: '你是一位小红书万粉博主，深知"种草文案写得好，转化率翻倍"。
+
+
+    产品信息：
+
+    - 产品名称：{product}
+
+    - 产品类别：{category}
+
+    - 核心卖点：{selling_points}
+
+    - 使用场景：{scene}
+
+    - 目标人群：{target}
+
+    - 价格区间：{price}
+
+
+    请直接输出一篇完整的小红书种草笔记，可直接发布。
+
+
+    要求：
+
+    1. 标题有数字、有情绪、有悬念
+
+    2. 开头3秒抓住人，不说"今天给大家推荐"
+
+    3. 真实体验感，不硬广
+
+    4. 有使用前后对比或具体场景
+
+    5. 给出完整文案，不要只给框架
+
+
+    输出格式：
+
+    - 完整笔记正文（含标题）
+
+    - 话题标签建议（#）
+
+    - 配图建议（几张、每张拍什么）
+
+    '
+  variables:
+  - name: product
+    description: 产品名称
+    required: true
+  - name: category
+    description: 产品类别
+    options:
+    - 美妆
+    - 穿搭
+    - 美食
+    - 家居
+    - 数码
+    - 旅行
+    - 母婴
+    - 健身
+    required: true
+  - name: selling_points
+    description: 核心卖点
+    required: true
+  - name: scene
+    description: 使用场景
+    required: true
+  - name: target
+    description: 目标人群
+    required: true
+  - name: price
+    description: 价格区间
+    required: false
+    default_value: （用户未提供）
+  intent_tags:
+  - 小红书
+  - 种草文案
+  - 笔记
+  - 帮我写小红书
+  - 带货文案
+  - 社交媒体
+  - 内容创作
+  difficulty: beginner
+  quality_score: 0.93
+- id: writing_creative_003
+  domain: writing
+  sub_domain: writing_creative
+  title: 短视频脚本怎么写，开头3秒留住人
+  template: '你是一位短视频编导，深知"脚本写得好，完播率翻倍；写不好，3秒就划走"。
+
+
+    视频信息：
+
+    - 主题/选题：{topic}
+
+    - 视频时长：{duration}
+
+    - 目标平台：{platform}
+
+    - 目标受众：{audience}
+
+    - 核心卖点/笑点：{hook}
+
+    - 是否带货：{is_selling}
+
+
+    请直接输出一份完整的短视频脚本，可直接拍摄。
+
+
+    要求：
+
+    1. 开头3秒有钩子（冲突/疑问/反差）
+
+    2. 每5秒一个节奏点，不拖沓
+
+    3. 台词口语化，适合念出来
+
+    4. 画面和台词一一对应
+
+    5. 给出完整脚本，不要只给框架
+
+
+    输出格式：
+
+    - 完整分镜脚本（镜号+画面+台词/旁白+时长+道具）
+
+    - BGM建议
+
+    '
+  variables:
+  - name: topic
+    description: 视频主题或选题
+    required: true
+  - name: duration
+    description: 视频时长
+    options:
+    - 15秒
+    - 30秒
+    - 60秒
+    - 3分钟
+    - 5分钟
+    required: true
+  - name: platform
+    description: 目标平台
+    options:
+    - 抖音
+    - 快手
+    - 视频号
+    - B站
+    - 小红书
+    required: true
+  - name: audience
+    description: 目标受众
+    required: true
+  - name: hook
+    description: 核心卖点或笑点
+    required: true
+  - name: is_selling
+    description: 是否带货
+    options:
+    - 是
+    - 否
+    required: false
+    default_value: 否
+  intent_tags:
+  - 短视频脚本
+  - 视频脚本
+  - 抖音脚本
+  - 帮我写脚本
+  - 分镜脚本
+  - 短视频
+  - 内容创作
+  difficulty: intermediate
+  quality_score: 0.94
+- id: writing_creative_004
+  domain: writing
+  sub_domain: writing_creative
+  title: 品牌故事怎么写，让人记住你的品牌
+  template: '你是一位品牌策划大师，深知"品牌故事写得好，客户记住你一辈子"。
+
+
+    品牌信息：
+
+    - 品牌名称：{brand}
+
+    - 创立背景：{origin}
+
+    - 创始人故事：{founder}
+
+    - 品牌理念：{philosophy}
+
+    - 核心产品：{product}
+
+    - 目标人群：{target}
+
+    - 品牌调性：{tone}
+
+
+    请直接输出一篇完整的品牌故事，可用于官网/宣传册/公众号。
+
+
+    要求：
+
+    1. 有冲突、有转折、有情感，不是流水账
+
+    2. 创始人故事真实感人，不编造
+
+    3. 自然融入品牌理念，不硬塞
+
+    4. 结尾有记忆点，让人想分享
+
+    5. 给出完整范文，不要只给框架
+
+
+    输出格式：
+
+    - 完整品牌故事正文
+
+    - 金句提炼（可用于slogan或海报）
+
+    '
+  variables:
+  - name: brand
+    description: 品牌名称
+    required: true
+  - name: origin
+    description: 创立背景
+    required: true
+  - name: founder
+    description: 创始人故事
+    required: true
+  - name: philosophy
+    description: 品牌理念
+    required: true
+  - name: product
+    description: 核心产品或服务
+    required: true
+  - name: target
+    description: 目标人群
+    required: true
+  - name: tone
+    description: 品牌调性
+    options:
+    - 温暖治愈
+    - 硬核科技
+    - 匠心传承
+    - 年轻潮酷
+    - 高端奢华
+    required: false
+    default_value: 温暖治愈
+  intent_tags:
+  - 品牌故事
+  - 品牌文案
+  - 品牌策划
+  - 帮我写品牌
+  - 品牌宣传
+  - 内容营销
+  - 品牌文案
+  difficulty: intermediate
+  quality_score: 0.93
+- id: writing_creative_005
+  domain: writing
+  sub_domain: writing_creative
+  title: 产品卖点文案怎么写，一句话让人想买
+  template: '你是一位爆款文案写手，深知"卖点写得好，转化率翻倍；写不好，产品再好也卖不动"。
+
+
+    产品信息：
+
+    - 产品名称：{product}
+
+    - 产品类别：{category}
+
+    - 核心功能：{features}
+
+    - 目标用户痛点：{pain_point}
+
+    - 竞品差异点：{difference}
+
+    - 使用场景：{scene}
+
+
+    请直接输出一套完整的产品卖点文案，可直接用于详情页/海报/广告。
+
+
+    要求：
+
+    1. 主卖点一句话，让人秒懂
+
+    2. 副卖点3-5个，每个配一句文案
+
+    3. 不说功能，说好处（FAB法则）
+
+    4. 有场景感，让人能想象使用画面
+
+    5. 给出完整文案，不要只给框架
+
+
+    输出格式：
+
+    - 主标题+副标题
+
+    - 核心卖点文案（3-5条）
+
+    - 场景化文案（3个使用场景）
+
+    - CTA行动号召语
+
+    '
+  variables:
+  - name: product
+    description: 产品名称
+    required: true
+  - name: category
+    description: 产品类别
+    required: true
+  - name: features
+    description: 核心功能
+    required: true
+  - name: pain_point
+    description: 目标用户痛点
+    required: true
+  - name: difference
+    description: 与竞品的差异点
+    required: true
+  - name: scene
+    description: 使用场景
+    required: true
+  intent_tags:
+  - 产品文案
+  - 卖点文案
+  - 详情页文案
+  - 帮我写文案
+  - 电商文案
+  - 广告语
+  - 内容营销
+  difficulty: intermediate
+  quality_score: 0.94
+- id: writing_creative_006
+  domain: writing
+  sub_domain: writing_creative
+  title: 公众号推文怎么写，10万+的秘诀
+  template: '你是一位百万粉公众号主编，深知"推文写得好，转发破万；写不好，阅读不过百"。
+
+
+    推文信息：
+
+    - 选题/主题：{topic}
+
+    - 目标受众：{audience}
+
+    - 文章类型：{type}
+
+    - 核心观点：{argument}
+
+    - 案例/故事：{cases}
+
+    - 希望读者行动：{cta}
+
+
+    请直接输出一篇完整的公众号推文，可直接排版发布。
+
+
+    要求：
+
+    1. 标题有情绪+数字+悬念，让人想点
+
+    2. 开头用故事或冲突引入，不说"随着XX的发展"
+
+    3. 段落短，适合手机阅读
+
+    4. 金句密集，方便划线分享
+
+    5. 给出完整推文，不要只给框架
+
+
+    输出格式：
+
+    - 完整推文正文（含标题、小标题、正文）
+
+    - 排版建议（哪里加粗、哪里插图）
+
+    - 话题标签和摘要
+
+    '
+  variables:
+  - name: topic
+    description: 选题或主题
+    required: true
+  - name: audience
+    description: 目标受众
+    required: true
+  - name: type
+    description: 文章类型
+    options:
+    - 观点文
+    - 故事文
+    - 干货教程
+    - 热点评论
+    - 人物专访
+    - 清单体
+    - 漫画脚本
+    required: true
+  - name: argument
+    description: 核心观点或论点
+    required: true
+  - name: cases
+    description: 案例或故事素材
+    required: true
+  - name: cta
+    description: 希望读者采取的行动
+    required: false
+    default_value: 点赞转发
+  intent_tags:
+  - 公众号推文
+  - 公众号文案
+  - 10万+
+  - 帮我写推文
+  - 新媒体写作
+  - 自媒体
+  - 内容创作
+  difficulty: intermediate
+  quality_score: 0.94
+- id: writing_creative_007
+  domain: writing
+  sub_domain: writing_creative
+  title: 情书怎么写，不肉麻但走心
+  template: '你是一位情感作家，深知"情书写得好，对方珍藏一辈子；写不好，像小学生作文"。
+
+
+    情感信息：
+
+    - 收信人：{recipient}
+
+    - 我们的关系阶段：{stage}
+
+    - 最难忘的回忆：{memory}
+
+    - TA最让我心动的点：{charm}
+
+    - 我想表达的感情：{feeling}
+
+    - 写信场景：{occasion}
+
+
+    请直接输出一封完整的情书/表白信，可直接手写或发送。
+
+
+    要求：
+
+    1. 真诚具体，提到只属于你们的事
+
+    2. 不堆砌"永远""一辈子"等空泛词
+
+    3. 有画面感，让人能回忆起来
+
+    4. 结尾自然，不强行升华
+
+    5. 给出完整范文，不要只给框架
+
+
+    输出格式：
+
+    - 完整情书正文
+
+    - 发送建议（什么时候给、用什么方式）
+
+    '
+  variables:
+  - name: recipient
+    description: 收信人称呼
+    required: true
+  - name: stage
+    description: 关系阶段
+    options:
+    - 暗恋
+    - 暧昧
+    - 热恋
+    - 稳定期
+    - 异地恋
+    - 复合
+    - 求婚
+    required: true
+  - name: memory
+    description: 最难忘的回忆
+    required: true
+  - name: charm
+    description: TA最让你心动的点
+    required: true
+  - name: feeling
+    description: 想表达的感情
+    required: true
+  - name: occasion
+    description: 写信场景或契机
+    options:
+    - 生日
+    - 纪念日
+    - 情人节
+    - 吵架和好
+    - 日常惊喜
+    - 离别
+    - 求婚
+    required: false
+    default_value: 日常惊喜
+  intent_tags:
+  - 情书
+  - 表白信
+  - 情书怎么写
+  - 帮我写情书
+  - 表白
+  - 情感文案
+  - 浪漫
+  difficulty: beginner
+  quality_score: 0.93
+- id: writing_creative_008
+  domain: writing
+  sub_domain: writing_creative
+  title: 婚礼致辞/誓言怎么写，不尴尬又感人
+  template: '你是一位婚礼策划师，听过上千场致辞，深知"致辞写得好，全场落泪；写不好，全场尴尬"。
+
+
+    婚礼信息：
+
+    - 致辞人身份：{speaker}
+
+    - 与新人关系：{relationship}
+
+    - 新人的故事：{story}
+
+    - 新人特点：{traits}
+
+    - 致辞时长：{duration}
+
+    - 场合氛围：{atmosphere}
+
+
+    请直接输出一份完整的婚礼致辞/誓言，可直接使用。
+
+
+    要求：
+
+    1. 开场有笑点，破冰不尴尬
+
+    2. 中间有泪点，故事要具体
+
+    3. 结尾有金句，让人记住
+
+    4. 时长控制精准，不超时
+
+    5. 给出完整范文，不要只给框架
+
+
+    输出格式：
+
+    - 完整致辞正文
+
+    - 演讲技巧（哪里停顿、哪里看对方）
+
+    '
+  variables:
+  - name: speaker
+    description: 致辞人身份
+    options:
+    - 新郎
+    - 新娘
+    - 父亲
+    - 母亲
+    - 伴郎
+    - 伴娘
+    - 证婚人
+    - 朋友
+    required: true
+  - name: relationship
+    description: 与新人关系
+    required: true
+  - name: story
+    description: 新人的故事
+    required: true
+  - name: traits
+    description: 新人特点
+    required: true
+  - name: duration
+    description: 致辞时长
+    options:
+    - 2分钟
+    - 3分钟
+    - 5分钟
+    - 8分钟
+    required: false
+    default_value: 3分钟
+  - name: atmosphere
+    description: 场合氛围
+    options:
+    - 温馨浪漫
+    - 轻松幽默
+    - 庄重正式
+    - 感人催泪
+    required: false
+    default_value: 温馨浪漫
+  intent_tags:
+  - 婚礼致辞
+  - 婚礼誓言
+  - 结婚致辞
+  - 帮我写致辞
+  - 婚礼发言
+  - 结婚誓言
+  - 婚礼文案
+  difficulty: intermediate
+  quality_score: 0.94
+- id: writing_creative_009
+  domain: writing
+  sub_domain: writing_creative
+  title: 悼词/追思文怎么写，送别亲人朋友
+  template: '你一位生命礼仪师，深知"悼词写得好，送别有尊严；写不好，像念简历"。
+
+
+    逝者信息：
+
+    - 逝者姓名：{name}
+
+    - 与逝者关系：{relationship}
+
+    - 逝者生平亮点：{life}
+
+    - 最难忘的记忆：{memory}
+
+    - 逝者的品格：{character}
+
+    - 场合：{occasion}
+
+
+    请直接输出一份完整的悼词/追思文，可直接在追悼会上诵读。
+
+
+    要求：
+
+    1. 尊重逝者，不夸大也不回避
+
+    2. 有具体故事，不说"他是一个好人"这种空话
+
+    3. 情感真挚，控制时长，不嚎啕大哭式
+
+    4. 结尾有慰藉，给在场人力量
+
+    5. 给出完整范文，不要只给框架
+
+
+    输出格式：
+
+    - 完整悼词正文
+
+    - 诵读建议（语速、停顿、情绪控制）
+
+    '
+  variables:
+  - name: name
+    description: 逝者姓名
+    required: true
+  - name: relationship
+    description: 与逝者关系
+    required: true
+  - name: life
+    description: 逝者生平亮点
+    required: true
+  - name: memory
+    description: 最难忘的记忆
+    required: true
+  - name: character
+    description: 逝者的品格
+    required: true
+  - name: occasion
+    description: 场合
+    options:
+    - 追悼会
+    - 告别仪式
+    - 骨灰安放
+    - 周年祭
+    - 家庭追思
+    required: false
+    default_value: 追悼会
+  intent_tags:
+  - 悼词
+  - 追思文
+  - 告别词
+  - 帮我写悼词
+  - 葬礼致辞
+  - 纪念文
+  - 生命礼仪
+  difficulty: intermediate
+  quality_score: 0.93
+- id: writing_creative_010
+  domain: writing
+  sub_domain: writing_creative
+  title: 生日祝福文案怎么写，不落俗套
+  template: '你是一位朋友圈文案高手，深知"生日祝福写得好，对方截图保存；写不好，像群发消息"。
+
+
+    祝福信息：
+
+    - 祝福对象：{recipient}
+
+    - 与对方关系：{relationship}
+
+    - 对方特点：{traits}
+
+    - 共同回忆：{memory}
+
+    - 我的风格：{style}
+
+
+    请直接输出{count}条生日祝福文案，可直接发送。
+
+
+    要求：
+
+    1. 不复制"生日快乐，天天开心"
+
+    2. 提到对方的特点或共同回忆
+
+    3. 有温度，不套路
+
+    4. 给出完整文案，不要只给思路
+
+
+    输出格式：
+
+    - {count}条完整祝福文案
+
+    - 发送时机建议
+
+    '
+  variables:
+  - name: recipient
+    description: 祝福对象
+    required: true
+  - name: relationship
+    description: 与对方关系
+    options:
+    - 恋人
+    - 父母
+    - 孩子
+    - 好友
+    - 同事
+    - 领导
+    - 长辈
+    - 闺蜜/兄弟
+    required: true
+  - name: traits
+    description: 对方特点
+    required: true
+  - name: memory
+    description: 共同回忆
+    required: false
+    default_value: （用户未提供，给出通用表述）
+  - name: style
+    description: 文案风格
+    options:
+    - 温馨走心
+    - 幽默搞笑
+    - 文艺诗意
+    - 简短有力
+    required: false
+    default_value: 温馨走心
+  - name: count
+    description: 文案条数
+    options:
+    - '1'
+    - '3'
+    - '5'
+    required: false
+    default_value: '3'
+  intent_tags:
+  - 生日祝福
+  - 生日文案
+  - 生日快乐
+  - 帮我写祝福
+  - 朋友圈祝福
+  - 生日贺词
+  - 祝福文案
+  difficulty: beginner
+  quality_score: 0.91
+- id: writing_creative_011
+  domain: writing
+  sub_domain: writing_creative
+  title: 餐厅/店铺点评怎么写，像专业美食家
+  template: '你是一位大众点评V8用户，深知"点评写得好，商家来感谢；写不好，像水军"。
+
+
+    消费信息：
+
+    - 店铺名称：{shop}
+
+    - 消费类型：{type}
+
+    - 菜品/产品：{items}
+
+    - 人均消费：{price}
+
+    - 最满意的点：{pros}
+
+    - 不满意的点：{cons}
+
+    - 整体评分：{rating}
+
+
+    请直接输出一篇完整的点评，可直接发布。
+
+
+    要求：
+
+    1. 真实具体，提到具体菜品和价格
+
+    2. 优缺点都写，不一边倒
+
+    3. 有照片拍摄建议
+
+    4. 给出完整点评，不要只给框架
+
+
+    输出格式：
+
+    - 完整点评正文
+
+    - 拍照建议（拍什么、怎么拍）
+
+    - 话题标签
+
+    '
+  variables:
+  - name: shop
+    description: 店铺名称
+    required: true
+  - name: type
+    description: 消费类型
+    options:
+    - 中餐
+    - 西餐
+    - 日料
+    - 火锅
+    - 烧烤
+    - 甜品
+    - 咖啡
+    - 奶茶
+    - 美容
+    - 健身
+    required: true
+  - name: items
+    description: 菜品或产品
+    required: true
+  - name: price
+    description: 人均消费
+    required: true
+  - name: pros
+    description: 最满意的点
+    required: true
+  - name: cons
+    description: 不满意的点
+    required: false
+    default_value: （用户未提供，给出通用表述）
+  - name: rating
+    description: 整体评分
+    options:
+    - 1星
+    - 2星
+    - 3星
+    - 4星
+    - 5星
+    required: true
+  intent_tags:
+  - 点评
+  - 美食点评
+  - 大众点评
+  - 帮我写点评
+  - 探店
+  - 美食文案
+  - 消费评价
+  difficulty: beginner
+  quality_score: 0.91
+- id: writing_creative_012
+  domain: writing
+  sub_domain: writing_creative
+  title: 直播带货话术怎么写，让人忍不住下单
+  template: '你是一位年销过亿的主播操盘手，深知"话术写得好，转化率翻倍；写不好，直播间冷场"。
+
+
+    直播信息：
+
+    - 产品名称：{product}
+
+    - 产品卖点：{selling_points}
+
+    - 目标人群：{target}
+
+    - 直播时长：{duration}
+
+    - 优惠机制：{discount}
+
+    - 库存数量：{stock}
+
+
+    请直接输出一份完整的直播带货话术脚本，可直接上播。
+
+
+    要求：
+
+    1. 开场有福利钩子，留住人
+
+    2. 产品介绍用"痛点→解决方案→证明"结构
+
+    3. 促单有紧迫感，但不虚假宣传
+
+    4. 互动话术自然，不机械
+
+    5. 给出完整话术，不要只给框架
+
+
+    输出格式：
+
+    - 完整直播话术（分时段：开场→产品介绍→互动→促单→收尾）
+
+    - 互动问题清单
+
+    - 应急预案话术（黑粉/冷场/库存不足）
+
+    '
+  variables:
+  - name: product
+    description: 产品名称
+    required: true
+  - name: selling_points
+    description: 产品卖点
+    required: true
+  - name: target
+    description: 目标人群
+    required: true
+  - name: duration
+    description: 直播时长
+    options:
+    - 15分钟
+    - 30分钟
+    - 1小时
+    - 2小时
+    - 整场
+    required: false
+    default_value: 30分钟
+  - name: discount
+    description: 优惠机制
+    required: true
+  - name: stock
+    description: 库存数量
+    required: false
+    default_value: （用户未提供）
+  intent_tags:
+  - 直播话术
+  - 带货话术
+  - 直播脚本
+  - 帮我写话术
+  - 电商直播
+  - 直播带货
+  - 销售话术
+  difficulty: intermediate
+  quality_score: 0.93
+- id: writing_creative_013
+  domain: writing
+  sub_domain: writing_creative
+  title: 节日营销文案怎么写，借势不硬套
+  template: '你是一位节日营销专家，深知"节日文案写得好，品牌出圈；写不好，像蹭热度"。
+
+
+    营销信息：
+
+    - 节日名称：{festival}
+
+    - 品牌/产品：{brand}
+
+    - 品牌调性：{tone}
+
+    - 核心卖点：{selling_point}
+
+    - 目标人群：{target}
+
+    - 传播渠道：{channel}
+
+
+    请直接输出一套完整的节日营销文案，可直接发布。
+
+
+    要求：
+
+    1. 节日元素和品牌自然结合，不硬凑
+
+    2. 有情感共鸣，不只是促销
+
+    3. 文案风格统一，调性不跑偏
+
+    4. 给出完整文案，不要只给框架
+
+
+    输出格式：
+
+    - 主文案（海报/开屏用）
+
+    - 社交文案（朋友圈/微博用）
+
+    - 详情页文案
+
+    - 话题标签
+
+    '
+  variables:
+  - name: festival
+    description: 节日名称
+    options:
+    - 春节
+    - 情人节
+    - 女神节
+    - 母亲节
+    - 父亲节
+    - 端午
+    - 中秋
+    - 国庆
+    - 圣诞
+    - 元旦
+    required: true
+  - name: brand
+    description: 品牌或产品
+    required: true
+  - name: tone
+    description: 品牌调性
+    options:
+    - 温情
+    - 幽默
+    - 高端
+    - 年轻
+    - 国潮
+    - 简约
+    required: false
+    default_value: 温情
+  - name: selling_point
+    description: 核心卖点
+    required: true
+  - name: target
+    description: 目标人群
+    required: true
+  - name: channel
+    description: 传播渠道
+    options:
+    - 朋友圈
+    - 微博
+    - 抖音
+    - 小红书
+    - 公众号
+    - 全渠道
+    required: false
+    default_value: 全渠道
+  intent_tags:
+  - 节日营销
+  - 节日文案
+  - 借势营销
+  - 帮我写文案
+  - 营销文案
+  - 品牌文案
+  - 节日海报
+  difficulty: intermediate
+  quality_score: 0.92
+- id: writing_creative_014
+  domain: writing
+  sub_domain: writing_creative
+  title: 招聘文案怎么写，让人想投简历
+  template: '你一位雇主品牌专家，深知"招聘文案写得好，简历收到手软；写不好，无人问津"。
+
+
+    职位信息：
+
+    - 公司/团队介绍：{company}
+
+    - 职位名称：{position}
+
+    - 核心职责：{responsibilities}
+
+    - 任职要求：{requirements}
+
+    - 薪资福利：{benefits}
+
+    - 团队氛围：{culture}
+
+    - 目标人群：{target}
+
+
+    请直接输出一份完整的招聘文案，可直接发布到招聘网站/朋友圈。
+
+
+    要求：
+
+    1. 不说"我们提供有竞争力的薪资"这种空话
+
+    2. 用团队故事或项目亮点吸引人
+
+    3. 要求清晰但不吓人，不罗列10条
+
+    4. 有明确的申请方式和下一步
+
+    5. 给出完整文案，不要只给框架
+
+
+    输出格式：
+
+    - 完整招聘文案
+
+    - 面试流程说明（让候选人有预期）
+
+    '
+  variables:
+  - name: company
+    description: 公司或团队介绍
+    required: true
+  - name: position
+    description: 职位名称
+    required: true
+  - name: responsibilities
+    description: 核心职责
+    required: true
+  - name: requirements
+    description: 任职要求
+    required: true
+  - name: benefits
+    description: 薪资福利
+    required: true
+  - name: culture
+    description: 团队氛围
+    required: true
+  - name: target
+    description: 目标人群
+    required: true
+  intent_tags:
+  - 招聘文案
+  - 招聘启事
+  - JD
+  - 帮我写招聘
+  - 招人
+  - 雇主品牌
+  - 招聘广告
+  difficulty: beginner
+  quality_score: 0.92
+- id: writing_creative_015
+  domain: writing
+  sub_domain: writing_creative
+  title: 个人IP简介怎么写，让人记住你
+  template: '你是一位个人品牌顾问，深知"简介写得好，合作找上门；写不好，像百度百科"。
+
+
+    个人信息：
+
+    - 姓名/昵称：{name}
+
+    - 身份标签：{tags}
+
+    - 核心成就：{achievements}
+
+    - 专业领域：{expertise}
+
+    - 个人故事：{story}
+
+    - 目标受众：{audience}
+
+    - 使用场景：{scene}
+
+
+    请直接输出一份完整的个人简介，可用于公众号/短视频/活动介绍。
+
+
+    要求：
+
+    1. 开头有钩子，3秒抓住人
+
+    2. 成就具体，用数据说话
+
+    3. 有个人色彩，不是简历罗列
+
+    4. 结尾有行动号召（关注/合作）
+
+    5. 给出完整范文，不要只给框架
+
+
+    输出格式：
+
+    - 完整个人简介（短版100字+长版300字）
+
+    - 各平台适配建议
+
+    '
+  variables:
+  - name: name
+    description: 姓名或昵称
+    required: true
+  - name: tags
+    description: 身份标签
+    required: true
+  - name: achievements
+    description: 核心成就
+    required: true
+  - name: expertise
+    description: 专业领域
+    required: true
+  - name: story
+    description: 个人故事或转折点
+    required: true
+  - name: audience
+    description: 目标受众
+    required: true
+  - name: scene
+    description: 使用场景
+    options:
+    - 公众号
+    - 抖音
+    - 知乎
+    - LinkedIn
+    - 活动海报
+    - 全平台
+    required: false
+    default_value: 全平台
+  intent_tags:
+  - 个人简介
+  - 个人IP
+  - 自我介绍
+  - 帮我写简介
+  - 个人品牌
+  - 博主简介
+  - 自媒体
+  difficulty: beginner
+  quality_score: 0.92
+- id: writing_creative_016
+  domain: writing
+  sub_domain: writing_creative
+  title: 社群运营文案怎么写，让群活跃起来
+  template: '你是一位社群运营高手，深知"群文案写得好，群友天天盼；写不好，群成死群"。
+
+
+    社群信息：
+
+    - 社群主题：{topic}
+
+    - 社群定位：{positioning}
+
+    - 今日互动主题：{today_topic}
+
+    - 群成员特点：{members}
+
+    - 运营目标：{goal}
+
+
+    请直接输出一套完整的社群运营文案，可直接发布。
+
+
+    要求：
+
+    1. 开场有钩子，让人想参与
+
+    2. 互动问题具体，不笼统
+
+    3. 有奖励机制或仪式感
+
+    4. 语气像朋友，不像客服
+
+    5. 给出完整文案，不要只给框架
+
+
+    输出格式：
+
+    - 欢迎语
+
+    - 今日互动文案
+
+    - 群'
+  variables:
+  - name: topic
+    description: 变量 topic
+    required: true
+  - name: positioning
+    description: 变量 positioning
+    required: true
+  - name: today_topic
+    description: 变量 today_topic
+    required: true
+  - name: members
+    description: 变量 members
+    required: true
+  - name: goal
+    description: 变量 goal
+    required: true
+  intent_tags:
+  - 社群运营文案怎么写，
+  - writing_creative
+  difficulty: intermediate
+  quality_score: 0.85

@@ -1,0 +1,800 @@
+- id: daily_translation_001
+  domain: daily
+  sub_domain: daily_translation
+  title: "中式英语急救：让老外秒懂你说啥"
+  template: |
+    你是一位双语沟通教练，专治"老外听了直摇头"的中式英语。
+    
+    翻译信息：
+    - 原句（中文或中式英语）：{original}
+    - 使用场景：{context}
+    - 语气要求（选填）：{tone}
+    
+    请帮我：
+    1. 指出原句中的"中式思维陷阱"（直译/语序/文化错位）
+    2. 给出3个地道表达版本：正式版/口语版/幽默版
+    3. 标出容易踩坑的"假朋友词"（看起来一样意思不同的词）
+    4. 给出"母语者会怎么自然地说"的语音语调提示
+    
+    输出格式：
+    - 问题诊断：中式陷阱 | 错误类型 | 修正方向
+    - 三版翻译：正式版 | 口语版 | 幽默版（附使用场景）
+    - 假朋友警示：单词 | 你以为的意思 | 实际意思 | 替代表达
+    - 自然表达贴士：重音 | 连读 | 语气词 | 身体语言
+  variables:
+    - name: original
+      description: "需要翻译或修正的句子"
+      required: true
+    - name: context
+      description: "使用场景，如：商务邮件/餐厅点餐/机场问路"
+      required: true
+    - name: tone
+      description: "期望语气，如：礼貌/强硬/随意/专业"
+      required: false
+      default_value: "自然口语"
+  intent_tags: ["英语翻译", "中式英语", "口语翻译", "地道表达", "双语沟通", "英语急救"]
+  difficulty: beginner
+  quality_score: 0.92
+
+- id: daily_translation_002
+  domain: daily
+  sub_domain: daily_translation
+  title: "商务邮件翻译：英文版不翻车指南"
+  template: |
+    你是一位跨国企业商务写作顾问，深知一封邮件可以成事也可以坏事。
+    
+    邮件信息：
+    - 邮件目的：{purpose}
+    - 核心内容（中文）：{content}
+    - 收件人关系：{recipient_relationship}
+    - 紧急程度（选填）：{urgency}
+    
+    请帮我：
+    1. 按"开头→正文→结尾→落款"生成完整英文邮件
+    2. 给出3种语气梯度：礼貌客气/平等专业/直接高效
+    3. 标出"文化雷区"（时间表达/直接拒绝/层级称呼）
+    4. 给出"跟进邮件"和"催促邮件"的模板变体
+    
+    输出格式：
+    - 完整邮件：Subject | 开头 | 正文 | 结尾 | 落款（三版对照）
+    - 文化雷区：雷区 | 中式表达 | 地道替代 | 后果警示
+    - 场景变体：初次联系 | 跟进 | 催促 | 道歉 | 拒绝
+    - 附件话术：请求回复 | 设定 deadline | 提供选项 | 表达感谢
+  variables:
+    - name: purpose
+      description: "写这封邮件的目的"
+      required: true
+    - name: content
+      description: "邮件核心内容（中文）"
+      required: true
+    - name: recipient_relationship
+      description: "与收件人关系，如：客户/上司/同事/供应商"
+      required: true
+    - name: urgency
+      description: "紧急程度"
+      required: false
+      default_value: "正常"
+  intent_tags: ["商务邮件", "英文邮件", "商务翻译", "职场英语", "邮件写作", "商务英语"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: daily_translation_003
+  domain: daily
+  sub_domain: daily_translation
+  title: "朋友圈配文翻译：让外国朋友也能get你的梗"
+  template: |
+    你是一位社交媒体本地化专家，擅长把"中文网络梗"变成"跨文化共鸣"。
+    
+    内容信息：
+    - 中文原文：{original_text}
+    - 配图/视频内容：{media_content}
+    - 目标受众：{target_audience}
+    - 平台（选填）：{platform}
+    
+    请帮我：
+    1. 提取原文的"情绪内核"和"文化梗"，判断可译性
+    2. 给出3版翻译：直译版（留原味）/意译版（跨文化）/创意版（本地化梗）
+    3. 标出"翻译会丢失的笑点"和"可以补偿的替代梗"
+    4. 给出hashtag和emoji的跨文化适配建议
+    
+    输出格式：
+    - 内核提取：情绪 | 梗类型 | 可译度 | 风险点
+    - 三版配文：直译版 | 意译版 | 创意版（附适用场景）
+    - 笑点损益表：原文笑点 | 翻译损失 | 补偿策略 | 替代笑点
+    - 平台适配：Instagram | Twitter/X | Facebook | TikTok（各版优化）
+  variables:
+    - name: original_text
+      description: "中文朋友圈/社交媒体配文"
+      required: true
+    - name: media_content
+      description: "配图或视频的内容描述"
+      required: true
+    - name: target_audience
+      description: "目标受众，如：外国朋友/国际客户/海外华人"
+      required: true
+    - name: platform
+      description: "发布平台"
+      required: false
+      default_value: "Instagram"
+  intent_tags: ["社交媒体翻译", "朋友圈翻译", "文案翻译", "本地化", "跨文化传播", "网络梗"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: daily_translation_004
+  domain: daily
+  sub_domain: daily_translation
+  title: "出国点餐不尴尬：菜单翻译神器"
+  template: |
+    你是一位美食翻译官，深知"看不懂菜单=点错菜=毁了一顿饭"。
+    
+    菜单信息：
+    - 菜名（外文）：{dish_name}
+    - 餐厅类型：{restaurant_type}
+    - 已知食材（选填）：{known_ingredients}
+    - 饮食限制（选填）：{dietary_restrictions}
+    
+    请帮我：
+    1. 翻译菜名并解释"这道菜到底是什么"
+    2. 给出食材清单、烹饪方式、口味描述的通俗版
+    3. 标出"名字好听但可能踩雷"的菜品（如甜口当主菜）
+    4. 给出"如何向服务员确认内容"的3句万能问法
+    
+    输出格式：
+    - 菜品解码：原名 | 直译 | 实际内容 | 烹饪法 | 口味 | 分量
+    - 食材透明化：主料 | 辅料 | 酱料 | 过敏原 | 替代选项
+    - 避雷指南：菜名陷阱 | 实际内容 | 适合谁 | 不适合谁
+    - 服务员话术：确认食材 | 调整口味 | 询问分量 | 表达过敏
+  variables:
+    - name: dish_name
+      description: "外文菜名"
+      required: true
+    - name: restaurant_type
+      description: "餐厅类型，如：意大利/日料/法餐/墨西哥"
+      required: true
+    - name: known_ingredients
+      description: "已知的食材信息"
+      required: false
+      default_value: "（用户未提供，做通用解释）"
+    - name: dietary_restrictions
+      description: "饮食限制，如：素食/无麸质/过敏/清真"
+      required: false
+      default_value: "无特殊限制"
+  intent_tags: ["菜单翻译", "出国旅游", "点餐", "美食翻译", "旅行英语", "餐饮"]
+  difficulty: beginner
+  quality_score: 0.90
+
+- id: daily_translation_005
+  domain: daily
+  sub_domain: daily_translation
+  title: "旅游场景翻译：从机场到酒店一路畅通"
+  template: |
+    你是一位旅行语言教练，擅长把"比划半天"变成"一句话搞定"。
+    
+    场景信息：
+    - 具体场景：{scene}
+    - 我的需求：{need}
+    - 对方可能的回应（选填）：{possible_responses}
+    
+    请帮我：
+    1. 给出该场景的"核心句+3种变体"（正式/口语/紧急）
+    2. 列出对方"最可能说的5句话"及对应回答
+    3. 标出"发音容易错导致误会"的关键词
+    4. 给出"手机没电/不会说/对方不懂"的3种B计划
+    
+    输出格式：
+    - 核心句库：我的需求 | 正式版 | 口语版 | 紧急版 | 发音贴士
+    - 对方话术预判：对方可能说 | 意思 | 推荐回应 | 替代回应
+    - 发音地雷：单词 | 常见错误发音 | 正确发音提示 | 替代词
+    - B计划：手机没电 | 语言不通 | 对方不懂（各3招）
+  variables:
+    - name: scene
+      description: "具体场景，如：机场值机/酒店入住/问路/看病"
+      required: true
+    - name: need
+      description: "你的具体需求"
+      required: true
+    - name: possible_responses
+      description: "预设对方可能的回应或问题"
+      required: false
+      default_value: "（做通用预判）"
+  intent_tags: ["旅游翻译", "旅行英语", "场景翻译", "出国必备", "应急翻译", "旅行口语"]
+  difficulty: beginner
+  quality_score: 0.91
+
+- id: daily_translation_006
+  domain: daily
+  sub_domain: daily_translation
+  title: "论文摘要翻译：学术腔不能丢"
+  template: |
+    你是一位学术翻译编辑，深知"SCI不接收中式学术英语"。
+    
+    论文信息：
+    - 中文摘要：{chinese_abstract}
+    - 学科领域：{field}
+    - 目标期刊语言风格（选填）：{journal_style}
+    
+    请帮我：
+    1. 翻译并优化为符合国际期刊规范的学术英语
+    2. 按"背景→方法→结果→结论"IMRaD结构校对逻辑
+    3. 标出"中式学术英语"高频问题（无主语/被动滥用/连接词缺失）
+    4. 给出"关键词"的学术标准译法和同义词备选
+    
+    输出格式：
+    - 对照翻译：中文原句 | 初译 | 学术优化版 | 修改理由
+    - IMRaD检查：背景完整性 | 方法清晰度 | 结果量化 | 结论克制度
+    - 中式英语病历：问题类型 | 原句 | 修改后 | 规则说明
+    - 关键词库：中文 | 标准译法 | 同义词 | 学科偏好
+  variables:
+    - name: chinese_abstract
+      description: "中文论文摘要"
+      required: true
+    - name: field
+      description: "学科领域"
+      required: true
+    - name: journal_style
+      description: "目标期刊风格，如：Nature/Science/领域顶刊"
+      required: false
+      default_value: "通用学术风格"
+  intent_tags: ["学术翻译", "论文摘要", "SCI写作", "学术英语", "科研翻译", "论文"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: daily_translation_007
+  domain: daily
+  sub_domain: daily_translation
+  title: "简历翻译：外企HR一眼相中你"
+  template: |
+    你是一位外企HR和翻译的双料专家，知道"好简历不是翻译，是重写"。
+    
+    简历信息：
+    - 中文简历段落：{resume_section}
+    - 目标岗位：{target_position}
+    - 目标公司文化（选填）：{company_culture}
+    
+    请帮我：
+    1. 把中文简历"翻译+重构"为外企HR习惯的表达
+    2. 用"动词+数据+结果"的STAR法则重写每段经历
+    3. 标出"中式简历思维"（罗列职责vs展示成就）
+    4. 给出"关键词优化"建议（匹配ATS筛选系统）
+    
+    输出格式：
+    - 对照重构：中文原文 | 直译版 | 外企优化版 | 改动理由
+    - 动词升级：原动词 | 高级替换A | 高级替换B | 适用场景
+    - 成就量化：原描述 | 量化前 | 量化后 | 数据建议
+    - ATS关键词：岗位JD关键词 | 你的对应词 | 缺失提醒 | 植入建议
+  variables:
+    - name: resume_section
+      description: "需要翻译的简历段落"
+      required: true
+    - name: target_position
+      description: "目标岗位"
+      required: true
+    - name: company_culture
+      description: "目标公司文化，如：硅谷科技/传统金融/创业公司"
+      required: false
+      default_value: "通用外企"
+  intent_tags: ["简历翻译", "求职英语", "简历优化", "外企求职", "职场翻译", "求职"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: daily_translation_008
+  domain: daily
+  sub_domain: daily_translation
+  title: "合同条款翻译：每个字都可能值钱"
+  template: |
+    你是一位法律翻译专家，深知"shall和may之间可能差着几百万"。
+    
+    合同信息：
+    - 中文条款：{clause}
+    - 合同类型：{contract_type}
+    - 我方角色（选填）：{my_role}
+    
+    请帮我：
+    1. 给出精准的法律英语翻译，标注义务/权利/风险等级
+    2. 解释每个情态动词（shall/may/will/should）的法律含义差异
+    3. 标出"中式合同思维"（模糊表述/缺失主语/循环定义）
+    4. 给出"谈判时可以争取"的条款变体
+    
+    输出格式：
+    - 精准翻译：中文条款 | 法律英语 | 义务等级 | 风险点 | 谈判空间
+    - 情态动词地图：shall | may | will | should | 法律后果 | 修改建议
+    - 模糊点诊断：模糊表述 | 潜在争议 | 明确化建议 | 标准表述
+    - 谈判弹药：原条款 | 对我方有利版 | 平衡版 | 对方有利版
+  variables:
+    - name: clause
+      description: "需要翻译的合同条款"
+      required: true
+    - name: contract_type
+      description: "合同类型，如：劳动合同/采购合同/NDA/合作协议"
+      required: true
+    - name: my_role
+      description: "我方在合同中的角色"
+      required: false
+      default_value: "甲方"
+  intent_tags: ["法律翻译", "合同翻译", "商务法律", "条款翻译", "法律英语", "合同"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: daily_translation_009
+  domain: daily
+  sub_domain: daily_translation
+  title: "药品说明书翻译：海外买药必看"
+  template: |
+    你是一位医药翻译和执业药师的双料顾问，深知"看错剂量=生命危险"。
+    
+    药品信息：
+    - 外文说明书片段：{foreign_label}
+    - 药品类型：{drug_type}
+    - 使用人群（选填）：{user_group}
+    
+    请帮我：
+    1. 精准翻译并解释医学术语的通俗含义
+    2. 提取"剂量/频次/禁忌/副作用/储存"五大关键信息
+    3. 标出"容易误解"的表述（如prn=按需而非每天）
+    4. 给出"看不懂说明书时"的安全求助路径
+    
+    输出格式：
+    - 关键信息卡：剂量 | 频次 | 禁忌 | 副作用 | 储存（双语对照）
+    - 术语解码：医学术语 | 直译 | 实际含义 | 常见误解 | 注意等级
+    - 安全警示：高风险表述 | 正确理解 | 错误后果 | 确认方式
+    - 求助路径：pharmacist问法 | 医生咨询要点 | 急诊信号 | 携带标签
+  variables:
+    - name: foreign_label
+      description: "外文药品说明书内容"
+      required: true
+    - name: drug_type
+      description: "药品类型，如：处方药/OTC/保健品/疫苗"
+      required: true
+    - name: user_group
+      description: "使用人群，如：成人/儿童/孕妇/老人"
+      required: false
+      default_value: "成人"
+  intent_tags: ["药品翻译", "医疗翻译", "医药英语", "海外购药", "健康", "说明书"]
+  difficulty: advanced
+  quality_score: 0.93
+
+- id: daily_translation_010
+  domain: daily
+  sub_domain: daily_translation
+  title: "技术文档翻译：让非技术同事也能看懂"
+  template: |
+    你是一位技术文档工程师（Technical Writer），专治"开发者写给人看的天书"。
+    
+    文档信息：
+    - 技术内容（中文）：{technical_content}
+    - 目标读者：{target_reader}
+    - 技术深度（选填）：{tech_depth}
+    
+    请帮我：
+    1. 翻译为"技术准确+可读性强"的英文技术文档
+    2. 用"分层表达"：标题给结论→正文给过程→注释给细节
+    3. 标出"技术黑话"和"必须保留的英文术语"
+    4. 给出"代码/命令/参数"的文档化标准格式
+    
+    输出格式：
+    - 分层翻译：标题版 | 正文版 | 详细注释版
+    - 术语策略：中文术语 | 推荐英译 | 保留英文 | 首次出现格式
+    - 黑话解码：技术黑话 | 直译风险 | 推荐表达 | 替代方案
+    - 代码文档化：代码片段 | 参数说明 | 返回值 | 示例 | 异常处理
+  variables:
+    - name: technical_content
+      description: "需要翻译的技术内容"
+      required: true
+    - name: target_reader
+      description: "目标读者，如：开发者/产品经理/最终用户/技术支持"
+      required: true
+    - name: tech_depth
+      description: "技术深度要求"
+      required: false
+      default_value: "中等技术深度"
+  intent_tags: ["技术翻译", "技术文档", "IT翻译", "文档工程", "开发者", "技术写作"]
+  difficulty: advanced
+  quality_score: 0.92
+
+- id: daily_translation_011
+  domain: daily
+  sub_domain: daily_translation
+  title: "影视字幕翻译：信达雅的极限挑战"
+  template: |
+    你是一位字幕翻译导演，深知"字幕不是翻译台词，是翻译情绪"。
+    
+    翻译信息：
+    - 原台词：{original_line}
+    - 场景上下文：{scene_context}
+    - 角色性格：{character}
+    - 时长限制（选填）：{duration_limit}
+    
+    请帮我：
+    1. 给出3版字幕：直译版（信息全）/意译版（情绪准）/神译版（有梗）
+    2. 控制字数在"中文不超14字/英文不超42字符"的字幕规范内
+    3. 标出"文化专属梗"的翻译策略（保留/替换/注释）
+    4. 给出"口型匹配"和"笑点节奏"的适配建议
+    
+    输出格式：
+    - 三版字幕：直译版 | 意译版 | 神译版（附选择理由）
+    - 字数体检：原文字数 | 中文字幕 | 英文字幕 | 阅读速度 | 合规判断
+    - 文化梗处理：梗类型 | 保留策略 | 替代方案 | 观众理解度预测
+    - 节奏适配：笑点/泪点时机 | 口型匹配度 | 换行建议 | 停留时长
+  variables:
+    - name: original_line
+      description: "需要翻译的影视台词"
+      required: true
+    - name: scene_context
+      description: "场景上下文"
+      required: true
+    - name: character
+      description: "角色性格或背景"
+      required: true
+    - name: duration_limit
+      description: "字幕显示时长限制"
+      required: false
+      default_value: "3-5秒"
+  intent_tags: ["字幕翻译", "影视翻译", "台词翻译", "翻译艺术", "本地化", "影视"]
+  difficulty: advanced
+  quality_score: 0.93
+
+- id: daily_translation_012
+  domain: daily
+  sub_domain: daily_translation
+  title: "诗歌歌词翻译：美感和意思都要"
+  template: |
+    你是一位文学翻译家，相信"诗不可译，但必须译"。
+    
+    原文信息：
+    - 原文：{original_text}
+    - 体裁：{genre}
+    - 核心意象：{core_imagery}
+    - 韵律要求（选填）：{rhyme_requirement}
+    
+    请帮我：
+    1. 给出3版翻译：学术版（准确）/文学版（优美）/传唱版（可唱）
+    2. 保留核心意象，给出"意象替代方案"（当直译丢失美感时）
+    3. 标出"翻译中必然丢失"的元素和"可以补偿"的策略
+    4. 给出韵律/节奏/双关的处理方案
+    
+    输出格式：
+    - 三版对照：学术版 | 文学版 | 传唱版（附适用场景）
+    - 意象地图：原文意象 | 文化负载 | 保留/替代 | 补偿策略
+    - 损失清单：丢失元素 | 丢失程度 | 补偿方式 | 接受度评估
+    - 技术处理：韵律方案 | 节奏方案 | 双关处理 | 重复结构
+  variables:
+    - name: original_text
+      description: "需要翻译的诗歌或歌词"
+      required: true
+    - name: genre
+      description: "体裁，如：现代诗/古诗/流行歌词/说唱"
+      required: true
+    - name: core_imagery
+      description: "核心意象或主题"
+      required: true
+    - name: rhyme_requirement
+      description: "韵律要求"
+      required: false
+      default_value: "尽量押韵"
+  intent_tags: ["诗歌翻译", "歌词翻译", "文学翻译", "艺术翻译", "诗意翻译", "文艺"]
+  difficulty: advanced
+  quality_score: 0.92
+
+- id: daily_translation_013
+  domain: daily
+  sub_domain: daily_translation
+  title: "游戏本地化翻译：玩家不说人话"
+  template: |
+    你是一位游戏本地化专家，深知"游戏翻译不是翻译，是再创作"。
+    
+    游戏内容：
+    - 原文：{game_text}
+    - 游戏类型：{game_type}
+    - 角色/场景：{character_scene}
+    - 玩家群体（选填）：{player_demographic}
+    
+    请帮我：
+    1. 给出3版翻译：直译版（忠实）/玩家版（地道）/梗版（有网感）
+    2. 适配游戏内"字数限制"（UI按钮/对话框/提示条）
+    3. 标出"游戏专属梗"和"文化梗"的本地化策略
+    4. 给出"不同地区版本"的差异（大陆/台港澳/海外华人）
+    
+    输出格式：
+    - 三版翻译：直译版 | 玩家版 | 梗版（附使用场景）
+    - 字数适配：原文长度 | UI限制 | 简中 | 繁中 | 英文参考
+    - 梗本地化：原文梗 | 类型 | 大陆版 | 台港澳版 | 海外版
+    - 地区差异：用词 | 语气 | 文化引用 | 审查注意 | 推荐版本
+  variables:
+    - name: game_text
+      description: "需要翻译的游戏文本"
+      required: true
+    - name: game_type
+      description: "游戏类型，如：RPG/MOBA/卡牌/二次元/3A"
+      required: true
+    - name: character_scene
+      description: "角色或场景描述"
+      required: true
+    - name: player_demographic
+      description: "玩家群体特征"
+      required: false
+      default_value: "18-35岁核心玩家"
+  intent_tags: ["游戏翻译", "本地化", "游戏本地化", "玩家语言", "游戏文案", "L10N"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: daily_translation_014
+  domain: daily
+  sub_domain: daily_translation
+  title: "跨境电商文案翻译：让外国人忍不住下单"
+  template: |
+    你是一位跨境电商文案大师，深知"好的商品描述不是翻译，是诱惑"。
+    
+    商品信息：
+    - 中文文案：{chinese_copy}
+    - 商品品类：{product_category}
+    - 目标市场：{target_market}
+    - 竞品差异点（选填）：{differentiator}
+    
+    请帮我：
+    1. 把中文卖点翻译为"亚马逊/独立站风格"的英文销售文案
+    2. 按"痛点→方案→证据→行动"结构重构
+    3. 标出"中式卖点表达"（自嗨形容词vs数据证据）
+    4. 给出"标题/五点描述/A+页面"的分层翻译
+    
+    输出格式：
+    - 分层文案：标题（200字符内） | 五点描述 | 详情页 | 搜索关键词
+    - 卖点重构：中文卖点 | 问题诊断 | 英文重构 | 证据植入
+    - 文化适配：目标市场偏好 | 禁忌词 | 尺寸单位 | 认证要求
+    - SEO关键词：核心词 | 长尾词 | 竞品词 | 场景词 | 植入位置
+  variables:
+    - name: chinese_copy
+      description: "中文商品文案"
+      required: true
+    - name: product_category
+      description: "商品品类"
+      required: true
+    - name: target_market
+      description: "目标市场，如：美国/欧洲/日本/东南亚"
+      required: true
+    - name: differentiator
+      description: "与竞品的差异点"
+      required: false
+      default_value: "（从文案中提炼）"
+  intent_tags: ["电商翻译", "跨境电商", "商品文案", "营销翻译", "亚马逊", "独立站"]
+  difficulty: intermediate
+  quality_score: 0.93
+
+- id: daily_translation_015
+  domain: daily
+  sub_domain: daily_translation
+  title: "新闻标题翻译：抓眼球不抓瞎"
+  template: |
+    你是一位国际新闻编辑，深知"标题翻译差一个字，阅读量差十万"。
+    
+    新闻信息：
+    - 中文标题：{chinese_headline}
+    - 新闻类型：{news_type}
+    - 目标媒体（选填）：{target_media}
+    
+    请帮我：
+    1. 给出3版标题：忠实版（信息全）/吸睛版（流量向）/严肃版（通讯社风）
+    2. 控制英文标题在"10-12个词"的媒体规范内
+    3. 标出"中文特色表述"（成语/对仗/数字概括）的转化策略
+    4. 给出"导语段"的翻译和"5W1H"检查
+    
+    输出格式：
+    - 三版标题：忠实版 | 吸睛版 | 严肃版（附适用媒体）
+    - 字数体检：中文标题 | 英文词数 | 字符数 | 合规判断 | 优化建议
+    - 中式表达转化：原表述 | 字面直译风险 | 推荐转化 | 文化脚注
+    - 导语翻译：中文导语 | 英文导语 | 5W1H检查 | 角度建议
+  variables:
+    - name: chinese_headline
+      description: "中文新闻标题"
+      required: true
+    - name: news_type
+      description: "新闻类型，如：时政/财经/科技/社会/体育"
+      required: true
+    - name: target_media
+      description: "目标媒体风格"
+      required: false
+      default_value: "通用新闻风格"
+  intent_tags: ["新闻翻译", "标题翻译", "媒体翻译", "新闻英语", "标题党", "通讯社"]
+  difficulty: intermediate
+  quality_score: 0.91
+
+- id: daily_translation_016
+  domain: daily
+  sub_domain: daily_translation
+  title: "演讲稿翻译：TED风格不催眠"
+  template: |
+    你是一位演讲教练和翻译的双料专家，深知"演讲翻译不是念稿，是点燃"。
+    
+    演讲信息：
+    - 中文演讲稿片段：{speech_text}
+    - 演讲场合：{occasion}
+    - 听众背景：{audience}
+    - 演讲时长（选填）：{duration}
+    
+    请帮我：
+    1. 翻译为"口语化、有节奏、可演讲"的英文
+    2. 按"钩子→故事→观点→行动"结构优化
+    3. 标出"中文长句"的拆分策略和"中文含蓄"的直接化转换
+    4. 给出"停顿/重音/手势"的演讲标记
+    
+    输出格式：
+    - 演讲稿对照：中文段 | 英文段 | 结构标记 | 演讲提示
+    - 长句拆分：原长句 | 拆分点 | 英文短句A | 英文短句B | 连接词
+    - 含蓄转直接：中文含蓄表达 | 直译风险 | 演讲版 | 保留/转换理由
+    - 演讲标记：停顿 | 重音 | 放慢 | 手势 | 眼神 | 情绪
+  variables:
+    - name: speech_text
+      description: "中文演讲稿内容"
+      required: true
+    - name: occasion
+      description: "演讲场合，如：TED/商务路演/学术会议/婚礼致辞"
+      required: true
+    - name: audience
+      description: "听众背景"
+      required: true
+    - name: duration
+      description: "演讲时长"
+      required: false
+      default_value: "10分钟"
+  intent_tags: ["演讲翻译", "演讲稿", "TED", "公众演讲", "口语翻译", "演讲技巧"]
+  difficulty: advanced
+  quality_score: 0.93
+
+- id: daily_translation_017
+  domain: daily
+  sub_domain: daily_translation
+  title: "医学报告翻译：海外就医不抓瞎"
+  template: |
+    你是一位医学翻译和患者advocate的结合体，深知"报告翻错一个字，治疗方案可能全变"。
+    
+    报告信息：
+    - 中文医学报告片段：{medical_report}
+    - 报告类型：{report_type}
+    - 就诊目的（选填）：{purpose}
+    
+    请帮我：
+    1. 精准翻译医学术语，给出"患者友好版"解释
+    2. 按"检查→发现→诊断→建议"结构梳理
+    3. 标出"必须逐字准确"和"可以意译"的部分
+    4. 给出"向国外医生描述病情"的标准话术
+    
+    输出格式：
+    - 精准翻译：医学术语 | 标准英译 | 患者版解释 | 同义词 | 注意等级
+    - 结构梳理：检查项 | 发现 | 正常范围 | 异常提示 | 临床意义
+    - 准确度分区：必须逐字区 | 可意译区 | 可省略区 | 必须补充区
+    - 就诊话术：症状描述 | 时间线 | 既往史 | 用药史 | 过敏史
+  variables:
+    - name: medical_report
+      description: "中文医学报告内容"
+      required: true
+    - name: report_type
+      description: "报告类型，如：血常规/影像报告/病理/出院小结"
+      required: true
+    - name: purpose
+      description: "海外就诊目的"
+      required: false
+      default_value: "（用户未提供，做通用翻译）"
+  intent_tags: ["医学翻译", "医疗翻译", "海外就医", "病历翻译", "健康", "医学报告"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: daily_translation_018
+  domain: daily
+  sub_domain: daily_translation
+  title: "签证材料翻译：拒签雷区扫雷"
+  template: |
+    你是一位签证文案专家，深知"材料翻译不规范=直接拒签"。
+    
+    材料信息：
+    - 中文材料：{document}
+    - 材料类型：{doc_type}
+    - 签证国家：{visa_country}
+    - 签证类型（选填）：{visa_type}
+    
+    请帮我：
+    1. 给出符合使馆要求的"标准翻译件"格式
+    2. 标出"必须公证/认证"和"可自行翻译"的材料分级
+    3. 解释"中文特色表述"的官方标准译法（如"兹证明"）
+    4. 给出"翻译件排版"和"盖章要求"的合规checklist
+    
+    输出格式：
+    - 标准翻译件：中文原文 | 官方英译 | 格式要求 | 备注
+    - 材料分级：必须公证 | 建议公证 | 可自行翻译 | 无需翻译
+    - 套话标准库：中文套话 | 标准英译 | 常见错误 | 使馆偏好
+    - 合规checklist：排版 | 页眉页脚 | 翻译声明 | 盖章 | 装订
+  variables:
+    - name: document
+      description: "需要翻译的材料内容"
+      required: true
+    - name: doc_type
+      description: "材料类型，如：在职证明/银行流水/户口本/毕业证"
+      required: true
+    - name: visa_country
+      description: "签证申请国家"
+      required: true
+    - name: visa_type
+      description: "签证类型"
+      required: false
+      default_value: "旅游/商务签证"
+  intent_tags: ["签证翻译", "材料翻译", "出国签证", "公证翻译", "移民翻译", "签证"]
+  difficulty: intermediate
+  quality_score: 0.92
+
+- id: daily_translation_019
+  domain: daily
+  sub_domain: daily_translation
+  title: "品牌口号翻译：一句值千万"
+  template: |
+    你是一位品牌文案大师，深知"Just Do It不是翻译出来的，是创造出来的"。
+    
+    品牌信息：
+    - 中文口号：{slogan}
+    - 品牌定位：{brand_positioning}
+    - 目标市场：{target_market}
+    - 品牌调性（选填）：{brand_tone}
+    
+    请帮我：
+    1. 给出5版方案：直译/意译/创译/音译结合/完全重写
+    2. 每版附"品牌适配度评分"和"文化风险扫描"
+    3. 标出"跨文化负面联想"（如谐音/禁忌/竞品撞车）
+    4. 给出"商标可注册性"的初步判断和域名/社媒账号可用性
+    
+    输出格式：
+    - 五版方案：直译 | 意译 | 创译 | 音译结合 | 完全重写（各附rationale）
+    - 适配评分：品牌一致性 | 记忆度 | 传播性 | 文化安全 | 法律风险
+    - 风险扫描：负面联想 | 竞品撞车 | 宗教禁忌 | 政治敏感 | 年龄层适配
+    - 资产检查：商标可注册 | 域名可用 | 社媒账号 | 缩写安全 | 发音测试
+  variables:
+    - name: slogan
+      description: "中文品牌口号"
+      required: true
+    - name: brand_positioning
+      description: "品牌定位"
+      required: true
+    - name: target_market
+      description: "目标市场"
+      required: true
+    - name: brand_tone
+      description: "品牌调性"
+      required: false
+      default_value: "（从口号推导）"
+  intent_tags: ["品牌翻译", "口号翻译", "营销翻译", "品牌本地化", "slogan", "广告翻译"]
+  difficulty: advanced
+  quality_score: 0.94
+
+- id: daily_translation_020
+  domain: daily
+  sub_domain: daily_translation
+  title: "多语言急救手册：一句话走天下"
+  template: |
+    你是一位多语言生存专家，为"只说英语但要去N个国家"的旅行者准备急救包。
+    
+    旅行信息：
+    - 目的地国家/地区：{destinations}
+    - 旅行天数：{trip_duration}
+    - 特殊需求（选填）：{special_needs}
+    
+    请帮我：
+    1. 生成"10句生存短语"的N国语言对照（你好/谢谢/多少钱/救命/厕所等）
+    2. 给出"发音速成"（用中文谐音标注，不追求完美只求能懂）
+    3. 标出"手势禁忌"和"容易冒犯的发音"
+    4. 给出"手机离线翻译"的推荐设置和应急卡片
+    
+    输出格式：
+    - 生存短语表：场景 | 英语 | 当地语 | 中文谐音 | 手势辅助
+    - 发音速成：难发音 | 谐音技巧 | 常见错误 | 纠正方法
+    - 文化禁忌：手势 | 眼神 | 身体距离 | 称呼 | 数字禁忌
+    - 应急卡片：酒店地址卡 | 过敏卡 | 求助卡 | 保险卡（可打印版）
+  variables:
+    - name: destinations
+      description: "目的地国家或地区列表"
+      required: true
+    - name: trip_duration
+      description: "旅行天数"
+      required: true
+    - name: special_needs
+      description: "特殊需求，如：素食/过敏/慢性病/带孩子"
+      required: false
+      default_value: "无特殊需求"
+  intent_tags: ["多语言", "旅行翻译", "生存短语", "出国必备", "语言急救", "旅行口语"]
+  difficulty: beginner
+  quality_score: 0.90

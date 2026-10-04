@@ -1,0 +1,150 @@
+# ============================================================
+# Skill Engine V2 — Review Agent 难度矩阵
+# ============================================================
+# 定义不同领域和场景的难度系数调整
+# 用于 Review Agent 计算 difficulty_threshold
+# ============================================================
+
+# 领域基础难度（base_difficulty）
+# 值越高，该领域默认越难
+# 支持嵌套结构：tech.ai.agent → tech → ai → agent
+domain_base_difficulty:
+  daily: 0.15
+  creative: 0.30
+  business:
+    base: 0.40
+    planning: 0.45
+    report: 0.50
+    proposal: 0.48
+  tech:
+    base: 0.45
+    ai:
+      base: 0.55
+      agent:
+        base: 0.60
+        multi: 0.62
+        tool: 0.58
+        mcp: 0.60
+        memory: 0.55
+      rag:
+        base: 0.58
+        chunking: 0.55
+        embedding: 0.60
+        retrieval: 0.62
+      prompt: 0.50
+      llm: 0.55
+    crypto:
+      base: 0.65
+      quantum: 0.75
+      post_quantum: 0.72
+      classical: 0.55
+    network: 0.50
+    compiler: 0.60
+    os: 0.55
+
+# 复杂度关键词加权
+# 匹配到这些关键词时，在基础难度上叠加
+complexity_keywords:
+  - keyword: "方案"
+    weight: 0.03
+  - keyword: "策划"
+    weight: 0.03
+  - keyword: "设计"
+    weight: 0.04
+  - keyword: "架构"
+    weight: 0.05
+  - keyword: "系统"
+    weight: 0.03
+  - keyword: "分析"
+    weight: 0.04
+  - keyword: "报告"
+    weight: 0.04
+  - keyword: "论文"
+    weight: 0.05
+  - keyword: "评估"
+    weight: 0.04
+  - keyword: "优化"
+    weight: 0.03
+  - keyword: "量子"
+    weight: 0.06
+  - keyword: "密码"
+    weight: 0.05
+  - keyword: "加密"
+    weight: 0.05
+  - keyword: "多智能体"
+    weight: 0.05
+  - keyword: "端云协同"
+    weight: 0.04
+  - keyword: "RAG"
+    weight: 0.04
+  - keyword: "embedding"
+    weight: 0.04
+  - keyword: "transformer"
+    weight: 0.05
+  - keyword: "注意力机制"
+    weight: 0.05
+  - keyword: "深度学习"
+    weight: 0.04
+  - keyword: "强化学习"
+    weight: 0.04
+
+# 内容长度反映复杂度
+content_length_boost:
+  - threshold: 2000
+    operator: ">"
+    boost: 0.10
+  - threshold: 1000
+    operator: ">"
+    boost: 0.05
+
+# 多问题/多段落加分
+multi_question_boost: 0.08
+multi_paragraph_boost: 0.08
+
+# 低质量输出反向推高难度
+# 如果本地模型输出质量差，说明任务本身难度高
+quality_penalty:
+  low_structure_threshold: 0.50
+  structure_penalty: 0.05
+  low_professional_threshold: 0.50
+  professional_penalty: 0.05
+
+# 难度等级划分
+difficulty_levels:
+  simple:
+    range: [0.0, 0.35]
+    description: "简单任务，本地模型可独立完成"
+    decision: "local_output"
+  medium:
+    range: [0.35, 0.65]
+    description: "中等任务，需要评审判断是否需要云端增强"
+    decision: "conditional"
+  complex:
+    range: [0.65, 0.80]
+    description: "复杂任务，建议云端增强"
+    decision: "cloud_enhance"
+  expert:
+    range: [0.80, 1.0]
+    description: "专家级任务，必须云端增强"
+    decision: "cloud_enhance"
+
+# 弱维度数量与难度关系
+# 弱维度越多，说明任务对该模型越难
+# V2.4 (2026-07-30): 弱阈值已降到 0.60（base_scoring.yaml），弱维度判定更严格，
+#   数量大幅减少。因此弱维度加成恢复到 V2.3 水平，作为难度对「回答质量」的
+#   唯一反馈通道（1-review_score 耦合已移除、+0.05 反馈环已移除）。
+#   配合 Judge V2.4 质量补救兜底规则，低质量回答有独立补救通道，
+#   不再依赖弱维度加成推高难度来触发云端增强。
+weak_dimension_boost:
+  - weak_count: 1
+    boost: 0.0
+  - weak_count: 2
+    boost: 0.03
+  - weak_count: 3
+    boost: 0.06
+  - weak_count: 4
+    boost: 0.10
+  - weak_count: 5
+    boost: 0.15
+  - weak_count: 6
+    boost: 0.20
