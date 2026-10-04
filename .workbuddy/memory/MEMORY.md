@@ -27,7 +27,8 @@
 - 小W 是我，佳文是用户。**不好的话/直观判断直接说，不美化**；关系是朋友，不客套不附和；谈作品质量给证据不给安慰。
 - ⚠️ **Edit 工具：同一文件的多条 Edit 必须串行**。并行发同一文件会静默丢改动（10-04 实测丢 5+2 处）；不同文件并行安全。报 `EBUSY: resource busy or locked` 是并发写盘征兆 → **改完必须 grep 复核计数**。
 - PowerShell stdout 常捕获不到 → **落盘再 Read**（user skill `powershell-probe`）。本机 `cmd.exe` 被封。
-- **Bash 工具实际可用**（grep/ls/python/重定向正常），「缺 dirname 不可用」已过时。
+- **Bash 工具的 PATH 会间歇性损坏**（`grep`/`sed`/`head`/`dirname` 时有时无，只剩 `git` + 绝对路径 python 可靠）→ 管道类命令优先上 Python，别依赖 shell 工具链。PowerShell 给 git 传 stdin 依旧是空的。
+- ⚠️ 沙箱下 `git fetch` / `git update-ref` 写 `refs/remotes/` 会**静默失败**（fetch 打印 `[new branch] main -> origin/main` 但文件不落盘，随后 `origin/main` 报 gone）。解法：直接用 python 写 `.git/refs/remotes/origin/main`（内容为 SHA+\n）。
 - 前端生产构建必须带 `CODEBUDDY_SAFE_DELETE_ENABLED=0`（否则 `next build` 收尾删 `.next/export` 触发沙箱护栏、`out/` 不生成）。日常开发用 `npm run dev`。
 - 全量回归必须带 `CODEBUDDY_SAFE_DELETE_ENABLED=0` + `AGENT_CONTRACT_STRICT=1`。
 
