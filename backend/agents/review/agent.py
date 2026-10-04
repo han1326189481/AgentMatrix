@@ -16,7 +16,7 @@ import re
 import os
 import asyncio
 import logging
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 from agents.base.agent import BaseAgent, AgentInput, AgentOutput
 from agents.base.utils import safe_json_parse, detect_simple_conversation, clamp_score, safe_float
 
@@ -438,7 +438,6 @@ class ReviewAgent(BaseAgent):
 
         dims = {}
         output_len = len(writer_output) if writer_output else 0
-        user_lower = user_task.lower() if user_task else ""
         output_lower = writer_output.lower() if writer_output else ""
 
         # 基础分（从 YAML 或默认值）— 所有值使用 safe_float 防护 None
@@ -501,177 +500,6 @@ class ReviewAgent(BaseAgent):
 
         return dims
 
-    def _calculate_difficulty_v2(self, user_task: str, writer_output: str,
-                                    weighted_score: float, dims: dict,
-                                    skill_path: List[str]) -> Dict[str, Any]:
-        """Skill Engine V2: 使用 YAML 难度矩阵计算难度
-
-        从 difficulty_matrix.yaml 加载：
-        - domain_base_difficulty: 领域基础难度
-        - complexity_keywords: 复杂度关键词加权
-        - content_length_boost: 内容长度加成
-        - weak_dimension_boost: 弱维度数量加成
-
-        V2.4 (2026-07-30): base_difficulty 与 weighted_score 解耦
-          - 旧逻辑: base_difficulty = 1.0 - weighted_score
-            问题: review_score 偏低 → base_difficulty 虚高 → 触发云端增强，
-                  导致简单问题（如「ClusterIP vs NodePort」）因 Writer 回答简短就被误判为复杂任务。
-                  且 difficulty 与 review_score 完全反相关，使 Judge 双门槛矩阵退化。
-          - 新逻辑: base_difficulty = 领域基础难度（domain_base_difficulty）
-            难度反映「任务本身的复杂度」，review_score 反映「回答质量」，
-            两者作为独立信号供 Judge 双门槛矩阵使用。
-        """
-        v2 = self._load_v2_configs()
-        diff_cfg = v2.get("difficulty", {}) or {}
-
-        # V2.4: base_difficulty 改为领域基础难度（任务维度），不再用 1.0 - weighted_score
-        domain = skill_path[-1] if skill_path else "daily"
-        domain_diffs = diff_cfg.get("domain_base_difficulty", {}) or {}
-        base_difficulty = safe_float(self._lookup_domain_difficulty(domain, domain_diffs), 0.20)
-        complexity_boost = 0.0
-        reason_parts = [f"{domain}领域({base_difficulty:.2f})"]
-        user_lower = user_task.lower() if user_task else ""
-
-        # 复杂度关键词加权（从 YAML 配置）
-        for item in (diff_cfg.get("complexity_keywords") or []):
-            if not isinstance(item, dict):
-                continue
-            if (item.get("keyword") or "") in user_lower:
-                complexity_boost += safe_float(item.get("weight"), 0.03)
-
-        # 内容长度反映复杂度（从 YAML 配置）
-        output_len = len(writer_output) if writer_output else 0
-        for rule in (diff_cfg.get("content_length_boost") or []):
-            if not isinstance(rule, dict):
-                continue
-            if rule.get("operator") == ">" and output_len > safe_float(rule.get("threshold"), 0):
-                complexity_boost += safe_float(rule.get("boost"), 0)
-
-        # 多问题/多段落
-        if user_task and (user_task.count("?") + user_task.count("？") >= 2):
-            complexity_boost += safe_float(diff_cfg.get("multi_question_boost"), 0.08)
-            reason_parts.append("多问题")
-        if user_task and "\n" in user_task and len(user_task.split("\n")) >= 3:
-            complexity_boost += safe_float(diff_cfg.get("multi_paragraph_boost"), 0.08)
-
-        # 弱维度数量加成（从 YAML 配置）
-        # V2.4 (2026-07-30): 弱阈值跟随 base_scoring.yaml 的 weak_threshold（0.60），
-        #   不再硬编码 0.70。这样只有真正低于阈值的维度才被判弱，避免误判放大难度。
-        #   注意: 解耦后弱维度加成是难度对「回答质量」的唯一反馈通道，
-        #         保留但已削弱（见 difficulty_matrix.yaml V2.4 调整）。
-        base_cfg = v2.get("base", {}) or {}
-        base_scoring = base_cfg.get("scoring", {}) or {}
-        weak_threshold = safe_float(base_scoring.get("weak_threshold"), 0.60)
-        weak_count = sum(1 for d in (dims or {}).values() if isinstance(d, dict) and safe_float(d.get("score"), 1.0) < weak_threshold)
-        for rule in (diff_cfg.get("weak_dimension_boost") or []):
-            if not isinstance(rule, dict):
-                continue
-            if rule.get("weak_count") == weak_count:
-                complexity_boost += safe_float(rule.get("boost"), 0)
-                if weak_count >= 2:
-                    reason_parts.append(f"{weak_count}个弱维度")
-
-        difficulty = base_difficulty + complexity_boost
-        difficulty = max(0.0, min(1.0, difficulty))
-
-        # 难度等级
-        if difficulty < 0.35:
-            level = "simple"
-        elif difficulty < 0.65:
-            level = "medium"
-        elif difficulty < 0.80:
-            level = "complex"
-        else:
-            level = "expert"
-
-        return {
-            "threshold": round(difficulty, 2),
-            "level": level,
-            "reason": " | ".join(reason_parts) if reason_parts else f"{domain}领域({base_difficulty:.2f})"
-        }
-
-    @staticmethod
-    def _lookup_domain_difficulty(domain: str, domain_diffs: dict) -> float:
-        """在领域难度字典中查找指定领域的难度加成
-
-        支持嵌套字典结构的层级查找：
-        tech.crypto.quantum → tech.crypto → tech → root
-        例如 YAML: {tech: {crypto: {quantum: 0.75}}}
-        """
-        # 精确匹配
-        if domain in domain_diffs:
-            val = domain_diffs[domain]
-            if isinstance(val, dict):
-                return float(val.get("base", 0.0))
-            return float(val)
-
-        # 按点号分割，逐级深入嵌套字典
-        parts = domain.split(".")
-        current = domain_diffs
-        for i, part in enumerate(parts):
-            if isinstance(current, dict) and part in current:
-                current = current[part]
-            else:
-                # 当前层级找不到，返回之前找到的基准值
-                return 0.0
-
-        # 遍历完所有部分，返回最终值
-        if isinstance(current, dict):
-            return float(current.get("base", 0.0))
-        return float(current)
-
-    def _assess_risk_level(self, dims: dict, weighted_score: float) -> Dict[str, Any]:
-        """评估风险等级"""
-        if weighted_score < 0.4:
-            level = "critical"
-        elif weighted_score < 0.55:
-            level = "high"
-        elif weighted_score < 0.70:
-            level = "medium"
-        else:
-            level = "low"
-
-        factors = []
-        if dims.get("accuracy", {}).get("score", 0) < 0.6:
-            factors.append("准确性不足")
-        if dims.get("completeness", {}).get("score", 0) < 0.5:
-            factors.append("完整性严重不足")
-
-        return {
-            "level": level,
-            "factors": factors,
-            "mitigation": "云端增强" if level in ("critical", "high") else "本地处理"
-        }
-
-    def _calculate_confidence(self, dims: dict) -> float:
-        """计算评审置信度"""
-        scores = [d["score"] for d in dims.values()]
-        if not scores:
-            return 0.7
-        # 分数离散度低 → 置信度高
-        avg = sum(scores) / len(scores)
-        variance = sum((s - avg) ** 2 for s in scores) / len(scores)
-        return round(max(0.5, min(1.0, 1.0 - variance)), 2)
-
-    def _collect_issues(self, dims: dict) -> List[str]:
-        issues = []
-        for name, dim in dims.items():
-            if dim["score"] < 0.6:
-                issues.append(f"{name}评分偏低({dim['score']:.2f})")
-        return issues
-
-    def _collect_suggestions(self, dims: dict) -> List[str]:
-        suggestions = []
-        if dims.get("completeness", {}).get("score", 0) < 0.6:
-            suggestions.append("补充缺失的关键内容章节")
-        if dims.get("professional", {}).get("score", 0) < 0.6:
-            suggestions.append("提升专业术语准确性和一致性")
-        if dims.get("accuracy", {}).get("score", 0) < 0.6:
-            suggestions.append("修正事实性错误")
-        if not suggestions:
-            suggestions.append("内容质量良好，建议检查是否有遗漏细节")
-        return suggestions
-
     def _build_simple_report(self, suggestion: str) -> Dict[str, Any]:
         """构建简单对话的评审报告"""
         return {
@@ -689,125 +517,6 @@ class ReviewAgent(BaseAgent):
             "difficulty": {"threshold": 0.15, "level": "simple", "reason": "简单对话"},
             "review_score": 0.85, "difficulty_threshold": 0.15,
             "issues": [], "suggestions": [suggestion], "pass": True
-        }
-
-    def _review_content(self, user_task: str, summary: str, writer_output: str) -> Dict[str, Any]:
-        rules = self._load_rules()
-
-        if detect_simple_conversation(user_task, output_text=writer_output):
-            sc = rules["simple_conversation"]
-            return {
-                "review_score": sc["review_score"],
-                "difficulty_threshold": sc["difficulty_threshold"],
-                "dimensions": sc["dimensions"],
-                "issues": [],
-                "suggestions": ["简单对话，内容自然合理"],
-                "pass": True
-            }
-
-        dims = rules["dimensions"]
-        structure = dims["structure"]
-        relevance = dims["relevance"]
-        richness = dims["richness"]
-        professional = dims["professional"]
-        actionable = dims["actionable"]
-
-        issues = []
-        suggestions = []
-
-        # 内容长度评估（来自 YAML 配置）
-        output_len = len(writer_output)
-        if "length_scoring" in rules:
-            for rule in rules["length_scoring"]:
-                t = rule["threshold"]
-                op = rule["operator"]
-                if op == "<" and output_len < t:
-                    richness += rule.get("richness_delta", 0)
-                    if "issues" in rule:
-                        issues.extend(rule["issues"])
-                    break
-                elif op == ">" and output_len > t:
-                    richness += rule.get("richness_delta", 0)
-                    break
-
-        # 结构检查（来自 YAML 配置）
-        if "structure_checks" in rules:
-            for check in rules["structure_checks"]:
-                target_tasks = check.get("target_tasks", [])
-                if not any(tt in user_task for tt in target_tasks):
-                    continue
-                keywords = check.get("keywords", [])
-                if not any(kw in writer_output for kw in keywords):
-                    issues.extend(check.get("missing_issues", []))
-                    structure += check.get("structure_penalty", 0)
-                    actionable += check.get("actionable_penalty", 0)
-
-        # Markdown 格式检查（来自 YAML 配置）
-        if "markdown_scoring" in rules:
-            for rule in rules["markdown_scoring"]:
-                if re.search(rule["pattern"], writer_output):
-                    structure += rule.get("structure_bonus", 0)
-
-        # 关键词匹配检查（来自 YAML 配置）
-        if "keyword_matching" in rules:
-            km = rules["keyword_matching"]
-            task_lower = user_task.lower()
-            output_lower = writer_output.lower()
-            task_keywords = km.get("task_keywords", [])
-            matched = sum(1 for kw in task_keywords if kw in task_lower and kw in output_lower)
-            if matched >= km.get("min_match_count", 2):
-                relevance += km.get("relevance_bonus", 0.2)
-
-        # 内容质量加分（来自 YAML 配置）
-        if "quality_bonuses" in rules:
-            for bonus in rules["quality_bonuses"]:
-                if re.search(bonus["pattern"], writer_output):
-                    structure += bonus.get("structure_bonus", 0)
-                    professional += bonus.get("professional_bonus", 0)
-                    actionable += bonus.get("actionable_bonus", 0)
-
-        # 限制范围
-        structure = clamp_score(structure)
-        relevance = clamp_score(relevance)
-        richness = clamp_score(richness)
-        professional = clamp_score(professional)
-        actionable = clamp_score(actionable)
-
-        review_score = (structure + relevance + richness + professional + actionable) / 5
-
-        # 计算 difficulty_threshold
-        difficulty_threshold = self._calculate_difficulty_threshold(
-            user_task, writer_output, review_score, structure, professional
-        )
-
-        # 生成建议
-        for issue in issues:
-            if "内容过短" in issue:
-                suggestions.append("增加内容详细度")
-            elif "活动流程" in issue:
-                suggestions.append("补充活动流程章节")
-            elif "预算" in issue:
-                suggestions.append("增加预算模块")
-            elif "时间" in issue:
-                suggestions.append("添加时间线")
-        if not suggestions:
-            suggestions.append("内容质量良好，建议检查是否有遗漏细节")
-
-        pass_threshold = rules.get("pass_threshold", 0.65)
-
-        return {
-            "review_score": round(review_score, 2),
-            "difficulty_threshold": round(difficulty_threshold, 2),
-            "dimensions": {
-                "structure": round(structure, 2),
-                "relevance": round(relevance, 2),
-                "richness": round(richness, 2),
-                "professional": round(professional, 2),
-                "actionable": round(actionable, 2)
-            },
-            "issues": issues,
-            "suggestions": suggestions,
-            "pass": review_score >= pass_threshold
         }
 
     def _calculate_difficulty_threshold(self, user_task: str, writer_output: str,
@@ -911,7 +620,7 @@ class ReviewAgent(BaseAgent):
             #   原因：LLM 评审倾向向 0.65 收敛，会把中等问题误判为复杂；
             #         规则引擎基于关键词计算更稳定，应主导校正
             # - 其他中低复杂度（评分 >= 0.65）→ 偏重 LLM 的加权平均（LLM 0.6 + 规则 0.4）
-            from agents.base.utils import _has_complexity_signal, _COMPLEXITY_SIGNALS
+            from agents.base.utils import _COMPLEXITY_SIGNALS
             signal_count = sum(1 for s in _COMPLEXITY_SIGNALS if s in user_task)
 
             original_llm_difficulty = llm_difficulty
@@ -1003,7 +712,7 @@ Writer输出：{writer_output[:2000]}
                 timeout=30
             )
         except asyncio.TimeoutError:
-            logger.warning(f"Review LLM 调用超时(30s)，回退到 V2 规则引擎评分")
+            logger.warning("Review LLM 调用超时(30s)，回退到 V2 规则引擎评分")
             return self._review_content_v2(user_task, summary, writer_output, skill_path, domain_weights)
 
         # V2.1: 使用 Review Guard 替代直接 JSON 解析，传递实际领域参数

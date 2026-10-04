@@ -48,10 +48,19 @@ def test_review_agent_v2_configs():
         ("tech.compiler", 0.60),
         ("tech.os", 0.55),
     ]
+    # V2.5 (2026-10-04): 领域难度解析统一到在役实现 ReviewEngine。
+    # ReviewAgent 里曾有一份重复副本（已删除），测试原先断言的是那份副本，
+    # 导致「生产实现出错也测不出来」——现在直接锁在役实现。
+    from core.skill_engine.review_engine import ReviewEngine
+
     for domain, expected in test_cases:
-        actual = r._lookup_domain_difficulty(domain, diffs)
+        actual = ReviewEngine._lookup_domain_difficulty(domain, diffs)
         assert actual == expected, f"{domain}: 期望{expected}，实际{actual}"
-    print(f"  PASS: {len(test_cases)}个领域难度查找全部正确")
+
+    # 未覆盖的领域必须返回 None（而不是 0.0），否则默认值分支会被吃掉
+    assert ReviewEngine._lookup_domain_difficulty("tech.unknown", diffs) is None
+    assert ReviewEngine._lookup_domain_difficulty("", diffs) is None
+    print(f"  PASS: {len(test_cases)}个领域难度查找全部正确（+未覆盖返回 None）")
 
 
 def test_all_skills_load():
