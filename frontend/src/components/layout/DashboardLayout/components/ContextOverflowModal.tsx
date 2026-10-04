@@ -56,10 +56,9 @@ const ContextOverflowModal: React.FC<ContextOverflowModalProps> = ({
                 对话历史丢失、回答质量严重下降</strong>。
               </li>
               <li>
-                <strong className="context-overflow-highlight">切换至云端模型（DeepSeek V4 Pro）意味着：
+                <strong className="context-overflow-highlight">切换至云端模型（DeepSeek-V4.1-Flash）意味着：
                 从此刻起，您的每一次提问都将消耗付费 API Token</strong>，
-                按 DeepSeek 官方定价实时计费（输入 ¥1.00 / 百万 token，输出 ¥4.00 / 百万 token）。
-                费用将从您配置的 DeepSeek API Key 账户中扣除。
+                按 DeepSeek 官方定价实时计费。费用将从您配置的 DeepSeek API Key 账户中扣除。
               </li>
               <li>
                 云端模型上下文上限为 <strong>1,048,576 tokens（1M）</strong>，可满足长期工程需求。

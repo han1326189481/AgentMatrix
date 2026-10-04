@@ -252,7 +252,7 @@ const ContextPanel: React.FC = () => {
         </div>
         <div className="context-model-row">
           <span className="context-model-label">云端模型</span>
-          <span className="context-model-value">DeepSeek V4 Pro (1M)</span>
+          <span className="context-model-value">DeepSeek-V4.1-Flash (1M)</span>
         </div>
       </div>
 

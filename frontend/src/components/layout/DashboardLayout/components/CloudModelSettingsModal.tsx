@@ -59,7 +59,8 @@ export default function CloudModelSettingsModal({
     try {
       setLoading(true);
       const config = await getCloudModelConfig();
-      setModel(config.model || 'deepseek-v4.1-flash');
+      // 兜底值必须是 API model id（显示名会 400）
+      setModel(config.model || 'deepseek-flash');
       setApiBase(config.api_base || 'https://api.deepseek.com/v1');
       setCurrentMasked(config.api_key_masked || '');
       setIsConfigured(config.configured);

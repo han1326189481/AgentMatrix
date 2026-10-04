@@ -24,9 +24,11 @@ class LLMClient:
         self.gemini_model = settings.gemini_model
         self.deepseek_api_key = getattr(settings, 'deepseek_api_key', '')
         self.deepseek_api_base = getattr(settings, 'deepseek_api_base', 'https://api.deepseek.com/v1')
-        # 2026-09-22 佳文定版：云端统一 deepseek-v4.1-flash（文本+视觉同源）
-        self.deepseek_model = getattr(settings, 'deepseek_model', 'deepseek-v4.1-flash')
-        self.deepseek_vision_model = getattr(settings, 'deepseek_vision_model', 'deepseek-v4.1-flash')
+        # 2026-09-22 佳文定版：云端统一 DeepSeek-V4.1-Flash（文本+视觉同源）。
+        # ⚠️ 兜底值必须是 **API model id** `deepseek-flash`：
+        #    写网关显示名 `deepseek-v4.1-flash` 会被服务端 400 拒（2026-10-04 修正）。
+        self.deepseek_model = getattr(settings, 'deepseek_model', 'deepseek-flash')
+        self.deepseek_vision_model = getattr(settings, 'deepseek_vision_model', 'deepseek-flash')
         self.dynamic_ollama_host = None
 
         # V4.1: Token 侧信道 — 累积每次调用的 token 消耗，供 CostTracker 消费
