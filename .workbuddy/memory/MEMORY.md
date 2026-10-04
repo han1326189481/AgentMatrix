@@ -59,9 +59,14 @@
 - ⚠️ **push 挂住 = 全局 `credential.helper` 被 PortableGit 设成 shim `helper-selector`**（读不到凭据且阻塞）。解法：`git -c credential.helper= -c credential.helper=manager push origin main`（先清空再留 manager，单独 `-c ...=manager` 无效）。推完 `git rev-list --left-right --count main...origin/main` 复核 `0 0`。详见 `git-remote-align` §2.1。
 - ✅ **远端已清理**（2026-10-04）：Release `v0.1.0`（id 363665093，57.5MB）+ 其 tag 已删（复查 0 release）；远端 tag `cloud-v4.3-legacy`（→旧云端 `8661233`）已删，仅留 `pre-cleanup`（→新历史 `d0630746`，干净）。本地删 `v0.1.0` tag；`cloud-v4.3-legacy` **本地保留**做留痕。
 - ⚠️ **永远不要 `git push --tags`**：本地 `cloud-v4.3-legacy` 指向含泄露 Key 的旧历史，推上去等于二次暴露。要推 tag 只推 `pre-cleanup`。
-- ⬜ **唯一剩余待佳文手动**：撤销泄露的 DeepSeek Key —— 指纹 `sk-e507c…30c0`（35 位），泄露于 commit **`0c9d1f6`**（2026-05-15）的 `backend/config/app_config.json`。全量扫描（29 个旧 commit × 配置类 blob 去重 47 个）确认**仅此一把**。
-  - ✅ 当前 `backend/.env` 在用的是**另一把**（`DEEPSEE…` 45 位，网关格式），**从未进过 git**（`.gitignore` 一直挡着 `.env` 与 `app_config.json`，仓库只跟踪 `.example` 模板）→ **这把不用动**。
+- ✅ **密钥泄露已查实无害，无需轮换**（2026-10-04 实测结论）：
+  - 泄露的那把：`sk-e507c…30c0`（35 位），在 commit **`0c9d1f6`**（2026-05-15）的 `backend/config/app_config.json`。全量扫描（29 个旧 commit × 配置类 blob 去重 47 个）确认**仅此一把**。
+  - 它是 **DeepSeek 官方 Key**（该配置 `provider:"deepseek"` 且**无 base_url**，不是网关）。实测官方 API 返回
+    `Authentication Fails, Your api key: ****30c0 is invalid` → **已失效** → **不必撤销、不必轮换**。
+  - 当前 `backend/.env` 在用的是**另一把**（`DEEPSEE…` 45 位，网关格式），**从未进过 git**（`.gitignore` 一直挡着 `.env` 与 `app_config.json`）。
   - 仓库里另两处 `sk-xxxxxxx…` 是**占位符**，非真实密钥。
+  - 补充：仓库是 **PUBLIC**，该 Key 自仓库创建（2026-07-31）起公开暴露约 65 天。
+- ⚠️ 教训：**判定"需要轮换"之前，必须先用一条 `/models` 请求验证 Key 是否仍有效**，并确认它是官方 Key 还是网关 Key（看配置里有没有 `base_url`）。别拿未验证的假设当用户待办——这次差点让佳文白跑一趟。
 
 ## 九、当前状态与待办（2026-10-04）
 - ★ 总纲文档 `docs/项目体检与处置方案_2026-10-04.md`。**接手前必读。**
