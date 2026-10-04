@@ -265,11 +265,14 @@ AgentMatrix/
 
 The easiest way to get started — no Python or Node.js installation required.
 
+> ⚠️ **Installer temporarily unavailable.** The earlier `v0.1.0` installer was built from a much
+> older codebase and has been taken down. Until the current version is packaged, follow
+> [Getting Started (Source Code)](#getting-started-source-code) to run AgentMatrix from source.
+
 ### Step 1: Download the Installer
 
-Download the latest installer from [GitHub Releases](https://github.com/han1326189481/AgentMatrix/releases/latest):
-
-- **[AgentMatrix_0.1.0_x64-setup.exe](https://github.com/han1326189481/AgentMatrix/releases/download/v0.1.0/AgentMatrix_0.1.0_x64-setup.exe)** (Windows x64, ~55 MB)
+Download the installer from [GitHub Releases](https://github.com/han1326189481/AgentMatrix/releases)
+once a new build is published — there is no downloadable installer right now.
 
 ### Step 2: Install Ollama and Models
 
@@ -286,7 +289,7 @@ ollama pull qwen2.5:1.5b
 
 ### Step 3: Install and Launch
 
-1. Run `AgentMatrix_0.1.0_x64-setup.exe` to install.
+1. Run the installer (e.g. `AgentMatrix_<version>_x64-setup.exe`) to install.
 2. Launch **AgentMatrix** from the Start Menu or desktop shortcut.
 3. On first launch, a splash screen will appear while the backend initializes (this may take 30–90 seconds on first run as PyInstaller extracts the bundle).
 4. When prompted, enter your **DeepSeek API Key** (get one at [platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys)). You can skip this to use local-only mode.

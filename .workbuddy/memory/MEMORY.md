@@ -56,7 +56,11 @@
 - 旧 `.git` 因 9/22 丢 pack 永久损坏，10-04 `git init -b main` 重建后走方案 C：bundle 备份 → tag `pre-cleanup`/`cloud-v4.3-legacy`（旧云端 `8661233`）→ `push --force-with-lease`。**本地与旧云端无共同祖先**。bundle 在 `D:\AgentMatrix_backups\snapshots\`。见 user skill `git-remote-align`。
 - `.git` ~106MB（48MB exe 走 LFS）。`core.autocrlf=false`。已排除跟踪：`prompts/skills/_pending_patches/`、`frontend/tsconfig.tsbuildinfo`、`.workbuddy/_*`。
 - ⚠️ **push 挂住 = 全局 `credential.helper` 被 PortableGit 设成 shim `helper-selector`**（读不到凭据且阻塞）。解法：`git -c credential.helper= -c credential.helper=manager push origin main`（先清空再留 manager，单独 `-c ...=manager` 无效）。推完 `git rev-list --left-right --count main...origin/main` 复核 `0 0`。详见 `git-remote-align` §2.1。
-- ⬜ **两项待佳文手动**（`docs/项目体检与处置方案_2026-10-04.md` §4.5）：① 删 GitHub Release `v0.1.0`（57.5MB 旧包）② 轮换旧历史泄露的 DeepSeek Key（force push 只移指针，旧 SHA 仍可取对象）。
+- ✅ **远端已清理**（2026-10-04）：Release `v0.1.0`（id 363665093，57.5MB）+ 其 tag 已删（复查 0 release）；远端 tag `cloud-v4.3-legacy`（→旧云端 `8661233`）已删，仅留 `pre-cleanup`（→新历史 `d0630746`，干净）。本地删 `v0.1.0` tag；`cloud-v4.3-legacy` **本地保留**做留痕。
+- ⚠️ **永远不要 `git push --tags`**：本地 `cloud-v4.3-legacy` 指向含泄露 Key 的旧历史，推上去等于二次暴露。要推 tag 只推 `pre-cleanup`。
+- ⬜ **唯一剩余待佳文手动**：撤销泄露的 DeepSeek Key —— 指纹 `sk-e507c…30c0`（35 位），泄露于 commit **`0c9d1f6`**（2026-05-15）的 `backend/config/app_config.json`。全量扫描（29 个旧 commit × 配置类 blob 去重 47 个）确认**仅此一把**。
+  - ✅ 当前 `backend/.env` 在用的是**另一把**（`DEEPSEE…` 45 位，网关格式），**从未进过 git**（`.gitignore` 一直挡着 `.env` 与 `app_config.json`，仓库只跟踪 `.example` 模板）→ **这把不用动**。
+  - 仓库里另两处 `sk-xxxxxxx…` 是**占位符**，非真实密钥。
 
 ## 九、当前状态与待办（2026-10-04）
 - ★ 总纲文档 `docs/项目体检与处置方案_2026-10-04.md`。**接手前必读。**
