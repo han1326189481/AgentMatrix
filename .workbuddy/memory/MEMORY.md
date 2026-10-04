@@ -58,9 +58,19 @@
   `D:\AgentMatrix_backups\git_attic_20261004\.git.damaged`（含 `SALVAGED-INFO.txt`）。
   已按佳文确认的「本地重建」方案重新 `git init -b main` 并提交 2 次：
   `3c03a47` 首次快照（522 文件 / 160,280 行）、`2060f53` 修正版本控制范围。
-  - ⚠️ **本地仓库目前没有 remote**。原远端 `https://github.com/han1326189481/AgentMatrix.git`
-    （原 `origin/main = 0d4b6770...`）**未配置**；将来要推需先
-    `git remote add origin <url>` 并处理认证（佳文当时选择"只做本地重建，不推远端"）。
+  - ✅ **远端已于 2026-10-04 对齐完成**（佳文同意走「方案 C」）：
+    `origin = https://github.com/han1326189481/AgentMatrix.git`，
+    `main` 已跟踪 `origin/main`，`git rev-list --left-right --count main...origin/main = 0	0`。
+    过程：`git bundle create --all` 全量备份 →
+    `tag pre-cleanup` + `tag cloud-v4.3-legacy`（指向旧云端 `8661233`，已推送留痕）→
+    `git push --force-with-lease`（期望值 = 拉下来的 `refs/remotes/origin/main`）。
+    **本地与旧云端 `8661233` 无共同祖先**，所以是 forced update，不是 fast-forward。
+    备份 bundle：`D:\AgentMatrix_backups\snapshots\agentmatrix-pre-cleanup-*.bundle`（9.74 MB，4 refs）。
+    凭据由 Windows 凭据管理器的 `git:https://github.com`（user `han1326189481`）提供，
+    push 无交互。流程细节见 user 级 skill `git-remote-align`。
+  - ⚠️ **遗留**：旧云端曾跟踪含真实 API Key 的 `backend/config/app_config.json`，
+    force push 只移动分支指针，旧对象仍可经旧 SHA 取到 → **建议轮换该 Key**。
+    另外远端 Release `v0.1.0`（57.5MB 安装包）指向旧代码，force push 不动它。
   - `.git` 约 106MB（主要是 48MB 的 `agentmatrix-backend.exe`，走 LFS，库内仅 133B 指针）。
   - 换行符策略固定 `core.autocrlf=false`，避免 checkout 时批量转 CRLF 产生虚假 diff。
   - 已排除跟踪：`backend/prompts/skills/_pending_patches/`（运行时输出）、
@@ -130,8 +140,9 @@
   旧笔记里的 `0d4b6770` 是老远端快照，现在线上是 `8661233`。
 - ✅ **云端 Release `v0.1.0` 真实存在**，安装包 `AgentMatrix_0.1.0_x64-setup.exe`
   （57.5MB，2026-08-02）已上传 → README 的下载链接**有效**，不要当作失效链接删掉。
-- ✅ **测试已全绿**：449 用例 / 0 失败（原 7 红，5 个同源于 `ENGINE_POLICIES` 被
+- ✅ **测试已全绿**：**459 用例 / 0 失败**（原 7 红；5 个同源于 `ENGINE_POLICIES` 被
   未文档化的 "V3.1" 改动偏离 `V3_DEVELOPMENT_GUIDE.md:660/790`）。
+  基线演进：449 → 455（+6 IntentGraph 软节流用例）→ 459（知识库测试 4 → 7 项）。
 - ★ **`ENGINE_POLICIES` 规范来源**：`docs/V3_DEVELOPMENT_GUIDE.md` 第 4.1 节 + 4.4 验收标准。
   chat = `["task","skill"]` 只 2 引擎；decomposer/planner 只由 `complexity>0.5` 触发
   （planning/analysis 例外）。**别再加回 chat 常驻 decomposer**，会同时打破 5 个用例 +
@@ -146,14 +157,35 @@
   `ruff --select E9,F63,F7,F82`（实测 0 违规）；全量规则集实测 7177 违规、其中 6149 条是
   中文注释的 RUF001/002/003 噪声，**不要**改回全量门禁，否则 CI 永远红。
   测试 job 带 `AGENT_CONTRACT_STRICT=1`（实测 449 全绿），另跑契约静态审计。
-- **待裁定的废旧代码**（详见总纲文档第三节）：约 790 行建议删除
-  （summary/service/旧 knowledge_service/review 旧分支/prompt_builder 4 builder），
-  约 400 行建议**重连**（上下文压缩三件套 360、`guard_io`、`_deepseek_analyze`、
-  `TASK_TEMPLATES`、IntentGraph `should_intervene`）。
-- ★ **新发现**：`agents/knowledge/agent.py::TASK_TEMPLATES` 是「原 Summary Agent 的 outline
-  功能」迁移物，但**定义后零引用**，导致 `summary_result["outline"]` 恒为 `[]`、
-  Writer 永远拼到「- 无」。迁移只做了一半。
-- ⚠️ **`knowledge/service.py` 与 `knowledge/mysql_service.py` 有同名类 `KnowledgeService`**，
-  而 `knowledge/__init__.py` 导出的还是**旧的那个**（误导性导出）。
-  在役入口是 `knowledge.mysql_service.get_knowledge_service()`。
-- 文档滞后：`README.md` 的 `DEEPSEEK_MODEL` 已于 2026-10-04 改为 `deepseek-flash`。
+- ✅ **删除批次已全部执行完毕（2026-10-04，3 批 / 累计删 1,445 行）**，
+  每批都「删前 grep 取证 → 删 → 全量 pytest（严格契约模式）→ 查数据污染 → 提交」：
+  - `6a96879` 批次 1：`agents/summary/`、`services/`（373 行）
+  - `ce90f7f` 批次 2：review 旧分支（`_review_content` / `_calculate_difficulty_v2` /
+    `_lookup_domain_difficulty` / `_assess_risk_level` / `_calculate_confidence` /
+    `_collect_issues` / `_collect_suggestions`）+ `prompt_builder` 4 个 builder（494 行）
+  - `b379609` 批次 3：`knowledge/service.py` + `knowledge_base.json`，改包导出，
+    重写 API 测试，移除失效护栏（578 行）
+  - ⚠️ **纠错记录**：`agents/review/agent.py::_calculate_difficulty_threshold`
+    **不是死代码**（被在役的 `_review_with_llm_v2` 调用），总纲文档初版误判、已修正。
+    教训：裁定死代码必须逐条 grep 调用点。
+  - ⚠️ **`ReviewEngine` 与 `ReviewAgent` 曾各有一份 `_lookup_domain_difficulty`**，
+    测试断言的是被删的那一份 → 删完必须把测试重定向到在役实现（已改）。
+- ✅ **IntentGraph 已重连为软节流**（提交 `78d6349`）：`should_intervene` 由硬开关改为
+  分级信号（阈值 3→2，新增 `get_consecutive_domain_run` / `domains_related` /
+  `intervention_signal`）。`reinforce` 时同域模板 priority +0.05 置顶 + 跳过冷却；
+  跨领域切换退回 baseline。**推荐始终发生**，图只决定排序与冷却。
+- ⬜ **待重连（P2，尚未执行，按优先级）**：
+  1. `agents/knowledge/agent.py::TASK_TEMPLATES` —— 「原 Summary Agent 的 outline 功能」迁移物，
+     **定义后零引用** → `summary_result["outline"]` 恒为 `[]`、Writer 永远拼到「- 无」。
+     这是**能力丢失**，不是死代码，优先修。
+  2. `core/context_compressor.py` + `context_round_recorder.py` + `context_token_counter.py`
+     （360 行）—— V4.2 半拉子工程：前端 `ContextBar/ContextPanel/ContextOverflowModal`
+     已建好，但后端**没有任何 `/context` 端点**（真实数据源缺失）。
+  3. `agents/base/contract.py::guard_io` —— 全仓零调用，导致越界账本只有 LLM 维度。
+  4. `learning_engine._deepseek_analyze` —— 仍是 TODO 恒返回 None，自学习「拓新」半关着。
+     （实装需带三重成本护栏 + 产出仍进 pending）
+  5. `code_munch_plugin` 9 个方法 —— 保留但零测试覆盖，建议把
+     `scripts/validate_codemunch.py` 的断言迁进 `tests/`。
+- ✅ **同名类陷阱已消除**：`knowledge/service.py`（旧 JSON 实现）已删除，
+  `knowledge/__init__.py` 现在导出 `mysql_service` 的 SQLite 实现。
+- ✅ 文档滞后已修：`README.md` 的 `DEEPSEEK_MODEL` 已是 `deepseek-flash`。
