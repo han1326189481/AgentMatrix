@@ -19,6 +19,10 @@ agent_created: true
    **一律 `Out-File -Encoding UTF8` 落盘再 Read**（`*>` 会产出 UTF-16，被判成二进制读不了）。
 4. **不要用 `%` 字符出现在 PowerShell 命令里**（会被当成 cmd.exe 变量语法而拦命令）。
    需要 git 格式化输出时用 `--pretty=fuller` 之类，别用 `--format="%H"`。
+5. ⚠️ **改文件时同一文件的多条 Edit 必须串行发**。并行发出的同文件编辑会互相覆盖、
+   改动静默丢失（实测一次丢 5 条）；`EBUSY: resource busy or locked` 就是并发写盘的征兆。
+   **改完必须 grep 复核关键标记的数量**，不能只看「Successfully edited」。
+   （2026-10-04 P1 接线时正是靠事后 grep 才发现漏了 7 处。）
 
 ## 一、跑测试（本机必须带这两个环境变量）
 
@@ -30,7 +34,8 @@ $env:AGENT_CONTRACT_STRICT="1"            # 契约越界即失败，与 CI 口�
   Out-File D:\AgentMatrix\.workbuddy\_verify.txt -Encoding UTF8
 ```
 
-- 基线：**459 用例 / 0 失败**（2026-10-04；449 → 455 加 IntentGraph 用例 → 459 加知识库用例）。
+- 基线：**485 用例 / 0 失败**（2026-10-04；449 → 455 IntentGraph → 459 知识库 → 485 P1 四项接线）。
+  新增文件 `tests/test_wiring_20261004.py`（26 项）：TASK_TEMPLATES/outline、上下文三件套 + `/context` 端点 + WS 推送、`guard_io`、`_deepseek_analyze` 四重护栏。
 - `exit code` 可能是 1 而测试全过——看**输出文件**而不是退出码（护栏会打断收尾）。
   判定看 `grep -c FAILED` 和最后的 `=== N passed ===`。
 - 只要跑测试，**必做**下面第二步。
@@ -44,8 +49,12 @@ git -C D:\AgentMatrix status --porcelain -- `
 ```
 
 输出为空 = 没污染。**非空就是有新护栏漏网**，不要 `git checkout --` 了事——
-先定位写入通道（`conftest.py` 现有 7 个 autouse fixture 就是历史漏网的沉淀），
+先定位写入通道（`conftest.py` 现有 8 个 autouse fixture 就是历史漏网的沉淀），
 补上 fixture，再回滚文件重跑验证。
+
+⚠️ 跑测试还会消耗**云端额度**：`_deepseek_analyze` 实装后，测试里若未封住会真调 DeepSeek。
+第 8 个 fixture `_forbid_deepseek_analyze_calls` 就是为此——新增任何「按条目逐个上云」的
+代码路径，都要在 conftest 里同步加一条关闭开关 + 额度重置。
 
 **新增护栏的正确做法**：把默认落盘路径抽成模块级常量（如
 `knowledge/service.py::DEFAULT_KNOWLEDGE_FILE`）或函数（如 `get_memory_dir`），
