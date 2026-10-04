@@ -27,6 +27,10 @@
   - 禁止 LearningEngine / KnowledgeAuditor 落盘
   - ReasoningGraph 读写重定向到 tmp_path
   - SkillLearner 默认反馈缓冲区重定向到 tmp_path
+  - PendingStore 待审队列根目录重定向到 tmp_path
+  - PersonalBrain 画像目录重定向到 tmp_path
+  - MemoryStore 记忆目录重定向到 tmp_path（2026-10-04 补漏）
+  - （已移除）旧版 KnowledgeService 知识库文件重定向 —— 该实现已删除
 
 若某个测试确实要验证落盘逻辑，请显式传入 `yaml_path=` / `buffer_path=`
 指向 `tmp_path`，不要依赖默认路径。
@@ -166,20 +170,7 @@ def _isolate_memory_store(monkeypatch, tmp_path):
     monkeypatch.setattr(_ms, "get_memory_dir", lambda: str(d))
 
 
-@pytest.fixture(autouse=True)
-def _isolate_legacy_knowledge_service(monkeypatch, tmp_path):
-    """旧版 KnowledgeService 的知识库落盘路径重定向到 tmp_path。
-
-    2026-10-04 补漏：`knowledge/service.py::KnowledgeService` 的
-    `knowledge_file` 默认写死到仓库内 `knowledge/knowledge_base.json`，
-    `tests/test_api/test_knowledge_api.py` 每次运行都会整文件重写生产知识库。
-    与 LearningEngine 同类问题（默认落盘路径指向生产文件），一并堵住。
-    """
-    try:
-        from knowledge import service as _ks
-    except Exception:
-        return
-
-    monkeypatch.setattr(
-        _ks, "DEFAULT_KNOWLEDGE_FILE", str(tmp_path / "knowledge_base.json")
-    )
+# 注：原 `_isolate_legacy_knowledge_service` 护栏已随旧实现一并移除
+# （2026-10-04，批次 3）：`knowledge/service.py`（JSON 字典版 KnowledgeService）
+# 已删除，`tests/test_api/test_knowledge_api.py` 改为打在役的 SQLite 实现，
+# 并自行用临时数据库（tmp_path）隔离 —— 该写入通道已不存在，护栏不再需要。
