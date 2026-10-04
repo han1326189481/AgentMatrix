@@ -61,6 +61,47 @@ class IntentGraph:
             return domains[0]
         return None
 
+    @staticmethod
+    def domains_related(a: str, b: str) -> bool:
+        """判断两个领域是否同根（相等或互为点分前缀）
+
+        用于「领域切换 vs 持续关注」判定：
+          tech.ai 与 tech.ai.agent → 相关（持续关注同一大方向）
+          tech.ai 与 business     → 不相关（发生领域切换）
+        """
+        a = (a or "").strip()
+        b = (b or "").strip()
+        if not a or not b:
+            return False
+        if a == b:
+            return True
+        return a.startswith(b + ".") or b.startswith(a + ".")
+
+    def get_consecutive_domain_run(self, domain: str = "") -> int:
+        """返回**末尾**连续同领域的次数（软节流信号，替代 window 硬判定）
+
+        Args:
+            domain: 限定统计的领域；为空则统计末尾记录的所属领域。
+                    两者按 `domains_related` 同根匹配（tech.ai ≈ tech.ai.agent）。
+
+        Returns:
+            连续次数（0 表示末尾记录无领域或首条即不匹配）
+        """
+        if not self.records:
+            return 0
+        tail = self.records[-1].domain
+        # 不限定 domain 时以末尾记录的领域为基准
+        target = domain or tail
+        if not target:
+            return 0
+        run = 0
+        for r in reversed(self.records):
+            if r.domain and self.domains_related(r.domain, target):
+                run += 1
+            else:
+                break
+        return run
+
     def get_domain_distribution(self, top_n: int = 5) -> List[tuple]:
         """获取领域分布（最近记录）"""
         domains = [r.domain for r in self.records if r.domain]

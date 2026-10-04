@@ -96,7 +96,8 @@ class WorkflowService:
 
         # V3: Knowledge Recommendation 接入 — 基于 Graph Traversal 的精准推荐
         # 推荐来源: 当前任务/Goal/Capability/Skill Graph 四类 + 提示词模板
-        # 介入条件: IntentGraph 检测到连续3次同领域提问（should_intervene=True）
+        # 介入信号: IntentGraph 连续同领域（should_intervene/intervention_signal）
+        #           作为**软节流**参与排序与冷却，而非「是否推荐」的硬开关
         self.knowledge_recommender = None
         try:
             from core.graphs import get_skill_graph
@@ -365,9 +366,10 @@ class WorkflowService:
                         logger.warning(f"Reasoning graph matching failed: {e}")
 
                 # V3: Knowledge Recommendation — 提示词模板推荐
-                # 策略: 首次命中即推荐（active_nodes 非空时立即调用）
-                # 原因: IntentGraph 连续3次介入策略在实际使用中难以触发（重启清空、领域不一致），
-                #       改为只要 Decomposer 匹配到节点就推荐，让用户首次提问就能看到模板
+                # 策略: 首次命中即推荐（active_nodes 非空时立即调用）+ IntentGraph 软节流加权
+                # 演进: 早期的「连续3次才介入」硬开关在实际使用中几乎不可触发（重启清空、
+                #       领域不一致），故降级为软节流信号（见下方 intent_signal）：
+                #       推荐始终发生，IntentGraph 只决定「同域模板是否置顶 / 是否跳过冷却」
                 # 注入位置: current_context["prompt_templates"]（供 Writer Agent 引用）
                 #           + workflow_result.prompt_templates（供前端 UI 展示）
                 #
@@ -379,6 +381,39 @@ class WorkflowService:
                 prompt_templates_for_ui = []
                 recommend_enabled = bool(current_context.get("recommend_enabled", True))
                 skip_next_recommend = bool(current_context.get("skip_next_recommend", False))
+
+                # V4.5: IntentGraph 软节流 —— 让「意图图」真正参与推荐决策（图优先）
+                #   信号含义（不是开关）：
+                #     reinforce = 末尾连续 >=2 次同领域，且与当前问题同域
+                #       -> 同领域模板 priority 加权置顶
+                #       -> 跳过用户使用模板后的冷却期（持续关注说明推荐仍有价值）
+                #     baseline  = 首次提问 / 领域切换 -> 保持原有行为（含冷却）
+                intent_signal = {
+                    "level": "baseline", "consecutive": 0,
+                    "domain": "", "boost": 0.0, "reason": "",
+                }
+                if self.knowledge_recommender and self.intent_graph:
+                    try:
+                        intent_signal = self.knowledge_recommender.intervention_signal(
+                            self.intent_graph,
+                            current_domain=(skill_path[-1] if skill_path else ""),
+                        )
+                    except Exception as sig_err:
+                        logger.warning(f"IntentGraph intervention_signal failed: {sig_err}")
+                current_context["intent_signal"] = intent_signal
+                if intent_signal.get("level") == "reinforce":
+                    if skip_next_recommend:
+                        logger.info(
+                            f"KnowledgeRecommendation: IntentGraph 连续 "
+                            f"{intent_signal.get('consecutive')} 次同领域，跳过冷却期继续推荐"
+                        )
+                    skip_next_recommend = False
+                    logger.info(
+                        f"KnowledgeRecommendation: 加权介入 "
+                        f"(domain={intent_signal.get('domain')}, "
+                        f"boost={intent_signal.get('boost')})"
+                    )
+
                 if not recommend_enabled:
                     logger.info("KnowledgeRecommendation: 推荐总开关已关闭，跳过推荐")
                 elif skip_next_recommend:
@@ -390,11 +425,13 @@ class WorkflowService:
                         active_node_ids = [n.id for n in matched_nodes] if matched_nodes else []
 
                         if active_node_ids:
-                            # 直接调用 recommend（不经过 should_intervene 判断）
+                            # 始终调用 recommend（保证首次可见）；
+                            # IntentGraph 软节流通过 focus_domain 参与排序（见上）
                             all_recs = self.knowledge_recommender.recommend(
                                 current_task=original_user_input,
                                 active_nodes=active_node_ids,
                                 limit=5,
+                                focus_domain=intent_signal.get("domain", ""),
                             )
                             # 从推荐结果中筛出提示词模板
                             prompt_templates = [

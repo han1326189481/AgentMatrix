@@ -16,18 +16,26 @@ logger = logging.getLogger(__name__)
 class KnowledgeRecommendation:
     """知识介入引擎 — 仅基于真实数据推导，不猜测用户意图"""
 
+    #: 软节流阈值：末尾连续同领域达到该次数即「加权介入」
+    #: （原硬开关要求连续 3 次 + 不重启，实际几乎不可触发，见服务层注释）
+    REINFORCE_WINDOW = 2
+    #: 加权介入时给同领域提示词模板的优先级加成（与子域匹配的 0.05 同量级）
+    REINFORCE_BOOST = 0.05
+
     def __init__(self, skill_graph, brain=None):
         self.skill_graph = skill_graph
         self.brain = brain
 
     def recommend(self, current_task: str, active_nodes: List[str],
-                  limit: int = 5) -> List[dict]:
+                  limit: int = 5, focus_domain: str = "") -> List[dict]:
         """基于当前上下文推荐知识
 
         Args:
             current_task: 用户当前问题
             active_nodes: Decomposer 匹配到的 Skill Graph 节点 ID 列表
             limit: 最大推荐数
+            focus_domain: 焦点领域（来自 IntentGraph 软节流信号）。
+                          非空时同领域模板获得 priority 加成 → 连续关注的领域置顶
 
         Returns:
             [{"type": "sub_topic", "node": "Memory", "node_id": "memory",
@@ -95,7 +103,9 @@ class KnowledgeRecommendation:
         # 当 active_nodes 包含域/子域节点（如 ppt、ppt.ppt_structure）时，
         # 通过 get_domain_tree 找出其下的所有提示词模板节点。
         # 这一步独立于前4类推荐，专门用于把已收录的 prompt_template 推给 Writer Agent。
-        template_recs = self.recommend_templates(active_nodes, limit=limit)
+        template_recs = self.recommend_templates(
+            active_nodes, limit=limit, focus_domain=focus_domain
+        )
         recommendations.extend(template_recs)
 
         # 去重 + 按优先级排序
@@ -109,7 +119,8 @@ class KnowledgeRecommendation:
         return sorted(unique, key=lambda r: r["priority"], reverse=True)[:limit]
 
     def recommend_templates(self, active_nodes: List[str],
-                            limit: int = 5) -> List[dict]:
+                            limit: int = 5,
+                            focus_domain: str = "") -> List[dict]:
         """基于 active_nodes 推荐提示词模板节点
 
         策略:
@@ -144,13 +155,24 @@ class KnowledgeRecommendation:
                 return
             seen_ids.add(tpl_node.id)
             quality_score = float(tpl_node.metadata.get("quality_score", 0.85))
+
+            # IntentGraph 软节流：连续关注的领域，其模板额外加权（置顶）
+            focus_boost = 0.0
+            tpl_domain = str(
+                tpl_node.metadata.get("domain", "") or tpl_node.domain or ""
+            )
+            if focus_domain and tpl_domain:
+                fd, td = focus_domain.lower(), tpl_domain.lower()
+                if fd == td or fd.startswith(td + ".") or td.startswith(fd + "."):
+                    focus_boost = self.REINFORCE_BOOST
+
             recommendations.append({
                 "type": "prompt_template",
                 "node": tpl_node.name,
                 "node_id": tpl_node.id,
                 "reason": reason,
                 # 直接匹配的模板 priority 加 boost，确保排在领域无关的高分模板之前
-                "priority": min(quality_score + boost, 1.0),
+                "priority": min(quality_score + boost + focus_boost, 1.0),
                 "template_text": tpl_node.metadata.get("template_text", ""),
                 "variables": tpl_node.metadata.get("variables", []),
                 "intent_tags": tpl_node.metadata.get("intent_tags", []),
@@ -206,42 +228,90 @@ class KnowledgeRecommendation:
             return self.brain.capability.has(node_id)
         return False
 
-    def should_intervene(self, intent_graph=None) -> bool:
-        """判断是否应该介入推荐
+    def should_intervene(self, intent_graph=None, current_domain: str = "") -> bool:
+        """IntentGraph 驱动的**软节流信号**（非硬开关）——图优先
 
-        介入条件:
-        - 连续3次以上相关领域提问
-        - Intent Graph 显示学习路径
+        与旧语义的区别：这里返回 True 不再意味着「才推荐」，而是「加权介入」——
+        推荐始终发生（保证首次提问即可见模板），本信号只用于：
+          ① 给同领域提示词模板加权置顶
+          ② 跳过用户使用模板后的冷却期
+
+        判定条件：
+        - IntentGraph 末尾连续同领域提问次数 >= REINFORCE_WINDOW（默认 2）
+        - 若给定 current_domain，还要求末尾领域与其同根（跨领域切换 → 不加权）
         """
-        if intent_graph:
-            consecutive = intent_graph.get_consecutive_domain(window=3)
-            if consecutive:
-                logger.info(f"KnowledgeRecommendation: 连续3次 {consecutive} 领域提问，建议介入")
-                return True
-        return False
+        if not intent_graph:
+            return False
+        try:
+            run = intent_graph.get_consecutive_domain_run()
+        except Exception as e:  # 防御：图实现变更不应打断主流程
+            logger.warning(f"KnowledgeRecommendation: 读取 IntentGraph 连续领域失败: {e}")
+            return False
+        if run < self.REINFORCE_WINDOW:
+            return False
+        if current_domain:
+            tail = intent_graph.records[-1].domain if intent_graph.records else ""
+            if not intent_graph.domains_related(tail, current_domain):
+                logger.info(
+                    f"KnowledgeRecommendation: 领域切换 {tail} → {current_domain}，不加权介入"
+                )
+                return False
+        logger.info(
+            f"KnowledgeRecommendation: 连续 {run} 次同领域提问（阈值 {self.REINFORCE_WINDOW}），"
+            f"加权介入"
+        )
+        return True
+
+    def intervention_signal(self, intent_graph=None, current_domain: str = "") -> dict:
+        """软节流信号（供服务层消费，不改变「是否推荐」）
+
+        Returns:
+            {"level": "reinforce"|"baseline", "consecutive": int,
+             "domain": str, "boost": float, "reason": str}
+            - reinforce: 连续关注同领域 → domain/boost 生效，冷却期可跳过
+            - baseline : 首次或领域切换 → 走正常推荐与冷却
+        """
+        reinforce = self.should_intervene(intent_graph, current_domain)
+        count = 0
+        domain = ""
+        if intent_graph and getattr(intent_graph, "records", None):
+            domain = intent_graph.records[-1].domain or ""
+            count = intent_graph.get_consecutive_domain_run()
+        return {
+            "level": "reinforce" if reinforce else "baseline",
+            "consecutive": count,
+            "domain": domain if reinforce else "",
+            "boost": self.REINFORCE_BOOST if reinforce else 0.0,
+            "reason": f"连续 {count} 次关注 {domain} 领域" if reinforce else "",
+        }
 
     def recommend_for_context(self, current_task: str, active_nodes: List[str],
                               intent_graph=None, limit: int = 5) -> dict:
         """完整的上下文推荐（含介入判断）
 
         Returns:
-            {"should_intervene": bool, "recommendations": [...], "reason": str}
+            {"should_intervene": bool, "recommendations": [...], "reason": str,
+             "intent_signal": {...}}
         """
-        should = self.should_intervene(intent_graph)
-        recs = self.recommend(current_task, active_nodes, limit) if should else []
+        signal = self.intervention_signal(intent_graph)
+        should = signal["level"] == "reinforce"
+        recs = (
+            self.recommend(current_task, active_nodes, limit,
+                           focus_domain=signal["domain"])
+            if should else []
+        )
 
         reason = ""
         if should:
-            if intent_graph:
-                consecutive = intent_graph.get_consecutive_domain(window=3)
-                if consecutive:
-                    reason = f"连续关注 {consecutive} 领域，推荐相关学习内容"
-            if not reason:
+            if signal["reason"]:
+                reason = f"{signal['reason']}，推荐相关学习内容"
+            else:
                 reason = "基于当前学习路径推荐"
 
         return {
             "should_intervene": should,
             "recommendations": recs,
             "reason": reason,
-            "total": len(recs)
+            "total": len(recs),
+            "intent_signal": signal,
         }

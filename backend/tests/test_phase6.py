@@ -340,6 +340,110 @@ class TestIntervene:
         assert "recommendations" in result
         assert "reason" in result
         assert "total" in result
+        assert "intent_signal" in result
+
+
+# ============================================================
+# Test 3b: IntentGraph 软节流（图优先）
+# ============================================================
+
+class TestIntentSoftThrottle:
+    """IntentGraph 从「硬开关」降级为「软节流信号」后的行为"""
+
+    @pytest.fixture
+    def skill_graph(self):
+        from core.graphs.skill_graph import SkillGraph, GraphNode
+        g = SkillGraph()
+        g.add_node(GraphNode(id="agent", name="Agent", node_type="concept", domain="ai"))
+        return g
+
+    def test_threshold_relaxed_to_two(self, skill_graph):
+        """阈值从 3 放宽到 2（原硬开关几乎不可触发）"""
+        assert KnowledgeRecommendation.REINFORCE_WINDOW == 2
+        recommender = KnowledgeRecommendation(skill_graph)
+        intent = IntentGraph(user_id="test")
+        for i in range(2):
+            intent.record(f"s{i}", f"q{i}", domain="ai", task_type="qa")
+        assert recommender.should_intervene(intent) is True
+
+    def test_false_on_domain_switch(self, skill_graph):
+        """末尾领域与当前问题不同域 → 领域切换，不加权"""
+        recommender = KnowledgeRecommendation(skill_graph)
+        intent = IntentGraph(user_id="test")
+        for i in range(3):
+            intent.record(f"s{i}", f"q{i}", domain="ai", task_type="qa")
+        assert recommender.should_intervene(intent, current_domain="business") is False
+
+    def test_true_for_related_subdomain(self, skill_graph):
+        """同根领域（tech.ai / tech.ai.agent）视为持续关注"""
+        recommender = KnowledgeRecommendation(skill_graph)
+        intent = IntentGraph(user_id="test")
+        intent.record("s1", "q1", domain="tech.ai", task_type="qa")
+        intent.record("s2", "q2", domain="tech.ai.agent", task_type="qa")
+        assert recommender.should_intervene(
+            intent, current_domain="tech.ai.agent.planning"
+        ) is True
+
+    def test_intervention_signal_shape(self, skill_graph):
+        recommender = KnowledgeRecommendation(skill_graph)
+        intent = IntentGraph(user_id="test")
+        for i in range(2):
+            intent.record(f"s{i}", f"q{i}", domain="ai", task_type="qa")
+        sig = recommender.intervention_signal(intent, current_domain="ai")
+        assert sig["level"] == "reinforce"
+        assert sig["consecutive"] == 2
+        assert sig["domain"] == "ai"
+        assert sig["boost"] > 0
+        assert sig["reason"]
+
+        baseline = recommender.intervention_signal(IntentGraph(user_id="t"))
+        assert baseline["level"] == "baseline"
+        assert baseline["boost"] == 0.0
+        assert baseline["domain"] == ""
+        assert baseline["reason"] == ""
+
+    def test_focus_domain_ranks_same_domain_template_first(self):
+        """focus_domain 让同领域模板置顶（IntentGraph 真正参与排序）"""
+        from core.graphs.skill_graph import SkillGraph, GraphNode, GraphEdge
+        g = SkillGraph()
+        g.add_node(GraphNode(id="ppt", name="PPT", node_type="domain", domain="ppt"))
+        g.add_node(GraphNode(
+            id="tpl_ppt", name="PPT 结构模板", node_type="prompt_template", domain="ppt",
+            metadata={"node_kind": "prompt_template", "quality_score": 0.85,
+                      "domain": "ppt.ppt_structure", "template_text": "T"},
+        ))
+        g.add_node(GraphNode(
+            id="tpl_other", name="其他模板", node_type="prompt_template", domain="other",
+            metadata={"node_kind": "prompt_template", "quality_score": 0.88,
+                      "domain": "other", "template_text": "T"},
+        ))
+        g.add_edge(GraphEdge(from_node="ppt", to_node="tpl_ppt", edge_type="subdomain_of"))
+        g.add_edge(GraphEdge(from_node="ppt", to_node="tpl_other", edge_type="subdomain_of"))
+
+        recommender = KnowledgeRecommendation(g)
+        base = {r["node_id"]: r["priority"] for r in recommender.recommend_templates(["ppt"])}
+        focused_list = recommender.recommend_templates(["ppt"], focus_domain="ppt")
+        focused = {r["node_id"]: r["priority"] for r in focused_list}
+
+        assert base["tpl_other"] > base["tpl_ppt"]          # 基线：高质异域模板占先
+        assert focused["tpl_ppt"] > base["tpl_ppt"]          # 同域模板被加权
+        assert focused["tpl_other"] == base["tpl_other"]     # 异域模板不受影响
+        assert focused_list[0]["node_id"] == "tpl_ppt"       # 置顶
+
+    def test_domains_related_and_run(self):
+        assert IntentGraph.domains_related("tech.ai", "tech.ai.agent") is True
+        assert IntentGraph.domains_related("tech.ai", "business") is False
+        assert IntentGraph.domains_related("", "tech") is False
+        assert IntentGraph.domains_related("tech", "technology") is False
+
+        intent = IntentGraph(user_id="t")
+        assert intent.get_consecutive_domain_run() == 0
+        intent.record("s1", "q1", domain="tech.ai", task_type="qa")
+        intent.record("s2", "q2", domain="tech.ai.agent", task_type="qa")
+        assert intent.get_consecutive_domain_run() == 2
+        assert intent.get_consecutive_domain_run(domain="tech.ai.business") == 0
+        intent.record("s3", "q3", domain="business", task_type="writing")
+        assert intent.get_consecutive_domain_run() == 1
 
 
 # ============================================================
