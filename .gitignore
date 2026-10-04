@@ -70,3 +70,8 @@ backend/libs/
 # === 本地调试残留 ===
 backend/logs/_*
 backend/storage/quarantine_*/
+.workbuddy/_*
+
+# === 运行时产物（会被程序持续改写，不入版本控制） ===
+backend/prompts/skills/_pending_patches/
+frontend/tsconfig.tsbuildinfo
