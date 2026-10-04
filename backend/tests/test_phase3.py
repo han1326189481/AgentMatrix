@@ -225,8 +225,15 @@ class TestPlannerPlan:
         }
         steps = planner.plan(decompose_result)
 
+        # 2026-10-04: 兜底模板不再拼接 topic。
+        # _fallback_plan 的 docstring 明确记录这是有意改动——避免生成
+        # "UnknownTopic概述与背景" 这类把原始未知主题硬塞进标题的噪声步骤。
+        # 旧断言（all("UnknownTopic" in s)）依据的是 V3_DEVELOPMENT_GUIDE.md:1114
+        # 的初版实现，该实现已被代码取代且优于原方案，故此处改用例而非回退代码；
+        # 文档漂移记入 docs/废旧代码处置方案_2026-10-04.md。
         assert len(steps) == 5
-        assert all("UnknownTopic" in s for s in steps)
+        assert all("UnknownTopic" not in s for s in steps)
+        assert steps[0] == "理解问题与检索知识"
 
     def test_plan_from_topic_search(self, planner):
         """从主题搜索生成步骤"""

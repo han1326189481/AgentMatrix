@@ -6,6 +6,12 @@ import time
 
 logger = logging.getLogger(__name__)
 
+# 默认知识库落盘路径。
+# 抽成模块级常量是为了让测试能把它重定向到 tmp_path —— 否则任何构造
+# KnowledgeService() 的测试都会把仓库内的生产知识库整文件重写
+# （2026-10-04 实测：跑一次全量测试即改写 backend/knowledge/knowledge_base.json）。
+DEFAULT_KNOWLEDGE_FILE = "knowledge/knowledge_base.json"
+
 
 class SimpleCache:
     def __init__(self, maxsize: int = 100, ttl: int = 300):
@@ -43,7 +49,7 @@ class SimpleCache:
 class KnowledgeService:
     def __init__(self):
         self.knowledge_base: Dict[str, List[str]] = {}
-        self.knowledge_file = "knowledge/knowledge_base.json"
+        self.knowledge_file = DEFAULT_KNOWLEDGE_FILE
         self.search_cache = SimpleCache(maxsize=500, ttl=300)
         self._load_knowledge_base()
 

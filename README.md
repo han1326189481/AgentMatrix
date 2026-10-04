@@ -220,7 +220,7 @@ A "Graph First, Engine Second" design philosophy with a suite of graph engines:
 | **Backend** | FastAPI, WebSocket (python-socketio) |
 | **Database** | SQLite (per-sandbox isolation + global metadata) |
 | **Local LLM** | Ollama — `qwen2.5vl:7b` (unified multimodal: main text generation + vision), `qwen2.5:1.5b` (lightweight memory extractor) |
-| **Cloud LLM** | DeepSeek API (deepseek-v4-pro) |
+| **Cloud LLM** | DeepSeek API — `deepseek-flash` (DeepSeek-V4.1-Flash; API model id is `deepseek-flash`) |
 | **Export** | pandoc (DOCX), marp-cli (PPTX), markmap-cli (mind map) |
 | **Web Search** | Bing + Sogou (China-accessible) |
 
@@ -399,9 +399,13 @@ OLLAMA_VISION_MODEL=qwen2.5vl:7b
 # OLLAMA_AGENT_MODELS=
 
 # Cloud Model (DeepSeek) — leave empty to use local-only mode
+# Unified cloud model = DeepSeek-V4.1-Flash; its API model id is `deepseek-flash`.
+# (The legacy value `deepseek-v4-pro` is deprecated — do not use it.)
 DEEPSEEK_API_KEY=
 DEEPSEEK_API_BASE=https://api.deepseek.com/v1
-DEEPSEEK_MODEL=deepseek-v4-pro
+DEEPSEEK_MODEL=deepseek-flash
+# Vision fallback on the cloud side uses the same model
+DEEPSEEK_VISION_MODEL=deepseek-flash
 
 # CORS
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8000

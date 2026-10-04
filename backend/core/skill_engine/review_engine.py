@@ -421,11 +421,26 @@ class ReviewEngine:
         diff_cfg = configs.get("difficulty", {}) or {}
 
         # V2.4: base_difficulty 改为领域基础难度（任务维度），不再用 1.0 - weighted_score
-        domain = skill_path[-1] if skill_path else "daily"
+        #
+        # V2.5 (2026-10-04) 修复领域解析：
+        #   旧实现 domain = skill_path[-1]（取**叶子名**），而 difficulty_matrix.yaml 的
+        #   domain_base_difficulty 是按 "tech.ai.agent" 这类**点分路径**建键的：
+        #     domain_base_difficulty:
+        #       tech: {base: 0.45, ai: {base: 0.55, agent: {base: 0.60}}}
+        #   叶子名（如 "agent"）既不是顶层键也不是完整路径 ⇒ _lookup 直接返回 0.0，
+        #   于是**整张嵌套难度表在生产中永远查不到**，base 恒为 0（实测：
+        #   skill_path=["root","tech","ai","agent"] 时 base=0.00，最终难度仅 0.28，
+        #   一个多智能体端云协同架构任务被算成 simple）。
+        #   现按「去掉 root 后的点分路径」解析，未覆盖时退回叶子名，仍无结果落到 0.20。
         domain_diffs = diff_cfg.get("domain_base_difficulty", {}) or {}
-        base_difficulty = safe_float(self._lookup_domain_difficulty(domain, domain_diffs), 0.20)
+        domain_key = ".".join(p for p in (skill_path or []) if p and p != "root")
+        resolved = self._lookup_domain_difficulty(domain_key, domain_diffs)
+        if resolved is None and skill_path:
+            resolved = self._lookup_domain_difficulty(skill_path[-1], domain_diffs)
+        base_difficulty = safe_float(resolved, 0.20)
+        domain = skill_path[-1] if skill_path else "daily"
         complexity_boost = 0.0
-        reason_parts = [f"{domain}领域({base_difficulty:.2f})"]
+        reason_parts = [f"{domain_key or domain}领域({base_difficulty:.2f})"]
         user_lower = user_task.lower() if user_task else ""
 
         # 复杂度关键词
@@ -485,25 +500,33 @@ class ReviewEngine:
         }
 
     @staticmethod
-    def _lookup_domain_difficulty(domain: str, domain_diffs: dict) -> float:
-        """在领域难度字典中查找指定领域的难度加成"""
-        if domain in domain_diffs:
-            val = domain_diffs[domain]
-            if isinstance(val, dict):
-                return float(val.get("base", 0.0))
-            return float(val)
+    def _lookup_domain_difficulty(domain: str, domain_diffs: dict):
+        """在领域难度表中解析领域键。
 
-        parts = domain.split(".")
+        支持顶层键（daily/creative/business/tech）与嵌套路径（tech.ai.agent 逐级下钻）。
+
+        Returns:
+            float  —— 命中时的基础难度
+            None   —— 未覆盖（由调用方决定默认值），**不要**返回 0.0，
+                      否则 0.0 会被当成有效值，把默认值分支吃掉（V2.5 修复）。
+        """
+        if not domain:
+            return None
+
+        val = domain_diffs.get(domain)
+        if val is not None:
+            return float(val.get("base", 0.0)) if isinstance(val, dict) else float(val)
+
         current = domain_diffs
-        for part in parts:
+        for part in domain.split("."):
             if isinstance(current, dict) and part in current:
                 current = current[part]
             else:
-                return 0.0
+                return None
 
         if isinstance(current, dict):
             return float(current.get("base", 0.0))
-        return float(current) if current else 0.0
+        return float(current) if current else None
 
     # ============================================================
     # 风险 & 置信度

@@ -2,10 +2,15 @@
 
 > 精炼约定，跨会话有效。流水账写在同目录 `YYYY-MM-DD.md`。
 
-## 一、云端模型（2026-09-22 佳文定版，不可擅自更改）
-- **所有云端调用统一走 `deepseek-v4.1-flash`**：云端增强、云兜底、云端视觉，全部是它。
+## 一、云端模型（2026-09-22 佳文定版；2026-10-04 再次确认「写死」，不可擅自更改）
+- ★ **所有云端调用统一走 `DeepSeek-V4.1-Flash`**：云端增强、云兜底、云端视觉，全部是它。
+- ⚠️ **名称与 API id 必须分清**（最容易搞错的一点）：
+  - **网关显示名** = `DeepSeek-V4.1-Flash`（佳文口头/文档里说的就是它）
+  - **实际 API model id** = **`deepseek-flash`** —— `.env` / `app_config.json` 里要填的是**这个**
+  - 写成 `deepseek-v4.1-flash` 当 model id 用**是错的**，网关会拒。
 - **`deepseek-v4-pro` 已弃用**，不得出现在任何新增代码里（历史值与弃用说明除外）。
-- **视觉模型 = `deepseek-v4.1-flash`**（自带视觉）。与文本模型同源，但语义上分开配置。
+  `README.md` 已于 2026-10-04 由 `deepseek-v4-pro` 改为 `deepseek-flash`。
+- **视觉模型 = 同一个 `DeepSeek-V4.1-Flash`**（自带视觉）。与文本模型同源，但语义上分开配置。
 - ★ **视觉本地优先，不每次上云**（佳文 2026-09-22 明确）：常规识图（用户传图/PPT/Word 截图）
   一律走本地 `qwen2.5vl:7b`，**不调云端 API**——成本 0、无网络延迟、数据不出本机。
   云端视觉只服务两个显式场景：① 自学习三层筛网第 2 层的名词/片段拆解比对（离线批处理，
@@ -47,13 +52,19 @@
   导致 `out/`（Tauri `frontendDist`）压根不生成——报错是
   `SAFE_DELETE_BULK_CONFIRM_REQUIRED`，看着像删不动，其实是**后续生成步骤没跑到**。
   该变量仅对本次构建生效。日常开发用 `npm run dev`，不需要 `out/`。
-- **★ git 仓库已死亡（2026-10-04 确认）**：`D:\AgentMatrix\.git` 目录存在但内容残缺——
-  `refs/` 目录整个不存在、`objects/pack/` 只剩 `pack-*.idx` 却没有 `pack-*.pack`，
-  `git` 直接报 `not a git repository`。这是 9/22「丢 .pack」事故的终局：
-  **历史对象已永久丢失，本地无法回档。**
-  远端 `https://github.com/han1326189481/AgentMatrix.git`（packed-refs 里
-  `refs/remotes/origin/main = 0d4b6770...`）**可能仍保有完整历史**，重建方案待佳文确认。
-  重建完成前：**绝不执行任何 git 写操作**（stash/commit/reset 都不行），只读。
+- **★ git 仓库已于 2026-10-04 重建**：原 `.git` 因 9/22 丢 `.pack` 而彻底损坏
+  （`refs/` 缺失、`objects/pack/` 只剩 `.idx`，git 报 `not a git repository`），
+  **历史对象永久丢失**。损坏目录已留证
+  `D:\AgentMatrix_backups\git_attic_20261004\.git.damaged`（含 `SALVAGED-INFO.txt`）。
+  已按佳文确认的「本地重建」方案重新 `git init -b main` 并提交 2 次：
+  `3c03a47` 首次快照（522 文件 / 160,280 行）、`2060f53` 修正版本控制范围。
+  - ⚠️ **本地仓库目前没有 remote**。原远端 `https://github.com/han1326189481/AgentMatrix.git`
+    （原 `origin/main = 0d4b6770...`）**未配置**；将来要推需先
+    `git remote add origin <url>` 并处理认证（佳文当时选择"只做本地重建，不推远端"）。
+  - `.git` 约 106MB（主要是 48MB 的 `agentmatrix-backend.exe`，走 LFS，库内仅 133B 指针）。
+  - 换行符策略固定 `core.autocrlf=false`，避免 checkout 时批量转 CRLF 产生虚假 diff。
+  - 已排除跟踪：`backend/prompts/skills/_pending_patches/`（运行时输出）、
+    `frontend/tsconfig.tsbuildinfo`（构建缓存）、`.workbuddy/_*`（调试残留）。
 
 ## 五、★ 数据安全红线（2026-09-24 知识库被清空事故）
 - **事故**：跑 `pytest tests` 时 `tests/test_phase7.py` 用 `LearningEngine(SkillGraph())`
@@ -65,9 +76,11 @@
 - **生产侧护栏**：`learning_engine.py` 的 `MIN_NODE_RETENTION=0.5` 缩水护栏
   （内存图 < 磁盘一半即拒绝写入）+ `yaml_path`/`persist` 可注入 + 原子写 + `.bak` 备份；
   `knowledge_auditor.py::_save_skill_graph` 同款。**改这两个文件必须保留护栏。**
-- **测试侧护栏**：`backend/tests/conftest.py` 五个 autouse fixture，封住
-  LearningEngine / KnowledgeAuditor / ReasoningGraph / PendingStore / 用户画像
-  的写入通道。
+- **测试侧护栏**：`backend/tests/conftest.py` **七个** autouse fixture，封住
+  LearningEngine / KnowledgeAuditor / ReasoningGraph / PendingStore / 用户画像 /
+  **MemoryStore(2026-10-04 补)** / **旧版 KnowledgeService(2026-10-04 补，靠新增常量
+  `knowledge/service.py::DEFAULT_KNOWLEDGE_FILE`)** 的写入通道。
+  验证方式：回滚数据文件 → 跑全量 → `git status` 显示零改动。
 - **红线**：测试**不得**写 `backend/core/graphs/*.yaml` 与 `backend/storage/**`
   下的生产文件；需要落盘的新测试必须显式传 `tmp_path`。
 - 已知 good 版本：`D:\AgentMatrix_backup_20260922`（2026-09-22 全目录快照）。
@@ -107,3 +120,40 @@
   `get_config_file_path()` 返回的就是仓库内这个可写文件，前端设置页会把真实 API Key
   写进其 `api_keys` 字段。模板见 `backend/config/app_config.example.json`。
 - **文档**：`docs/数据备份与回档机制.md`。
+
+## 八、全项目审计与处置（2026-10-04，当日闭环）
+- **★ 总纲文档**：`docs/项目体检与处置方案_2026-10-04.md` ——
+  云端对齐结论 + 11 项废旧代码逐条裁定 + 已修项 + 待办批次。**接手前必读。**
+- **git 无 remote**：`.git/config` 无 `[remote]`、`refs/remotes/` 不存在。
+  本地 2 提交与**当前云端 `main=8661233`（29 提交，8-18 停在 V4.2-V4.3）无共同祖先**，
+  只能 force push 或另起分支。**已确认 no push，等佳文点头。**
+  旧笔记里的 `0d4b6770` 是老远端快照，现在线上是 `8661233`。
+- ✅ **云端 Release `v0.1.0` 真实存在**，安装包 `AgentMatrix_0.1.0_x64-setup.exe`
+  （57.5MB，2026-08-02）已上传 → README 的下载链接**有效**，不要当作失效链接删掉。
+- ✅ **测试已全绿**：449 用例 / 0 失败（原 7 红，5 个同源于 `ENGINE_POLICIES` 被
+  未文档化的 "V3.1" 改动偏离 `V3_DEVELOPMENT_GUIDE.md:660/790`）。
+- ★ **`ENGINE_POLICIES` 规范来源**：`docs/V3_DEVELOPMENT_GUIDE.md` 第 4.1 节 + 4.4 验收标准。
+  chat = `["task","skill"]` 只 2 引擎；decomposer/planner 只由 `complexity>0.5` 触发
+  （planning/analysis 例外）。**别再加回 chat 常驻 decomposer**，会同时打破 5 个用例 +
+  「简单对话 <50ms」的对外承诺。
+- ★ **修掉的真 bug（会改变运行时行为）**：`ReviewEngine._calculate_difficulty` 原来取
+  `skill_path[-1]`（叶子名）去查按 `tech.ai.agent` 路径建键的 `domain_base_difficulty`，
+  导致**整张嵌套难度表在生产中从未被命中**、base 恒为 0。已改为「去 root 的点分路径」，
+  `_lookup_domain_difficulty` 未命中返回 `None` 而非 `0.0`。
+  ⚠️ 后果：`tech.*` 深层任务难度会上调，**Judge 可能更频繁触发 cloud_enhance**。要控成本
+  就调 YAML 的 `domain_base_difficulty`，**不要回退这处修复**。
+- ✅ **已建 CI**：`.github/workflows/ci.yml`。门禁 lint 口径刻意收窄为
+  `ruff --select E9,F63,F7,F82`（实测 0 违规）；全量规则集实测 7177 违规、其中 6149 条是
+  中文注释的 RUF001/002/003 噪声，**不要**改回全量门禁，否则 CI 永远红。
+  测试 job 带 `AGENT_CONTRACT_STRICT=1`（实测 449 全绿），另跑契约静态审计。
+- **待裁定的废旧代码**（详见总纲文档第三节）：约 790 行建议删除
+  （summary/service/旧 knowledge_service/review 旧分支/prompt_builder 4 builder），
+  约 400 行建议**重连**（上下文压缩三件套 360、`guard_io`、`_deepseek_analyze`、
+  `TASK_TEMPLATES`、IntentGraph `should_intervene`）。
+- ★ **新发现**：`agents/knowledge/agent.py::TASK_TEMPLATES` 是「原 Summary Agent 的 outline
+  功能」迁移物，但**定义后零引用**，导致 `summary_result["outline"]` 恒为 `[]`、
+  Writer 永远拼到「- 无」。迁移只做了一半。
+- ⚠️ **`knowledge/service.py` 与 `knowledge/mysql_service.py` 有同名类 `KnowledgeService`**，
+  而 `knowledge/__init__.py` 导出的还是**旧的那个**（误导性导出）。
+  在役入口是 `knowledge.mysql_service.get_knowledge_service()`。
+- 文档滞后：`README.md` 的 `DEEPSEEK_MODEL` 已于 2026-10-04 改为 `deepseek-flash`。

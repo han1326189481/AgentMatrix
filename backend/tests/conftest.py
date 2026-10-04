@@ -144,3 +144,42 @@ def _isolate_personal_brain_profiles(monkeypatch, tmp_path):
     d = tmp_path / "profiles"
     d.mkdir(parents=True, exist_ok=True)
     monkeypatch.setattr(_brain, "get_profiles_dir", lambda: str(d))
+
+
+@pytest.fixture(autouse=True)
+def _isolate_memory_store(monkeypatch, tmp_path):
+    """长期记忆读写重定向到 tmp_path。
+
+    2026-10-04 补漏：护栏原来的五项只封了 LearningEngine / KnowledgeAuditor /
+    ReasoningGraph / SkillLearner / PendingStore / 画像，**漏了 MemoryStore**。
+    实测跑一次全量测试，`storage/memory/default.json` 的 access_count 被 +8
+    （WorkflowService 每轮结束都会 get_memory_store() 并更新访问计数）。
+    与 9/24 事故同款漏网，只是这次没造成数据丢失。
+    """
+    try:
+        import core.memory_store.store as _ms
+    except Exception:
+        return
+
+    d = tmp_path / "memory"
+    d.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(_ms, "get_memory_dir", lambda: str(d))
+
+
+@pytest.fixture(autouse=True)
+def _isolate_legacy_knowledge_service(monkeypatch, tmp_path):
+    """旧版 KnowledgeService 的知识库落盘路径重定向到 tmp_path。
+
+    2026-10-04 补漏：`knowledge/service.py::KnowledgeService` 的
+    `knowledge_file` 默认写死到仓库内 `knowledge/knowledge_base.json`，
+    `tests/test_api/test_knowledge_api.py` 每次运行都会整文件重写生产知识库。
+    与 LearningEngine 同类问题（默认落盘路径指向生产文件），一并堵住。
+    """
+    try:
+        from knowledge import service as _ks
+    except Exception:
+        return
+
+    monkeypatch.setattr(
+        _ks, "DEFAULT_KNOWLEDGE_FILE", str(tmp_path / "knowledge_base.json")
+    )

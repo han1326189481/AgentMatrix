@@ -34,15 +34,22 @@ class CognitiveController:
     """
 
     # 引擎启用策略（可配置）— 严格遵循 V3_DEVELOPMENT_GUIDE.md 第 4.1 节
-    # V3.1: 让 qa/coding/writing 也在 always 中包含 decomposer + planner，
-    # 使得非模板的普通问题也能触发任务拆分（planner 零 LLM，性能开销可忽略）
+    #
+    # 2026-10-04 回滚说明：
+    #   此前本表被一处**未进文档**的 "V3.1" 改动偏离规范——chat 常驻 decomposer，
+    #   qa/coding/writing 常驻 decomposer+planner。该改动与三处独立证据冲突：
+    #     1. docs/V3_DEVELOPMENT_GUIDE.md:660 / :790（4.4 验收标准「chat 仅 2 引擎」）
+    #     2. tests/test_cognitive_controller.py（3 个用例）
+    #     3. tests/test_v3_integration.py（2 个用例）
+    #   且它使对外承诺的「简单对话 < 50ms」失效（chat 引擎 2→3，预期延迟 <50ms→<100ms）。
+    #   现恢复为规范定义：decomposer/planner 只由 complexity>0.5 触发；
+    #   planning/analysis 因本身即需拆解，始终包含两者。
     ENGINE_POLICIES = {
         # task_type: [always_enabled, optional]
-        # chat 仅启用 decomposer：简单聊天不需要拆分为多步骤任务
-        "chat":      (["task", "skill", "decomposer"], []),
-        "qa":        (["task", "skill", "decomposer", "planner"], ["learning", "recommendation"]),
-        "coding":    (["task", "skill", "decomposer", "planner"], ["learning"]),
-        "writing":   (["task", "skill", "decomposer", "planner"], ["learning"]),
+        "chat":      (["task", "skill"], []),
+        "qa":        (["task", "skill", "decomposer"], ["learning", "recommendation"]),
+        "coding":    (["task", "skill"], ["decomposer"]),
+        "writing":   (["task", "skill"], ["decomposer", "learning"]),
         "planning":  (["task", "skill", "decomposer", "planner"],
                       ["learning", "recommendation", "reasoning", "cloud"]),
         "analysis":  (["task", "skill", "decomposer", "planner"],

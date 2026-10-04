@@ -53,11 +53,21 @@ class TestReviewAgent:
 
     @pytest.mark.asyncio
     async def test_review_high_difficulty(self):
-        """高难度问题 → 高难度标识及 JSON 输出正确"""
+        """高难度问题 → 高难度标识及 JSON 输出正确
+
+        2026-10-04: 补上 skill_path。
+        V2.4 起难度 = 领域基础难度 + 任务信号加成，base 完全由 domain 决定：
+          - skill_path=["root","tech","ai","agent"] → base 0.60 → 高难度
+          - 缺省 skill_path=["root","daily"]        → base 0.15 → 中等难度
+        旧版用例喂入的是高难度任务却未给领域，落到 daily 域算出 0.43（medium），
+        与用例意图不符；production 里 skill_path 由 Knowledge/Writer 链路提供，
+        因此这里按生产形态补上，才是对该用例的真实检验。
+        """
         agent = ReviewAgent()
         review_input = json.dumps({
             "user_task": "设计一个多智能体协同的端云协同系统架构方案，包含技术选型和风险评估",
             "summary": "复杂系统架构设计任务",
+            "skill_path": ["root", "tech", "ai", "agent"],
             "writer_output": "# 系统架构设计方案\n\n## 背景\n\n多智能体系统需要端云协同架构来优化资源分配。\n\n## 技术选型\n\n基于 Kubernetes 和 Docker 进行容器化部署。\n\n## 风险评估\n\n主要风险包括网络延迟、数据一致性等问题。\n\n## 实施步骤\n\n1. 需求分析\n2. 架构设计\n3. 原型开发\n4. 测试验证"
         })
         input_data = AgentInput(content=review_input)
@@ -67,8 +77,32 @@ class TestReviewAgent:
         assert result.success is True
         review_data = json.loads(result.content)
         assert review_data["difficulty_threshold"] >= 0.5
+        assert result.metadata["skill_domain"] == "agent"
         assert "issues" in review_data
         assert "suggestions" in review_data
+
+    @pytest.mark.asyncio
+    async def test_review_difficulty_falls_back_to_daily_without_skill_path(self):
+        """未提供 skill_path 时难度退化为 daily 域基线（V2.4 领域解耦的直接后果）
+
+        锁定这条现状，避免「缺领域 → 复杂任务被误判为简单」这一隐性行为被无声改变：
+        一旦 Judge 双门槛依赖难度，缺失领域信息就必须是显式可观测的。
+        """
+        agent = ReviewAgent()
+        review_input = json.dumps({
+            "user_task": "设计一个多智能体协同的端云协同系统架构方案",
+            "summary": "复杂系统架构设计任务",
+            "writer_output": "# 方案\n\n## 背景\n\n略。\n\n## 实施步骤\n\n1. 需求分析\n2. 架构设计"
+        })
+        input_data = AgentInput(content=review_input)
+
+        result = await agent.execute(input_data)
+
+        assert result.success is True
+        review_data = json.loads(result.content)
+        # daily 基线下即便命中多个复杂度关键词也上不去 0.5 → 判定为 medium
+        assert review_data["difficulty_threshold"] < 0.5
+        assert result.metadata["skill_domain"] == "daily"
 
     @pytest.mark.asyncio
     async def test_review_invalid_json_fallback(self):
