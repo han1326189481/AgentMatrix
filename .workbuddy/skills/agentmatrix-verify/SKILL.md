@@ -30,7 +30,7 @@ $env:AGENT_CONTRACT_STRICT="1"            # 契约越界即失败，与 CI 口�
   Out-File D:\AgentMatrix\.workbuddy\_verify.txt -Encoding UTF8
 ```
 
-- 基线：**449 用例 / 0 失败**（2026-10-04）。
+- 基线：**459 用例 / 0 失败**（2026-10-04；449 → 455 加 IntentGraph 用例 → 459 加知识库用例）。
 - `exit code` 可能是 1 而测试全过——看**输出文件**而不是退出码（护栏会打断收尾）。
   判定看 `grep -c FAILED` 和最后的 `=== N passed ===`。
 - 只要跑测试，**必做**下面第二步。
@@ -87,6 +87,36 @@ ruff check --isolated --select E9,F63,F7,F82 agents core api app shared knowledg
 
 **判据口诀**：职责被在役代码覆盖 → 删除；职责仍在但调用断 → 重连；是真实可用的能力面
 （有脚本能验证）→ 保留 + 补冒烟测试。
+
+⚠️ **必须逐条 grep 调用点，不能凭「看起来属于旧路径」推断**。实例：`agents/review/agent.py`
+的 `_calculate_difficulty_threshold` 从命名和位置看都像旧分支的配套方法，实则被**在役的**
+`_review_with_llm_v2` 调用（一处判断失误就会删掉活代码）。同一批删除里还有反向发现：
+`ReviewEngine` 与 `ReviewAgent` 各有一份同名 `_lookup_domain_difficulty`，
+**测试断言的是被删的那一份** → 生产实现出错也测不出来，删完必须把测试重定向到在役实现。
+
+## 五之二、删除批次的安全流程（佳文要求：分批 + 备份 + 门禁）
+
+**一批一提交，每批跑完测试再进下一批**，一个失败才能定位到是哪一批引入的。
+
+```powershell
+# 0. 动手前：提交当前状态 → 打 pre-cleanup 标签 → git bundle create --all 全量备份
+# 1. 取证：Grep 类名/方法名（排除 backend/libs）确认零引用
+# 2. 删除后立刻全量回归（严格契约模式），再看数据污染
+# 3. 通过才 git commit；不通过先修（可能要改用例或重定向测试）
+```
+
+**按行精确删除大段代码**：不要用巨大 `old_string` 硬贴。写个 Python 脚本按
+`(start, end)` 行区间删，并加三重断言：① 区间末行之后是预期的方法名
+② 区间内确实包含要删的 `def`
+③ 删完 `ast.parse()` 语法校验 + 断言保留项仍在、已删项消失。
+坑：行区间容易数错一行（`def` 前的空行），**断言会在写盘前拦下来**，不要省。
+
+## 五之三、云端对齐
+
+见 user 级 skill `git-remote-align`（无共同祖先仓库的 force-with-lease 安全流程）。
+本项目的关键事实：本地 `.git` 于 2026-09-22 损坏后 2026-10-04 重建，
+与旧云端 `8661233` **无共同祖先**；备份 bundle 在
+`D:\AgentMatrix_backups\snapshots\agentmatrix-pre-cleanup-*.bundle`。
 
 ## 六、产出要求
 - 结论写进 `docs/`，每条结论必须附**可复现命令或实测数字**。
