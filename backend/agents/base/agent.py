@@ -133,6 +133,17 @@ class BaseAgent(ABC):
             logger.error(f"LLM调用失败: {str(e)}", exc_info=True)
             return f"LLM调用失败: {str(e)}"
 
+    def _guard_io(self, resource, detail: str = "") -> bool:
+        """校验本 Agent 是否有权使用某个外部 IO 资源（契约 IO 维度）。
+
+        与 `_call_llm` 里的 `guard_llm_call` 对称：LLM 维度守的是「能不能调模型」，
+        这里守的是「能不能碰这个 IO」。返回 False 表示契约未声明，调用方应跳过该 IO
+        并走降级路径（guard_io 本身不抛异常，IO 缺失在本项目里普遍是可降级的）。
+        """
+        from agents.base.contract import guard_io
+
+        return guard_io(self.agent_id, resource, detail)
+
     async def _call_llm_chat(self, messages: list, model: str = None, **kwargs) -> str:
         """调用真实的 LLM 聊天接口"""
         try:

@@ -15,6 +15,7 @@ from api.v1.sandbox.router import router as sandbox_router
 from api.v1.settings.router import router as settings_router
 from api.v1.files.router import router as files_router
 from api.v1.documents.router import router as documents_router
+from api.v1.context.router import router as context_router
 
 router = APIRouter()
 
@@ -34,3 +35,4 @@ router.include_router(sandbox_router, prefix="/sandbox", tags=["sandbox"])
 router.include_router(settings_router, prefix="/settings", tags=["settings"])
 router.include_router(files_router, prefix="/files", tags=["files"])
 router.include_router(documents_router, prefix="/documents", tags=["documents"])
+router.include_router(context_router, prefix="/context", tags=["context"])

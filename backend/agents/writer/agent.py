@@ -1332,6 +1332,9 @@ class WriterAgent(BaseAgent):
 ## 写作模板
 {template_str}
 
+## 参考大纲
+{outline_text}
+
 ## 关键要求
 {requirements_text}
 

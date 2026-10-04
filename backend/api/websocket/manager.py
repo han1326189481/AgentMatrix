@@ -142,6 +142,23 @@ class WebSocketManager:
         )
         await self.send_message(message)
 
+    async def broadcast_context_usage(self, usage: Dict[str, Any]) -> None:
+        """V4.2: 推送上下文使用量（前端 ContextBar / ContextPanel 覆盖本地估算）
+
+        usage 结构（与前端 types.ContextUsage 对齐）：
+        {
+            "total_tokens": int, "limit": int, "remaining": int,
+            "usage_ratio": float, "system_tokens": int, "history_tokens": int,
+            "kb_tokens": int, "user_input_tokens": int,
+        }
+        额外可带：sandbox_id / round / compressed / compression_count（前端忽略未知字段）
+        """
+        message = {
+            "type": "context_usage",
+            "data": usage
+        }
+        await self.send_message(message)
+
     def get_connection_count(self) -> int:
         return len(self.active_connections)
 

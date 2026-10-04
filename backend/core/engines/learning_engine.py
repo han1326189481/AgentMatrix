@@ -14,11 +14,15 @@ Writer Output
   → [复杂概念] → DeepSeek 兜底分析
 """
 
+import json
 import os
 import re
 import shutil
 import logging
-from typing import List, Set, Optional
+import threading
+import time
+from datetime import date
+from typing import Any, Dict, List, Optional, Set
 
 from core.skill_engine.models import KnowledgePatch, WorkflowPatch
 
@@ -33,6 +37,135 @@ logger = logging.getLogger(__name__)
 MIN_NODE_RETENTION = 0.5
 
 
+# ════════════════════════════════════════════════════════════════
+# _deepseek_analyze 的成本护栏（2026-10-04 实装）
+# ════════════════════════════════════════════════════════════════
+# 为什么要有护栏：这是全链路唯一「按概念逐条上云」的路径。一次长回答可能提取出
+# 几十个概念，其中找不到父节点的会逐个触发云端判定——不封顶就是不可控账单。
+# 三重约束（总开关 / 日额度 / 最小间隔）+ 单次 learn() 的概念数上限，
+# 任何一层拦下都退回「独立节点」策略，不会中断学习流程。
+
+
+def _run_coro_sync(coro, timeout: float = 25.0):
+    """在同步方法里安全地跑协程。
+
+    `learn()` 是同步接口（测试与 API 都按同步调），而云端客户端是 async；
+    若当前线程已有运行中的事件循环，`asyncio.run()` 会直接抛
+    "cannot be called from a running event loop"。丢到独立线程里跑可同时兼容两种场景。
+    """
+    import asyncio
+    import concurrent.futures
+
+    def _runner():
+        return asyncio.run(coro)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+        return ex.submit(_runner).result(timeout=timeout)
+
+
+class _AnalyzeBudget:
+    """三重成本护栏：总开关 / 日额度 / 最小间隔（进程内，线程安全）"""
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._used_today = 0
+        self._day = date.today()
+        self._last_call_ts = 0.0
+
+    def acquire(self) -> "tuple[bool, str]":
+        """申请一次云调用额度。返回 (是否放行, 拒绝原因)。
+
+        额度在**发起调用前**扣减：即使调用随后失败，这次尝试也算已消耗——
+        否则失败重试会把日额度绕开。
+        """
+        try:
+            from app.config import settings
+            enabled = bool(getattr(settings, "learning_deepseek_enabled", True))
+            max_per_day = int(getattr(settings, "learning_deepseek_max_per_day", 20))
+            min_interval = int(getattr(settings, "learning_deepseek_min_interval_seconds", 30))
+        except Exception:
+            enabled, max_per_day, min_interval = True, 20, 30
+
+        if not enabled:
+            return False, "learning_deepseek_enabled=False"
+
+        with self._lock:
+            today = date.today()
+            if today != self._day:
+                self._day = today
+                self._used_today = 0
+
+            if max_per_day >= 0 and self._used_today >= max_per_day:
+                return False, f"已达日额度上限 {max_per_day}"
+
+            now = time.monotonic()
+            if self._last_call_ts:
+                wait = min_interval - (now - self._last_call_ts)
+                if wait > 0:
+                    return False, f"距上次云调用不足 {min_interval}s（还需 {wait:.1f}s）"
+
+            self._used_today += 1
+            self._last_call_ts = now
+            return True, ""
+
+    def stats(self) -> Dict[str, Any]:
+        with self._lock:
+            return {
+                "used_today": self._used_today,
+                "day": self._day.isoformat(),
+                "last_call_ts": self._last_call_ts,
+            }
+
+    def reset(self) -> None:
+        """重置额度（仅供测试 / 运维）"""
+        with self._lock:
+            self._used_today = 0
+            self._last_call_ts = 0.0
+
+
+_analyze_budget = _AnalyzeBudget()
+
+
+def deepseek_analyze_budget() -> _AnalyzeBudget:
+    """暴露护栏实例（读取额度 / 测试重置）"""
+    return _analyze_budget
+
+
+def _parse_analyze_json(raw: Optional[str]) -> Optional[Dict[str, Any]]:
+    """从云端返回里抠出 JSON 对象（容忍 markdown 围栏与前后杂字）"""
+    if not raw or not isinstance(raw, str):
+        return None
+    text = raw.strip()
+    if text.startswith("```"):
+        text = re.sub(r"^```[A-Za-z0-9_]*\s*", "", text)
+        text = re.sub(r"```\s*$", "", text).strip()
+    match = re.search(r"\{.*\}", text, re.DOTALL)
+    if not match:
+        return None
+    try:
+        data = json.loads(match.group(0))
+    except Exception:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+_ANALYZE_PROMPT = """你是知识图谱入库前的「新概念判定器」。
+给定一个在本地知识图谱中**找不到任何可关联父节点**的概念，判断它是否值得作为独立知识点收录。
+
+判定规则：
+- 只收录具有明确技术 / 学术 / 业务含义的实体概念（如「向量数据库」「注意力机制」）。
+- 泛泛短语、口语片段、模板套话、从标题里切出来的半截词，一律判定为不值得。
+- 定义必须准确客观、40~120 字；**不确定就判不值得**，宁可漏收也不要把噪声写进知识库。
+
+严格输出 JSON，不要任何解释文字、不要 markdown 围栏：
+{{"worth_learning": true, "definition": "一句话定义", "domain": "所属领域", "related": ["相关概念"], "confidence": 0.0}}
+
+【待判定概念】{concept}
+
+【出处上下文（节选）】
+{context}"""
+
+
 class LearningEngine:
     """本地优先的学习引擎
 
@@ -45,7 +178,7 @@ class LearningEngine:
 
     def __init__(self, skill_graph, reasoning_graph=None,
                  validator=None, yaml_path: Optional[str] = None,
-                 persist: bool = True):
+                 persist: bool = True, deepseek_enabled: Optional[bool] = None):
         """
         Args:
             skill_graph: 待操作的 SkillGraph 实例
@@ -55,6 +188,9 @@ class LearningEngine:
                 测试 / 嵌入使用务必显式传入临时路径 —— 否则会把临时小图
                 写到生产知识库上（2026-09-24 事故根因）。
             persist: 是否允许落盘。测试场景可置 False 彻底禁写。
+            deepseek_enabled: 是否允许 `_deepseek_analyze` 上云。缺省读
+                `settings.learning_deepseek_enabled`（默认 True），显式传 False 可
+                在测试里彻底掐断云调用（**测试务必显式传 False**，避免真烧额度）。
         """
         self.skill_graph = skill_graph
         self.reasoning_graph = reasoning_graph
@@ -63,7 +199,13 @@ class LearningEngine:
         else:
             from core.engines.patch_validator import PatchValidator
             self.validator = PatchValidator(skill_graph)
-        self.deepseek_enabled = True
+        if deepseek_enabled is None:
+            try:
+                from app.config import settings
+                deepseek_enabled = bool(getattr(settings, "learning_deepseek_enabled", True))
+            except Exception:
+                deepseek_enabled = True
+        self.deepseek_enabled = deepseek_enabled
         self._learning_log: List[dict] = []
         self._workflow_log: List[dict] = []
         self.persist = persist
@@ -119,6 +261,16 @@ class LearningEngine:
         # 1. 知识提取 + Graph Diff
         concepts = self._extract_concepts(writer_output)
         new_concepts = self.skill_graph.diff(concepts)
+        domain = skill_path[-1] if skill_path else "root"
+
+        # 单次 learn() 的上云概念数上限（护栏第 4 层，见文件顶部说明）
+        max_analyze = 3
+        try:
+            from app.config import settings
+            max_analyze = int(getattr(settings, "learning_deepseek_max_concepts_per_run", 3))
+        except Exception:
+            pass
+        analyze_attempts = 0
 
         for concept in new_concepts:
             parent = self.skill_graph.find_similar_node(concept)
@@ -126,11 +278,15 @@ class LearningEngine:
                 patch = self._make_knowledge_patch(concept, parent, skill_path)
             else:
                 # Layer 2→3 接通：找不到 parent 时，尝试 DeepSeek 兜底
-                patch = self._deepseek_analyze(concept, writer_output)
+                # （受总开关 / 日额度 / 最小间隔 / 单次上限四重约束）
+                patch = None
+                if analyze_attempts < max_analyze:
+                    analyze_attempts += 1
+                    patch = self._deepseek_analyze(concept, writer_output, domain=domain)
                 if patch:
                     result["deepseek_used"] = True
                 else:
-                    # DeepSeek 禁用时，创建独立 concept 节点（不关联已有节点）
+                    # 云端未放行或判定不值得时，创建独立 concept 节点（不关联已有节点）
                     # 让 PatchValidator 决定是否通过，避免概念被直接跳过
                     patch = self._make_standalone_patch(concept, skill_path)
 
@@ -183,6 +339,7 @@ class LearningEngine:
             "validated": result["validated"],
             "rejected": result["rejected"],
             "deepseek_used": result["deepseek_used"],
+            "deepseek_attempts": analyze_attempts,
         })
 
         return result
@@ -374,18 +531,82 @@ class LearningEngine:
             )
         return None
 
-    def _deepseek_analyze(self, concept: str, context: str) -> Optional[KnowledgePatch]:
-        """DeepSeek 兜底（仅在本地无法判断时调用）
+    async def _deepseek_analyze_async(
+        self, concept: str, context: str, domain: str = "root"
+    ) -> Optional[KnowledgePatch]:
+        """云端判定「本地找不到父节点的新概念」是否值得收录，并生成带定义的知识补丁
 
-        当 find_similar_node 返回 None 时，说明概念与已有知识无关联，
-        需要 DeepSeek 判断是否值得学习。
+        只有明确的 `worth_learning=true` 且定义长度达标才产出补丁；
+        其余情况返回 None，由调用方退回 `_make_standalone_patch`。
+        """
+        from core.llm.client import get_llm_client
+
+        prompt = _ANALYZE_PROMPT.format(
+            concept=concept, context=(context or "")[:1500]
+        )
+        raw = await get_llm_client().generate_cloud(prompt=prompt)
+        data = _parse_analyze_json(raw)
+        if not data:
+            logger.info("LearningEngine: DeepSeek 返回无法解析，判定不值得: %s", concept)
+            return None
+
+        if not bool(data.get("worth_learning")):
+            logger.info("LearningEngine: DeepSeek 判定不值得学习: %s", concept)
+            return None
+
+        definition = str(data.get("definition", "")).strip()
+        if len(definition) < 8:
+            logger.info("LearningEngine: DeepSeek 定义过短视为无效: %s", concept)
+            return None
+
+        related = [
+            str(x).strip()[:40]
+            for x in (data.get("related") or [])
+            if str(x).strip()
+        ][:5]
+        try:
+            confidence = float(data.get("confidence", 0.7))
+        except (TypeError, ValueError):
+            confidence = 0.7
+        confidence = min(max(confidence, 0.0), 1.0)
+
+        return KnowledgePatch(
+            concept_name=concept,
+            definition=definition[:300],
+            domain=str(data.get("domain") or domain)[:60],
+            related_concepts=related,
+            confidence=confidence,
+            source="deepseek_analyze",
+        )
+
+    def _deepseek_analyze(
+        self, concept: str, context: str, domain: str = "root"
+    ) -> Optional[KnowledgePatch]:
+        """DeepSeek 兜底（同步门面，仅在本地图谱找不到可关联父节点时调用）
+
+        四重成本护栏（总开关 / 日额度 / 最小间隔 / 单次上限）在调用方与本方法内按序生效，
+        任何一层拦下都返回 None → 退回独立节点策略，学习流程不中断。
         """
         if not self.deepseek_enabled:
+            logger.debug("LearningEngine: DeepSeek 兜底被关闭: %s", concept)
             return None
-        # TODO: 调用 DeepSeek API 分析概念，确认值得学习后返回 KnowledgePatch
-        # 当前版本：放弃学习无关联概念
-        logger.info(f"LearningEngine: DeepSeek兜底跳过: {concept}")
-        return None
+
+        allowed, reason = _analyze_budget.acquire()
+        if not allowed:
+            logger.info("LearningEngine: DeepSeek 兜底跳过（%s）: %s", reason, concept)
+            return None
+
+        try:
+            patch = _run_coro_sync(
+                self._deepseek_analyze_async(concept, context, domain)
+            )
+        except Exception as e:
+            logger.warning("LearningEngine: DeepSeek 兜底调用失败（退回独立节点）: %s", e)
+            return None
+
+        if patch:
+            logger.info("LearningEngine: DeepSeek 兜底收录: %s", concept)
+        return patch
 
     def apply_patches(self, patches: dict) -> int:
         """应用已校验的 Patch 到 Skill Graph

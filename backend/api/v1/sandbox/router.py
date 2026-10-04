@@ -65,11 +65,17 @@ async def rename_sandbox(sandbox_id: str, request: RenameSandboxRequest):
 
 @router.delete("/{sandbox_id}")
 async def delete_sandbox(sandbox_id: str):
-    """删除沙盒"""
+    """删除沙盒（同时清空该沙盒的上下文轮次记录与压缩摘要）"""
     service = get_sandbox_service()
     success = service.delete(sandbox_id)
     if not success:
         raise HTTPException(status_code=404, detail=f"沙盒不存在: {sandbox_id}")
+    # V4.2: 沙盒级联清理上下文状态，避免删除后残留记录被后续同 id 复用
+    try:
+        from core.context_tracker import get_context_tracker
+        get_context_tracker().clear(sandbox_id)
+    except Exception:
+        pass
     return {"status": "success", "message": f"沙盒 {sandbox_id} 已删除"}
 
 

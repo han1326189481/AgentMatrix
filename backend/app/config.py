@@ -93,6 +93,17 @@ class Settings(BaseSettings):
     # 自学习知识是否自动并入知识图谱。默认 False = 全部落到待审队列由人工审批；
     # True 才恢复"过筛即自动入库"的旧行为。
     learning_auto_apply: bool = False
+    # ── LearningEngine._deepseek_analyze 的三重成本护栏（2026-10-04）──
+    # 场景：概念在本地图谱里找不到任何可关联父节点时，请云端判断「是否值得学习」
+    # 并给出定义。这是唯一一处「按概念逐条上云」的路径，必须封顶：
+    #   ① 总开关：关掉即完全不调云端（本地退回独立节点策略）
+    #   ② 日额度：跨进程运行期内的硬上限，防止异常循环把额度烧穿
+    #   ③ 最小间隔：两次云调用之间的冷却，避免短时间批量打满
+    learning_deepseek_enabled: bool = True
+    learning_deepseek_max_per_day: int = 20
+    learning_deepseek_min_interval_seconds: int = 30
+    # 单次 learn() 最多分析几个概念（防止一次长回答触发 N 次云调用）
+    learning_deepseek_max_concepts_per_run: int = 3
 
     # V3.5 (2026-07-31): Web Search 插件 — 时效性知识库（地点/美食/天气/旅行/评价）
     # 启用后 Knowledge Agent 检测到时效性场景时调用 DuckDuckGo + DeepSeek 摘要

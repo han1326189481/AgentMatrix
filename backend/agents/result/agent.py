@@ -117,6 +117,12 @@ class ResultAgent(BaseAgent):
                     doc_task = (parsed_summary or {}).get("doc_task", {}) or {}
 
                 if doc_task.get("task_type") in ("repair_docx", "generate_docx", "fix_pptx"):
+                    # 契约 IO 边界：写文件系统（导出 docx/pptx）
+                    from agents.base.contract import IOResource
+                    if not self._guard_io(
+                        IOResource.FILESYSTEM, f"doc_export: {doc_task.get('task_type')}"
+                    ):
+                        raise RuntimeError("契约未声明 FILESYSTEM，跳过文档落盘")
                     import asyncio as _asyncio
                     from core.document_engine.file_ops import (
                         resolve_workspace_path as _resolve_ws, get_workspace_dir as _get_ws,
@@ -329,6 +335,12 @@ class ResultAgent(BaseAgent):
 {weak_enhancement}
 请直接输出最终内容："""
 
+        # 契约 IO 边界：云端 HTTP（未声明则降级返回本地草稿）
+        from agents.base.contract import IOResource
+        if not self._guard_io(IOResource.CLOUD_API, "cloud_full_rewrite"):
+            logger.warning("Result Agent: 契约未声明 CLOUD_API，跳过云端重写")
+            return writer_output
+
         response = await self._call_llm(
             prompt, model=self.cloud_model, use_cloud=True,
             system_prompt=self._load_system_prompt(), temperature=0.3, max_tokens=4096
@@ -365,6 +377,12 @@ class ResultAgent(BaseAgent):
 {polish_directives}
 {weak_enhancement}
 请直接输出润色后的内容："""
+
+        # 契约 IO 边界：云端 HTTP（未声明则降级返回原始内容）
+        from agents.base.contract import IOResource
+        if not self._guard_io(IOResource.CLOUD_API, "cloud_polish"):
+            logger.warning("Result Agent: 契约未声明 CLOUD_API，跳过云端润色")
+            return writer_output
 
         response = await self._call_llm(
             prompt, model=self.cloud_model, use_cloud=True,

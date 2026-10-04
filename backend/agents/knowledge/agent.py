@@ -170,6 +170,12 @@ class KnowledgeAgent(BaseAgent):
         if not CodeMunchPlugin.detect_code_query(user_input):
             return result
 
+        # 契约 IO 边界：本地代码索引
+        from agents.base.contract import IOResource
+        if not self._guard_io(IOResource.LOCAL_INDEX, f"code_munch: {user_input[:40]}"):
+            result["error"] = "契约未声明 LOCAL_INDEX，跳过代码检索"
+            return result
+
         plugin = self.code_munch_plugin
         if plugin is None:
             result["error"] = "CodeMunchPlugin 不可用"
@@ -290,11 +296,14 @@ class KnowledgeAgent(BaseAgent):
             return result
 
         # Step 2: 查询时效性知识库
-        try:
-            search_result = timely_svc.search(user_input, category=category, limit=3)
-        except Exception as e:
-            logger.warning(f"[KnowledgeAgent V3.5] 时效性知识库查询失败: {e}")
-            search_result = {"fresh": [], "stale": [], "has_fresh": False, "has_stale": False}
+        # 契约 IO 边界：本地持久化知识库（SQLite/MySQL）
+        from agents.base.contract import IOResource
+        search_result = {"fresh": [], "stale": [], "has_fresh": False, "has_stale": False}
+        if self._guard_io(IOResource.DATABASE, "时效性知识库查询"):
+            try:
+                search_result = timely_svc.search(user_input, category=category, limit=3)
+            except Exception as e:
+                logger.warning(f"[KnowledgeAgent V3.5] 时效性知识库查询失败: {e}")
 
         # Step 3a: 命中未过期条目 且 非强制 → 直接使用
         # 注意：force=True 时即使有 fresh 条目也要重新搜索，因为用户抱怨可能正是因为
@@ -319,7 +328,13 @@ class KnowledgeAgent(BaseAgent):
             return result
 
         # Step 3b: 无未过期条目 或 强制模式 → 触发 Web Search
-        plugin = self.web_search_plugin
+        # 契约 IO 边界：联网检索（未声明则降级走 stale 分支）
+        from agents.base.contract import IOResource
+        plugin = (
+            self.web_search_plugin
+            if self._guard_io(IOResource.WEB, f"web_search: {user_input[:40]}")
+            else None
+        )
         if plugin is None:
             result["error"] = "WebSearchPlugin 不可用"
             # 过期条目作为降级数据使用（标记来源为 stale）
@@ -413,6 +428,11 @@ class KnowledgeAgent(BaseAgent):
     def knowledge_service(self):
         """懒加载知识库服务，并处理 MySQL 不可用时的降级"""
         if self._knowledge_service is None:
+            # 契约 IO 边界：知识库数据库（未声明则直接用内存降级服务）
+            from agents.base.contract import IOResource
+            if not self._guard_io(IOResource.DATABASE, "知识库服务连接"):
+                self._knowledge_service = self._create_fallback_service()
+                return self._knowledge_service
             try:
                 from knowledge.mysql_service import get_knowledge_service
                 self._knowledge_service = get_knowledge_service()
@@ -599,6 +619,13 @@ class KnowledgeAgent(BaseAgent):
                         import asyncio
                         from core.llm.vision_plugin import VisionPlugin
                         from core.workflow.service import _get_ws_manager
+
+                        # 契约 IO 边界：本地 Ollama GPU（视觉识别）
+                        from agents.base.contract import IOResource
+                        if not self._guard_io(
+                            IOResource.OLLAMA_GPU, f"vision: {len(images)} 张图片"
+                        ):
+                            raise RuntimeError("契约未声明 OLLAMA_GPU，跳过视觉识别")
 
                         plugin = VisionPlugin()
                         ws_mgr = _get_ws_manager()
@@ -823,6 +850,10 @@ class KnowledgeAgent(BaseAgent):
                     read_paths.extend(doc_task.reference_paths)
                     for rp in read_paths:
                         try:
+                            # 契约 IO 边界：工作区文档读取（本地文件系统）
+                            from agents.base.contract import IOResource
+                            if not self._guard_io(IOResource.FILESYSTEM, f"doc_read: {rp}"):
+                                continue
                             fpath = _resolve_ws(rp)
                             if fpath.suffix.lower() == ".docx":
                                 parsed = await _asyncio.to_thread(_parse_docx, fpath)
@@ -864,7 +895,11 @@ class KnowledgeAgent(BaseAgent):
                 "knowledge_items": knowledge_items,
                 "knowledge_count": len(knowledge_items),
                 "requirements": requirements,
-                "outline": [],
+                # 按 task_type 选取大纲模板（原 Summary Agent 的 outline 功能）
+                # 修复：此前恒为 []，导致 Writer 的「## 参考大纲」永远拼成「- 无」
+                "outline": list(
+                    TASK_TEMPLATES.get(legacy_task_type, TASK_TEMPLATES["通用任务"])
+                ),
                 "task_type": legacy_task_type,
                 "summary": self._generate_summary(input_data.content, keywords, requirements),
                 # Skill Engine V2: 传递给下游 Agent

@@ -34,6 +34,61 @@ def _get_ws_manager():
         return None
 
 
+async def _broadcast_context_usage(payload: Dict[str, Any]) -> None:
+    """推送上下文使用量（前端 ContextBar / ContextPanel 覆盖本地估算）"""
+    if not payload:
+        return
+    ws_mgr = _get_ws_manager()
+    if not ws_mgr:
+        return
+    try:
+        await ws_mgr.broadcast_context_usage(payload)
+    except Exception as e:
+        logger.debug(f"WebSocket context_usage broadcast failed: {e}")
+
+
+def _context_carry_over(input_data: WorkflowInput, current_context: Dict[str, Any]) -> None:
+    """把压缩摘要接续回本轮上下文
+
+    仅当**显式传入 sandbox_id** 且客户端未自带 history 时注入：
+    无沙盒的请求共用一个「default 桶」，直接注入会把 A 会话的摘要串到 B 会话里。
+    用量追踪本身不受此限制（见 ContextTracker.track）。
+    """
+    if not input_data.sandbox_id or current_context.get("history"):
+        return
+    try:
+        from core.context_tracker import get_context_tracker
+        pending = get_context_tracker().pending_history(input_data.sandbox_id)
+        if pending:
+            current_context["history"] = pending
+            logger.info("[Context] 注入压缩摘要接续上下文: sandbox=%s", input_data.sandbox_id)
+    except Exception as e:
+        logger.debug(f"Context carry-over skipped: {e}")
+
+
+async def _track_context_usage(
+    input_data: WorkflowInput, current_context: Dict[str, Any],
+    user_input: str, final_result: str, steps: List[WorkflowStep],
+) -> None:
+    """V4.2 接线：记录本轮 → 计算用量 → 超阈值压缩 → 推送前端
+
+    放在主链路末尾且整体 try 住：上下文追踪失败绝不能影响回答返回。
+    """
+    try:
+        from core.context_tracker import get_context_tracker
+        payload = get_context_tracker().track(
+            input_data.sandbox_id,
+            user_input,
+            {
+                "final_result": final_result,
+                "steps": [s.model_dump(mode="json") for s in steps],
+            },
+        )
+        await _broadcast_context_usage(payload)
+    except Exception as e:
+        logger.debug(f"Context tracking failed: {e}")
+
+
 class WorkflowService:
     def __init__(self, agent_registry: AgentRegistry):
         self.agent_registry = agent_registry
@@ -118,6 +173,7 @@ class WorkflowService:
     async def execute(self, input_data: WorkflowInput) -> WorkflowOutput:
         steps: List[WorkflowStep] = []
         current_context = input_data.context or {}
+        _context_carry_over(input_data, current_context)
         executed_locally = True
         difficulty_threshold = 0.0
         review_score = 0.0
@@ -1029,6 +1085,11 @@ class WorkflowService:
             except Exception as e:
                 logger.warning(f"LearningIntake scheduling failed: {e}")
 
+        # V4.2: 上下文压缩三件套接线（记录本轮 + 用量 + 超阈值压缩 + 推送）
+        await _track_context_usage(
+            input_data, current_context, original_user_input, final_result, steps
+        )
+
         return workflow_output
 
     async def _run_learning_intake(
@@ -1112,6 +1173,7 @@ class WorkflowService:
         """流式执行工作流，实时返回每个步骤的结果（含错误降级）"""
         steps: List[WorkflowStep] = []
         current_context = input_data.context or {}
+        _context_carry_over(input_data, current_context)
         executed_locally = True
         difficulty_threshold = 0.0
         complexity_score = 0.0
@@ -1331,6 +1393,11 @@ class WorkflowService:
         total_duration = time.time() - start_time
 
         logger.info(f"[STREAM] Final result length: {len(final_result)}, first 100 chars: {final_result[:100]}")
+
+        # V4.2: 上下文压缩三件套接线（记录本轮 + 用量 + 超阈值压缩 + 推送）
+        await _track_context_usage(
+            input_data, current_context, original_user_input, final_result, steps
+        )
 
         yield {
             "type": "complete",

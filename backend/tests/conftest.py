@@ -30,6 +30,7 @@
   - PendingStore 待审队列根目录重定向到 tmp_path
   - PersonalBrain 画像目录重定向到 tmp_path
   - MemoryStore 记忆目录重定向到 tmp_path（2026-10-04 补漏）
+  - LearningEngine._deepseek_analyze 云调用关闭（2026-10-04 实装护栏后补）
   - （已移除）旧版 KnowledgeService 知识库文件重定向 —— 该实现已删除
 
 若某个测试确实要验证落盘逻辑，请显式传入 `yaml_path=` / `buffer_path=`
@@ -168,6 +169,29 @@ def _isolate_memory_store(monkeypatch, tmp_path):
     d = tmp_path / "memory"
     d.mkdir(parents=True, exist_ok=True)
     monkeypatch.setattr(_ms, "get_memory_dir", lambda: str(d))
+
+
+@pytest.fixture(autouse=True)
+def _forbid_deepseek_analyze_calls(monkeypatch):
+    """禁止测试触发 `LearningEngine._deepseek_analyze` 的真实云调用。
+
+    2026-10-04 实装该兜底后，`learn()` 对「本地图谱找不到父节点」的概念会逐个上云判定；
+    测试用空/迷你 SkillGraph，几乎每个概念都找不到父节点 ⇒ 不封住就会真烧 API 额度
+    且结果依赖网络（不可复现）。同时重置一次护栏额度，避免上一个用例消耗的额度
+    影响下一个用例的断言。
+    """
+    try:
+        from app.config import settings
+    except Exception:
+        return
+
+    monkeypatch.setattr(settings, "learning_deepseek_enabled", False, raising=False)
+
+    try:
+        from core.engines.learning_engine import deepseek_analyze_budget
+        deepseek_analyze_budget().reset()
+    except Exception:
+        pass
 
 
 # 注：原 `_isolate_legacy_knowledge_service` 护栏已随旧实现一并移除
