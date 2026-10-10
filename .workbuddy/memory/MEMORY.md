@@ -63,6 +63,17 @@
 - PowerShell 里调 `python -c` 会被混合引号解析搞坏 → 写临时 .py 跑。
 - `.ps1` 脚本用 PowerShell tool 跑（Bash 里调 powershell 会被安全策略拦）。
 - 校验脚本断言**必须带上下文限定**，不能只 match 关键词（首版误报率高比没脚本更危险）。
+- ★★ **【10-10 血泪】不要用「我以为的语义」替代「用户定义的语义」，然后基于错语义下结论。**
+  翻车实录：372 个 `node_type=skill` 节点，我从 `node_kind=prompt_template` 读到「不是人类技能」，
+  就直接判成「造假数据」，还差点清理掉。**实际用户语义是「提示词模板资产，让不会写提示词的用户直接用」——
+  完全合法的功能资产。**
+  症状：同一批数据，两种语义，一个是造假一个是合法复用，**差别全在理解，不在数据**。
+  铁律：
+  1. **数据有语义，读metadata 不读字段名。** 看到 `type=skill` 不等于「技能」→ 必须读 `node_kind`。
+  2. **判定某数据「有用/无用」前，先问用户它的意图**，而不是先推断再给结论。
+  3. **有破坏性后果的判断（清理/删除/改口径），先说出来让用户拍板**，别自己下结论。
+  4. 误判已在**连续两轮**发生（10-09 方案执行表留矛盾的B 阶段，10-10 直接判造假）——
+     说明**第一次纠正后没有全链路复核**。改一处语义后，必须回头扫所有引用它的文档。
 
 ## 八、自学习链路
 - 知识类 → `core/engines/filter_net.py` 三层筛网 → **全落待审队列**，人工审批入图。**筛网是唯一入口**。
@@ -94,11 +105,34 @@
 | ReasoningGraph | `core/graphs/reasoning_graph.yaml` | 5 个 `PRESET_PATTERNS` 预置，自学习 0 |
 | CapabilityGraph | `storage/profiles/{uid}.json` 的 `capability` 子键 | 10-10 已修落盘（原 PATCH 无效写入，GET 恒 total=0） |
 | IntentGraph | `storage/intents/{uid}.json` | 10-10 已修落盘（原重启即清零，软节流信号恒 0） |
-- ⚠️ **372 个 `node_type=skill` 节点的 `metadata.node_kind` 全是 `prompt_template`**（提示词模板），不是「人类技能」。派生为 CapabilityGraph 的「用户已掌握技能」= **造假**。能力数据只能靠真实 `update_from_session` 积累，或改用 215 个 concept / 49 个 domain 节点。
+- ★★ **372 个 `node_type=skill` 节点的 `metadata.node_kind` 全是 `prompt_template`（提示词模板）—— 不是「人类技能」，是「提示词模板资产」。**
+  - ✅ **正确用法**：用户不会写提示词时，按提问匹配模板 + 变量占位符预填后直接给用户用。**这批节点的价值就在这里，372 条是实打实的功能资产。**
+  - ❌ **错误用法（10-10 我犯过，勿重犯）**：派生为 CapabilityGraph 的「用户已掌握技能」= 造假。
+  - 两者不矛盾：**同一批数据，按「模板」用合法，按「用户已掌握能力」用造假。** 判别标准 = 语义，不是节点。
+- ⚠️ **不要臆断节点语义**：看到 `node_type=skill` 就按字面理解、不去读 `metadata.node_kind` = 误判根因。**动图谱数据前先读 metadata。**
 - 前端**零图谱可视化**（`frontend/src` 下无 graph/intent/capability/reasoning 文件）。
 - 其它真 bug（已记录未修）：`service.py:410` / `learning/router.py:33` 的 `ReasoningGraph()` 新建即丢 ⇒ `usage_count` 跨进程恒 0。
 
-## 十二、★ 交付物（文档/PPT/报告）撰写铁律
+## 十二、★ 提示词模板推荐链路（已完整实现，勿当成待做功能）
+> 佳文 10-10 澄清：**这才是 B 阶段的原意** —— 系统按用户提问 + 画像给出精细化模板，让不会写提示词的用户直接用。
+> ⚠️ 我曾把372 个 `prompt_template` 节点误判为「脏数据 / 造假数据」，差点清理掉。**已确认为合法资产。**
+
+完整链路（端到端已通，**不是新增功能**）：
+| 环节 | 位置 |
+|---|---|
+| 提关键字 + 两级过滤 | `core/workflow/service.py:506-578`（L1 关键字命中 `intent_tags`；L2 领域同根兜底） |
+| 模板检索 | `core/engines/knowledge_recommendation.py::recommend_templates()`（372 节点 `subdomain_of` 反向遍历） |
+| 画像注入 | `service.py:161` `KnowledgeRecommendation(get_skill_graph(), brain=self.brain)` —— **真实传入，非空壳** |
+| IntentGraph 软节流加权 | `recommend_templates` 内`REINFORCE_BOOST`，连续关注领域模板置顶 |
+| Writer 引用 | `agents/writer/agent.py:832` `context["prompt_templates"]` → `_build_prompt_template_instruction()` |
+| 前端展示 + 一键填充 | `frontend/.../ChatInterface.tsx:578-700`（展开预览）、`:208-248` `applyTemplate()`（点击填入输入框 + 变量占位符替换） |
+
+**真实缺口（用户设想的「精细化」尚未实现的部分）**：
+- 变量默认值来自模板**静态元数据**，未结合当前提问抽取 → 模板通用，不是「为你此刻这个问题定制」
+- 画像只影响**优先级排序**，未影响「挑哪几条模板」和「填什么默认值」
+- `storage/profiles/default.json` 的 `identity`/`long_term_goals` 当前为空 → 画像对推荐**近乎零贡献**
+
+## 十三、★ 交付物（文档/PPT/报告）撰写铁律
 > 背景：开题材料经 Claude 四轮外部审稿、六轮迭代才过关。**硬伤全部由外部发现，
 > 没有一条是我自己查出来的。** 每条都对应一次实际翻车。
 
@@ -168,7 +202,17 @@
 ### 8. 备份命名
 - 版本备份用**可识别名**：`_旧版N_第N轮前_XXXX字.docx`，不用 `bak`/`bak2`。
 
-## 十三、答辩材料归档（2026-10-10 已提交）
+## 十四、答辩材料归档（2026-10-10 已提交）
 - 目录 `D:\gotothegraduate\`，三份正本 + 8 份具名旧版 + `check_materials.py`。
 - **PPT 已提交答辩（10-14），佳文明确不再改动材料** —— 后续只改代码与 README。
   若日后要改材料，先跑 `check_materials.py` 跨文档比对。
+- ★ **开题答辩不考察系统完成度**（佳文 10-10 明确）—— 材料里缺某功能不必补，那是毕业答辩的事。
+  核查结论（10-10 实测三份材料全文 70,659 字符）：
+  - ❌ 材料**没有**把已实现功能写成「待补/ 没有」—— 那种错误一处都没有
+  - ⚠️ 「提示词模板」在三份材料里出现 **0 次** —— 已实现但未写进去。**按上述决定不补**，
+    但**答辩现场务必主动演示**（这是最强功能之一，远胜「三张图谱待补数据」这种话）
+  - ⚠️ PPT 第 10 页「另三张图谱数据待补」在提交时**准确**，10-10 修Bug 后变保守过时；
+    PPT 第 20 页风险预案那句「代码就位+数据待补即为可接受状态」门槛已偏低，
+    导师问起时口头更正即可，不改材料
+  - ✅ 错误判断唯一留痕在 `三图谱补齐可行性方案_2026-10-09.md`（B 阶段表述已错），
+    **保留不改**（佳文决定），读它时记得 B 阶段是废弃的
