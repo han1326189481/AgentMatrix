@@ -34,6 +34,16 @@ class UserProfile:
     preferences: Dict = field(default_factory=dict)
     expression_style: str = ""      # "concise_technical" | "verbose_explanatory"
     learning_stage: str = ""        # "beginner" | "intermediate" | "advanced"
+    # ---- 以下为「画像信息自动填写模板」所需的身份字段（2026-10-10 新增）----
+    #: 均由纯正则抽取器写入，需用户确认后才落盘（见 extractor 的 CONFIRM_REQUIRED）
+    school: str = ""                # 学校全称，如「XX大学」
+    school_short: str = ""          # 学校简称/校区
+    major: str = ""                 # 专业，如「计算机科学与技术」
+    class_name: str = ""            # 班级，如「计科2301」
+    grade_year: str = ""            # 年级，如「2023级」/「大三」
+    degree_stage: str = ""          # 培养阶段，如「本科」/「硕士」
+    #: 学号等强身份标识**不入画像**（见 extractor.SENSITIVE_FIELDS）。
+    #: 本地画像只保留「用于填模板且语义粗粒度」的字段，强标识不进内存更不进云端。
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -48,6 +58,12 @@ class UserProfile:
             preferences=data.get("preferences", {}),
             expression_style=data.get("expression_style", ""),
             learning_stage=data.get("learning_stage", ""),
+            school=data.get("school", ""),
+            school_short=data.get("school_short", ""),
+            major=data.get("major", ""),
+            class_name=data.get("class_name", ""),
+            grade_year=data.get("grade_year", ""),
+            degree_stage=data.get("degree_stage", ""),
         )
 
 
@@ -69,7 +85,14 @@ class PersonalBrain:
         return os.path.join(get_profiles_dir(), f"{self.user_id}.json")
 
     def build_context(self) -> str:
-        """构建注入 Prompt 的上下文字符串"""
+        """构建注入 Prompt 的上下文字符串。
+
+        ⚠️ 安全边界（2026-10-10 佳文确认的设计）：
+        画像**存储在本地**，但本方法返回的字符串会作为 prompt 上下文
+        在 Judge 判走云端增强时被一并外发。因此这里**只输出粗粒度标签**，
+        姓名/学号/班级等原始值一律不进上下文。
+        正确表述是「本地存储 + 外发前脱敏」，而非「绝不外发」。
+        """
         parts = []
         if self.profile.identity:
             parts.append(f"用户身份: {self.profile.identity}")
@@ -82,7 +105,49 @@ class PersonalBrain:
             parts.append(f"表达风格: {self.profile.expression_style}")
         if self.profile.learning_stage:
             parts.append(f"学习阶段: {self.profile.learning_stage}")
+        # ---- 身份字段：只放粗粒度脱敏结果，原始值绝不进 prompt ----
+        masked = self.masked_identity()
+        if masked:
+            parts.append(f"背景(已脱敏): {', '.join(f'{k}={v}' for k, v in masked.items())}")
         return "\n".join(parts)
+
+    def masked_identity(self) -> dict:
+        """返回可外发的粗粒度身份描述（纯规则，零模型）。
+
+        ⚠️ 姓名**不参与**：姓名在中文语境下无法模糊化到仍有信息量，
+        而模板自动填充走的是本地路径，不需要外发。
+        """
+        try:
+            from core.engines.profile_extractor import mask_for_cloud
+            return mask_for_cloud({
+                "major": self.profile.major,
+                "class_name": self.profile.class_name,
+                "degree_stage": self.profile.degree_stage,
+                "grade_year": self.profile.grade_year,
+            })
+        except Exception as e:
+            logger.warning(f"masked_identity 失败，退回空结果: {e}")
+            return {}
+
+    def autofill_variables(self, variables: list) -> list:
+        """用本地画像回填模板变量（**仅本地**，不进 prompt）。
+
+        绑定规则见 core/engines/profile_autofill.py 的 BINDINGS。
+        仅当画像字段有值、且该变量**尚无 default_value** 时才写入。
+        """
+        try:
+            from core.engines.profile_autofill import autofill_variables
+            return autofill_variables(variables, {
+                "display_name": self.profile.display_name,
+                "school": self.profile.school or self.profile.school_short,
+                "major": self.profile.major,
+                "class_name": self.profile.class_name,
+                "grade_year": self.profile.grade_year,
+                "degree_stage": self.profile.degree_stage,
+            })
+        except Exception as e:
+            logger.warning(f"autofill_variables 失败，返回原变量: {e}")
+            return variables
 
     def update_from_session(self, session_data: dict):
         """从会话中更新画像并持久化到文件"""
@@ -124,6 +189,59 @@ class PersonalBrain:
 
         if capability_changed:
             self._save_capability()
+
+    # ---- 身份信息抽取（2026-10-10 新增，纯规则零模型）----
+
+    def extract_profile_from_text(self, text: str) -> dict:
+        """从用户输入抽取身份信息，**不落盘**，供上层做确认弹窗。
+
+        Returns:
+            ExtractionResult.to_dict()：
+            {"fields": {...}, "evidence": {...},
+             "sensitive_found": [...], "pending_confirm": true}
+
+        ⚠️ 抽取结果**必须经用户确认**才能调 apply_extracted_profile 落盘。
+        误抽取比漏抽取危险：把错学号填进开题报告比不填严重得多。
+        """
+        try:
+            from core.engines.profile_extractor import ProfileExtractor
+            return ProfileExtractor().extract(text).to_dict()
+        except Exception as e:
+            logger.warning(f"extract_profile_from_text 失败: {e}")
+            return {"fields": {}, "evidence": {}, "sensitive_found": [],
+                    "pending_confirm": True}
+
+    def apply_extracted_profile(self, fields: Dict[str, str],
+                                confirmed: bool = False) -> Dict[str, str]:
+        """把已确认的身份字段写入画像并落盘。
+
+        Args:
+            fields:    字段名 → 值（必须是 UserProfile 上的合法字段）
+            confirmed: 是否已经过用户确认。**False 时只返回将要写入的内容，不落盘。**
+
+        Returns:
+            {"applied": [...], "skipped": [...]}，applied 为实际写入的字段名。
+        """
+        allowed = {"display_name", "school", "school_short", "major",
+                   "class_name", "grade_year", "degree_stage"}
+        applied, skipped = [], []
+
+        for key, val in (fields or {}).items():
+            if key not in allowed:
+                skipped.append(key)
+                continue
+            if not str(val or "").strip():
+                continue
+            setattr(self.profile, key, str(val).strip())
+            applied.append(key)
+
+        if not confirmed:
+            # 未确认：只回显，不落盘
+            return {"applied": [], "pending": applied, "skipped": skipped}
+
+        if applied:
+            self._save_profile()
+        return {"applied": applied, "skipped": skipped}
 
     def _load_profile(self) -> UserProfile:
         """从 JSON 文件加载用户画像，文件不存在时返回空画像"""

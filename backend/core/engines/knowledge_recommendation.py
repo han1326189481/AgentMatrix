@@ -22,6 +22,116 @@ class KnowledgeRecommendation:
     #: 加权介入时给同领域提示词模板的优先级加成（与子域匹配的 0.05 同量级）
     REINFORCE_BOOST = 0.05
 
+    #: 画像学习阶段 → 模板难度加成。
+    #: 依据：UserProfile.learning_stage 与模板 metadata.difficulty 用同一套三档字符串
+    #: （beginner / intermediate / advanced），且 cognitive_controller.py 已在用同一字段做分档，
+    #: 此处只是把同一映射补到模板推荐这一路，不新造语义。
+    #:
+    #: ⚠️ 量化依据：372 个模板的 quality_score 区间仅 0.85~0.95（跨度 0.10），
+    #: 因此 ±0.03 量级的加成足以翻转相邻排序；再大就会压过「匹配强度」这一更重要的信号。
+    STAGE_BOOST = {
+        "beginner": 0.03,      # 略抬基础模板（新手先用趁手的上手）
+        "intermediate": 0.0,   # 中档不干预，默认行为
+        "advanced": -0.03,     # 压低基础模板，让高阶模板上浮
+    }
+    #: 画像阶段偏好：beginner 优先给「带默认值的模板」（选填变量不会让新手卡在填空上）
+    STAGE_PREFER_DEFAULT_VALUE = {"beginner", "intermediate"}
+    #: 画像阶段偏好：advanced 额外抬升「含高阶变量」的模板（方法论/创新点/推理类）
+    ADVANCED_SIGNAL_VARS = {
+        "methodology", "innovation", "theory", "theories", "theoretical_base",
+        "framework", "core_concepts", "method_innovation", "theory_innovation",
+        "research_base", "key_evidence", "hypotheses", "limitations", "implications",
+    }
+    ADVANCED_STAGE_BOOST = 0.04
+
+    def _stage_boost(self, tpl_node) -> tuple:
+        """按用户画像学习阶段计算 (优先级加成, 理由后缀)。
+
+        画像为空（learning_stage 为空字符串）时返回 (0.0, "")，
+        此时调用方拼接结果与改造前逐字节一致 —— 这是本方法的安全前提。
+        """
+        try:
+            brain = self.brain
+            stage = ""
+            if brain is not None:
+                stage = str(getattr(getattr(brain, "profile", None),
+                                    "learning_stage", "") or "")
+            stage = stage.strip().lower()
+            if stage not in self.STAGE_BOOST:
+                return 0.0, ""
+
+            boost = self.STAGE_BOOST[stage]
+            md = tpl_node.metadata or {}
+            variables = md.get("variables") or []
+
+            # 新手/中档：带默认值的模板更友好（新用户不必先填一堆空）
+            if stage in self.STAGE_PREFER_DEFAULT_VALUE:
+                has_default = any(
+                    isinstance(v, dict) and v.get("default_value")
+                    for v in variables
+                )
+                if has_default:
+                    boost += 0.01
+
+            # 高阶：含方法论/创新点类变量的模板才是用户真正需要的
+            if stage == "advanced":
+                names = {
+                    str(v.get("name") or "")
+                    for v in variables if isinstance(v, dict)
+                }
+                if names & self.ADVANCED_SIGNAL_VARS:
+                    boost += self.ADVANCED_STAGE_BOOST
+
+            return boost, f"；画像阶段 {stage} 适配模板难度"
+        except Exception as e:  # 画像异常不应打断推荐主流程
+            logger.warning(f"KnowledgeRecommendation: 画像阶段加成失败，降级为无加成: {e}")
+            return 0.0, ""
+
+    def _autofill_variables(self, variables: list) -> list:
+        """用本地画像回填模板变量（仅本地，不进 prompt）。
+
+        画像为空时返回**原列表的对象引用**（不复制、不改），
+        因此空画像下的输出与改造前完全一致。
+        """
+        if not variables:
+            return variables
+        if self.brain is None:
+            return variables
+        try:
+            from core.personal_brain.brain import PersonalBrain  # noqa: F401
+            profile = {
+                "display_name": self._profile_field("display_name"),
+                "identity": self._profile_field("identity"),
+                "learning_stage": self._profile_field("learning_stage"),
+                "school": self._profile_field("school") or self._profile_field("school_short"),
+                "major": self._profile_field("major"),
+                "class_name": self._profile_field("class_name"),
+                "grade_year": self._profile_field("grade_year"),
+                "degree_stage": self._profile_field("degree_stage"),
+            }
+            if not any(profile.values()):
+                return variables
+            from core.engines.profile_autofill import autofill_variables
+            return autofill_variables(variables, profile)
+        except Exception as e:
+            logger.warning(f"KnowledgeRecommendation: 画像回填变量失败，返回原变量: {e}")
+            return variables
+
+    def _profile_field(self, name: str) -> str:
+        """读取画像标量字段，缺失一律返回空串（绝不返回 None 或抛错）。"""
+        try:
+            brain = self.brain
+            if brain is None:
+                return ""
+            profile = getattr(brain, "profile", None)
+            if profile is None:
+                return ""
+            val = getattr(profile, name, "")
+            return str(val or "").strip()
+        except Exception as e:
+            logger.warning(f"KnowledgeRecommendation: 读取画像字段 {name} 失败: {e}")
+            return ""
+
     def __init__(self, skill_graph, brain=None):
         self.skill_graph = skill_graph
         self.brain = brain
@@ -166,15 +276,18 @@ class KnowledgeRecommendation:
                 if fd == td or fd.startswith(td + ".") or td.startswith(fd + "."):
                     focus_boost = self.REINFORCE_BOOST
 
+            # 画像阶段加成：仅当 learning_stage 非空才生效，空画像行为与改造前一致
+            stage_boost, stage_reason = self._stage_boost(tpl_node)
+
             recommendations.append({
                 "type": "prompt_template",
                 "node": tpl_node.name,
                 "node_id": tpl_node.id,
-                "reason": reason,
+                "reason": reason + stage_reason,
                 # 直接匹配的模板 priority 加 boost，确保排在领域无关的高分模板之前
-                "priority": min(quality_score + boost + focus_boost, 1.0),
+                "priority": min(quality_score + boost + focus_boost + stage_boost, 1.0),
                 "template_text": tpl_node.metadata.get("template_text", ""),
-                "variables": tpl_node.metadata.get("variables", []),
+                "variables": self._autofill_variables(tpl_node.metadata.get("variables") or []),
                 "intent_tags": tpl_node.metadata.get("intent_tags", []),
                 "quality_score": quality_score,
                 "domain": tpl_node.metadata.get("domain", "") or tpl_node.domain,
