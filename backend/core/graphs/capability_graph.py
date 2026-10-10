@@ -45,7 +45,14 @@ class CapabilityGraph:
 
     def update(self, skill_node_id: str, proficiency: Proficiency,
                evidence: str = ""):
-        """更新能力"""
+        """更新能力
+
+        `proficiency` 允许传枚举或字符串（调用方两处都有：
+        `update_from_session` 传 "practice" 字符串，API 层传枚举），
+        在此统一成枚举，避免落盘后同一字段混两种类型。
+        """
+        if isinstance(proficiency, str) and not isinstance(proficiency, Proficiency):
+            proficiency = Proficiency(proficiency)
         if skill_node_id not in self.nodes:
             self.nodes[skill_node_id] = CapabilityNode(
                 skill_node_id=skill_node_id, proficiency=proficiency)
@@ -74,3 +81,64 @@ class CapabilityGraph:
             if all(self.has(p.id) for p in prereqs):
                 ready.append(node_id)
         return ready
+
+    # ============================================================
+    # 序列化（2026-10-10 新增）
+    #
+    # 设计约束：**本类不碰文件 I/O**，只负责 dict <-> 对象。
+    # 落盘由 `PersonalBrain._save_capability()` 负责，与既有的
+    # `_save_profile()` 同构 —— 这样 conftest 里
+    # `_isolate_personal_brain_profiles` 那条 fixture 只要 patch
+    # `brain.get_profiles_dir`，本图的落盘路径就自动被隔离。
+    # ⚠️ 若把 open()/json.dump 写进本类并自己 import get_profiles_dir，
+    #    fixture 覆盖不到 → 测试会直接写进生产 storage/profiles/。
+    #    （与 2026-09-24 知识库清空事故同款漏网，不要改这个约定。）
+    # ============================================================
+
+    def to_dict(self) -> dict:
+        """序列化为可 JSON 化的 dict"""
+        return {
+            "user_id": self.user_id,
+            "nodes": {
+                node_id: {
+                    "skill_node_id": n.skill_node_id,
+                    # Proficiency 是 str Enum，json 不认识 Enum 本身，
+                    # 必须取 .value 否则 TypeError: Object of type ... is not JSON serializable
+                    "proficiency": (n.proficiency.value
+                                    if isinstance(n.proficiency, Proficiency)
+                                    else str(n.proficiency)),
+                    "evidence": list(n.evidence),
+                    "last_practiced": n.last_practiced,
+                    "practice_count": n.practice_count,
+                }
+                for node_id, n in self.nodes.items()
+            },
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict, user_id: str = "") -> "CapabilityGraph":
+        """从 dict 恢复。
+
+        逐节点 try/except：单个节点数据损坏（枚举值非法、字段缺失）时
+        跳过该节点而不是整图报废 —— 这是读用户积累数据的路径，
+        丢一条远好过丢全部。
+        """
+        graph = cls(user_id or data.get("user_id", "default"))
+        raw_nodes = data.get("nodes") or {}
+        if not isinstance(raw_nodes, dict):
+            return graph
+        for node_id, raw in raw_nodes.items():
+            if not isinstance(raw, dict):
+                continue
+            try:
+                prof = Proficiency(raw.get("proficiency", Proficiency.NONE.value))
+            except ValueError:
+                prof = Proficiency.NONE
+            graph.nodes[node_id] = CapabilityNode(
+                skill_node_id=raw.get("skill_node_id", node_id),
+                proficiency=prof,
+                evidence=list(raw.get("evidence") or []),
+                last_practiced=raw.get("last_practiced"),
+                practice_count=int(raw.get("practice_count") or 0),
+            )
+        return graph

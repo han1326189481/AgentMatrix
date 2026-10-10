@@ -142,6 +142,13 @@ def get_profiles_dir() -> str:
     return path
 
 
+def get_intents_dir() -> str:
+    """获取意图图谱持久化目录路径（与画像同根，独立子目录）"""
+    path = os.path.join(get_storage_dir(), 'intents')
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
 def get_memory_dir() -> str:
     """获取长期记忆目录路径"""
     path = os.path.join(get_storage_dir(), 'memory')

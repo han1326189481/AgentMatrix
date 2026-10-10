@@ -18,6 +18,8 @@ __pycache__/
 env/
 venv/
 .pytest_cache/
+# pytest --basetemp 固定目录（见 backend/pyproject.toml 的 addopts 注释）
+.pytest_tmp/
 .coverage
 htmlcov/
 *.egg-info/

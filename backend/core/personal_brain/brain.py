@@ -16,6 +16,7 @@ from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Optional
 import json
 import os
+import shutil
 import threading
 import logging
 from shared.platform import get_profiles_dir
@@ -60,6 +61,7 @@ class PersonalBrain:
         self.user_id = user_id
         self.profile = self._load_profile()
         self.capability = CapabilityGraph(user_id)
+        self._load_capability()
 
     @property
     def _profile_path(self) -> str:
@@ -90,6 +92,13 @@ class PersonalBrain:
             self.capability.update(node_id, "practice",
                                    evidence=f"会话 {session_data.get('session_id')}")
 
+        # ⚠️ 2026-10-10 修正：能力图谱的改动原先完全不落盘。
+        # 这里的 capability.update() 只改内存，随后 if has_changes 为假时
+        # 连 _save_profile() 都不调 → 会话里练过的技能重启即丢，
+        # 且 API 层 PATCH /capability 也是无效写入（对象随请求丢弃）。
+        # 现在能力图谱与画像同文件同生命周期，任一变更都触发持久化。
+        capability_changed = bool(skill_nodes)
+
         # 根据技能节点推断用户身份
         has_changes = False
         if skill_nodes:
@@ -112,6 +121,9 @@ class PersonalBrain:
 
             if has_changes:
                 self._save_profile()
+
+        if capability_changed:
+            self._save_capability()
 
     def _load_profile(self) -> UserProfile:
         """从 JSON 文件加载用户画像，文件不存在时返回空画像"""
@@ -139,3 +151,73 @@ class PersonalBrain:
             logger.debug(f"Profile saved: {self._profile_path}")
         except Exception as e:
             logger.error(f"Failed to save profile: {self._profile_path} error={e}")
+
+    # ============================================================
+    # 能力图谱持久化（2026-10-10 新增，修「PATCH 无效写入」）
+    #
+    # 与画像共用同一个 JSON 文件的 `capability` 子键，而不是另开文件。
+    # 理由：复用 `_profile_path` ⇒ 自动沿用 conftest 里
+    # `_isolate_personal_brain_profiles` 对 `get_profiles_dir` 的 patch，
+    # 不需要为能力图谱再写一条 fixture，也就不存在「新路径忘记隔离」
+    # 这个 9/24 同款漏网口。
+    # ============================================================
+
+    def _load_capability(self):
+        """从画像文件恢复能力图谱；文件不存在或无该键时保持为空图。"""
+        try:
+            if not os.path.exists(self._profile_path):
+                return
+            with self._file_lock:
+                with open(self._profile_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            raw = data.get("capability")
+            if not raw:
+                return
+            self.capability = CapabilityGraph.from_dict(raw, user_id=self.user_id)
+            logger.debug(
+                f"Capability restored: {len(self.capability.nodes)} 节点"
+            )
+        except json.JSONDecodeError as e:
+            # 文件损坏时画像已单独处理过；这里静默降级为空图，
+            # 不能因能力图谱读不出来就让整个 PersonalBrain 构造失败。
+            logger.warning(f"Capability data unreadable, starting empty: {e}")
+        except Exception as e:
+            logger.warning(f"Failed to load capability: {e}")
+
+    def _save_capability(self):
+        """把能力图谱写回画像文件的 `capability` 子键（原子写 + 保留 .bak）。
+
+        不整体重写 profile 子键 —— 只改 capability 那一个字段，
+        避免并发下把画像字段写成旧值。
+        """
+        try:
+            data = {}
+            if os.path.exists(self._profile_path):
+                with self._file_lock:
+                    with open(self._profile_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+            data["capability"] = self.capability.to_dict()
+
+            with self._file_lock:
+                if os.path.exists(self._profile_path):
+                    shutil.copy2(self._profile_path, self._profile_path + ".bak")
+                tmp = self._profile_path + ".tmp"
+                with open(tmp, "w", encoding="utf-8") as f:
+                    json.dump(data, f, ensure_ascii=False, indent=2)
+                os.replace(tmp, self._profile_path)
+            logger.debug(
+                f"Capability saved: {len(self.capability.nodes)} 节点"
+            )
+        except Exception as e:
+            logger.error(
+                f"Failed to save capability: {self._profile_path} error={e}"
+            )
+
+    def save(self):
+        """显式持久化画像 + 能力图谱。
+
+        API 层改完能力等级后必须调用，否则改动只存在于请求生命周期内的
+        临时对象上（这正是 PATCH 失效的根因）。
+        """
+        self._save_profile()
+        self._save_capability()

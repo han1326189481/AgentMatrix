@@ -35,8 +35,8 @@ AgentMatrix is a desktop AI assistant built around a 5-Agent responsibility chai
 ## Highlights
 
 - **Self-Learning System**: A closed loop where Review Agent feedback is automatically collected, filtered by confidence, and used to generate skill patches that improve the system over time — no manual retraining required.
-- **User Profiling**: A 7-dimensional cognitive profile (identity, goals, preferences, abilities, projects, memory, context) that auto-evolves based on conversation history, combined with a long-term memory store that scores and prunes memories by importance, recency, and access frequency.
-- **Hybrid Local-Cloud Inference**: A dual-threshold routing mechanism (difficulty + review score) dynamically decides whether a task is handled locally or enhanced by the cloud, with a strong-signal-word correction to counter LLM underestimation of task difficulty.
+- **User Profiling**: A 7-dimensional cognitive profile (identity, goals, preferences, abilities, projects, memory, context) that auto-evolves based on conversation history, combined with a long-term memory store that scores and prunes memories by importance, recency, and access frequency. Both the profile and its Capability Graph (per-skill proficiency with evidence and practice counts) are persisted to disk and restored on restart.
+- **Hybrid Local-Cloud Inference**: A four-level rule-only decision chain (critical-risk → quality-rescue fallback → difficulty tier → signal-word boost) decides whether a task is handled locally or enhanced by the cloud, with a strong-signal-word correction to counter systematic LLM underestimation of task difficulty. Every decision is recorded with an auditable rationale.
 - **Vision Model**: `qwen2.5vl:7b` integrated as a pluggable plugin. Since V4.4 the vision model and the main text model are the **same multimodal model**, so image recognition reuses the resident model with zero swap cost — supporting PPT/Word screenshots → Markdown, code screenshots → code blocks, and general images → objective descriptions.
 - **Complaint-Aware UX**: When users express dissatisfaction, the system classifies the complaint type, generates an apology, and offers targeted clarification questions (with A/B options) before re-answering — forming a complete detection → apology → clarification → re-answer loop.
 - **Desktop Application**: Packaged as a Tauri desktop app with an embedded Python backend (PyInstaller), providing a zero-deployment, privacy-first local AI assistant.
@@ -108,7 +108,9 @@ Two subsystems work together to model the user's cognitive state:
 
 **PersonalBrain (7-Dimensional Profile):**
 - Dimensions: identity, long-term goals, preferences, expression style, learning stage, abilities, context.
-- Persisted to `storage/profiles/{user_id}.json` with thread-safe access.
+- Persisted to `storage/profiles/{user_id}.json` with thread-safe access (atomic write + `.bak`).
+- The same file carries the **Capability Graph** under its `capability` key, so proficiency
+  updates are persisted alongside the profile and restored on the next construction.
 - Auto-infers user identity from skill nodes (e.g., coding/tech → developer, education/campus → student).
 - Injected into Writer Agent prompts via `build_context()`.
 
@@ -125,20 +127,41 @@ Two subsystems work together to model the user's cognitive state:
 
 ### 4. Hybrid Local-Cloud Inference
 
-The Judge Agent uses a V2.3 dual-threshold decision matrix:
+The Judge Agent applies a four-level decision chain. **The levels are evaluated in order — the
+first matching level wins**, so a low difficulty does not guarantee local execution.
 
-| Difficulty | Review Score | Decision | Cloud Mode |
-|------------|--------------|----------|------------|
-| < 0.50 | any | local_output | none |
-| 0.50 – 0.65 | ≥ 0.70 | local_output | none |
-| 0.50 – 0.65 | < 0.70 | cloud_enhance | polish |
-| 0.65 – 0.80 | ≥ 0.80 | local_output | none |
-| 0.65 – 0.80 | < 0.80 | cloud_enhance | full_rewrite |
-| ≥ 0.80 | any | cloud_enhance | full_rewrite |
+| Priority | Condition | Decision | Cloud Mode |
+|----------|-----------|----------|------------|
+| 1 | `risk_level == "critical"` | `cloud_enhance` | `full_rewrite` |
+| 2 | `weighted_score < 0.50` | `cloud_enhance` | `full_rewrite` |
+| 2b | `weighted_score ∈ [0.50, 0.70)` **and** based on audited self-learned knowledge | `local_output` | `none` |
+| 3 | `difficulty < 0.50` | `local_output` | `none` |
+| 4 | `difficulty ∈ [0.50, 0.65)` and `weighted_score ≥ 0.70` | `local_output` | `none` |
+| 4b | `difficulty ∈ [0.50, 0.65)` and `weighted_score < 0.70` | `cloud_enhance` | `polish_<weakest dimension>` |
+| 5 | `difficulty ∈ [0.65, 0.80)` and `weighted_score ≥ 0.80` | `local_output` | `none` |
+| 5b | `difficulty ∈ [0.65, 0.80)` and `weighted_score < 0.80` | `cloud_enhance` | `full_rewrite` |
+| 6 | `difficulty ≥ 0.80` | `cloud_enhance` | `full_rewrite` |
 
-- **Strong-Signal-Word Correction**: When ≥ 2 complexity signal words are detected, difficulty is boosted to 0.70 to counter LLM underestimation.
-- **Weak-Dimension-Aware Routing**: The routing decision considers weak dimensions from Review (accuracy/professional/completeness) to choose between `polish` and `full_rewrite`.
-- **Graceful Degradation**: If the DeepSeek API key is not configured, cloud_enhance degrades to local_output. If the cloud API call fails (401/timeout/network), Result Agent preserves the Writer's original output.
+**Notes on the two thresholds — they act on different variables and must not be conflated:**
+
+- **`difficulty`** (from the Review Agent) selects the tier.
+- **`weighted_score`** (the Review Agent's weighted quality score) decides whether the cloud
+  path is actually taken. The quality-rescue fallback threshold is `0.50`, relaxed to **`0.40`**
+  when the answer is grounded in audited self-learned knowledge (a trust bonus — the system is
+  more willing to keep such answers local).
+- Because level 2 outranks the difficulty tiers, `difficulty < 0.50` with a low score still
+  escalates to the cloud. Lowering the difficulty boundary does **not** reduce cloud usage.
+
+- **Strong-Signal-Word Correction**: When ≥ 2 complexity signal words are detected, difficulty is
+  boosted to 0.70 to counter systematic LLM underestimation of task difficulty.
+- **Weak-Dimension-Aware Routing**: Within the polish tiers, the cloud mode targets the weakest
+  dimension reported by Review (`polish_accuracy`, `polish_completeness`, …).
+- **Review weighting**: the rule-engine path scores six dimensions —
+  accuracy 0.25, professional 0.20, completeness 0.20, reasoning 0.15, structure 0.10,
+  actionable 0.10. Every routing decision writes its rationale into `reason[]` for audit.
+- **Graceful Degradation**: Without a DeepSeek API key, every `cloud_enhance` row degrades to
+  `local_output`. If the cloud call fails (401 / timeout / network), Result Agent preserves the
+  Writer's original output.
 
 ### 5. Vision Model Integration
 
@@ -202,12 +225,24 @@ Industry-standard tools are preferred over hand-written parsers for quality:
 
 A "Graph First, Engine Second" design philosophy with a suite of graph engines:
 
-- **Skill Graph**: Skill relationships and hierarchy.
-- **Capability Graph**: Tracks user skill mastery progress, integrated with the user profile.
-- **Reasoning Graph**: Reasoning path representation.
-- **Intent Graph**: Intent understanding and disambiguation.
+| Graph | Purpose | Persistence | Data status |
+|-------|---------|-------------|-------------|
+| **Skill Graph** | Skill relationships and hierarchy | `core/graphs/skill_graph.yaml` | **Populated** — 636 nodes / 435 edges |
+| **Capability Graph** | Per-skill user proficiency (5 levels) with evidence and practice counts | `storage/profiles/{user_id}.json` → `capability` | Persisted; populated by actual usage |
+| **Reasoning Graph** | Reasoning patterns and applicable domains | `core/graphs/reasoning_graph.yaml` | 5 preset patterns; self-learned patterns pending review |
+| **Intent Graph** | Session intent timeline (domain, task type, involved skills) | `storage/intents/{user_id}.json` | Persisted; accumulates with real sessions |
+
+- **Capability Graph** is loaded and saved together with the user profile, so proficiency updates
+  survive a restart. `GET/PATCH /api/v1/brain/{user_id}/capability` reads and writes it.
+- **Intent Graph** records one entry per session and persists immediately (capped at the most
+  recent 100). Its `get_consecutive_domain_run()` signal drives soft throttling in
+  `knowledge_recommendation.py` — repeated questions in the same domain still get recommended
+  content, but at a lower priority.
 - **Cognitive Controller**: The cognitive hub that coordinates the local planner, decomposer, learning engine, and knowledge recommendation engine.
 - **Audit & Validation Pipeline**: Knowledge auditor → problem detection → patch generation → patch validator → skill improvement.
+
+> The four graphs are at different maturity levels by design: the Skill Graph carries the
+> routing signals today, while the other three accumulate data through actual use.
 
 ---
 

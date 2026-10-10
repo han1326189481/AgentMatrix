@@ -113,6 +113,10 @@ async def update_user_capability(user_id: str, body: CapabilityUpdateRequest):
             proficiency_enum,
             evidence=body.evidence or "",
         )
+        # ⚠️ 2026-10-10 修正：原先 update() 之后直接返回，brain 实例
+        # 随请求结束被丢弃，改动从不落盘 → GET /capability 永远 total=0。
+        # 必须显式持久化，否则这个 PATCH 是无效写入。
+        brain.save()
         return CapabilityUpdateResponse(
             status="updated",
             user_id=user_id,

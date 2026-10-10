@@ -47,7 +47,12 @@ python = "3.12"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = "-v --tb=short"
+# --basetemp 固定临时目录到仓库内：pytest 收尾要 rm_rf 删临时目录，
+# 默认位置在 %TEMP%\pytest-of-*，长路径前缀（\\?\）会让 WorkBuddy 的
+# 安全删除护栏 trash 失败并 fail-closed，导致 subprocess 管道不关、
+# join() 永久阻塞 —— 表现为「测试全过但进程不退出」（曾误诊为图谱加载慢）。
+# 固定到仓库内相对路径后实测 34 用例 2.0s 正常退出。
+addopts = "-v --tb=short --basetemp=.pytest_tmp"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 

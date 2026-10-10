@@ -9,7 +9,13 @@
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 from collections import Counter
+import json
+import logging
+import os
+import shutil
 import time
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -24,12 +30,128 @@ class IntentRecord:
 
 
 class IntentGraph:
-    """意图时间线 — 用户会话历史的时序视图"""
+    """意图时间线 — 用户会话历史的时序视图
 
-    def __init__(self, user_id: str, max_records: int = 100):
+    持久化（2026-10-10 新增）：`storage/intents/{user_id}.json`。
+    此前记录只在内存里，`WorkflowService` 每次请求新建实例 → 重启即清零，
+    `get_consecutive_domain_run` 软节流在真实使用中几乎永远返回 0。
+    """
+
+    def __init__(self, user_id: str, max_records: int = 100,
+                 storage_dir: Optional[str] = None, persist: bool = True):
         self.user_id = user_id
         self.max_records = max_records
         self.records: List[IntentRecord] = []
+        # storage_dir 可注入：测试传 tmp_path 即完全隔离生产目录。
+        # persist=False 则纯内存，不读不写磁盘。
+        self._storage_dir = storage_dir
+        self._persist = persist
+        if persist:
+            self._load()
+
+    @property
+    def storage_dir(self) -> str:
+        """持久化目录：注入优先，否则走平台默认目录。"""
+        if self._storage_dir is not None:
+            return self._storage_dir
+        from shared.platform import get_intents_dir
+        return get_intents_dir()
+
+    @property
+    def _file_path(self) -> str:
+        return os.path.join(self.storage_dir, f"{self.user_id}.json")
+
+    def to_dict(self) -> dict:
+        return {
+            "user_id": self.user_id,
+            "max_records": self.max_records,
+            "records": [
+                {
+                    "session_id": r.session_id,
+                    "question": r.question,
+                    "domain": r.domain,
+                    "task_type": r.task_type,
+                    "skill_nodes": list(r.skill_nodes),
+                    "timestamp": r.timestamp,
+                }
+                for r in self.records
+            ],
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict, **kwargs) -> "IntentGraph":
+        graph = cls(
+            user_id=data.get("user_id", "default"),
+            max_records=int(data.get("max_records") or 100),
+            **kwargs,
+        )
+        # 绕过 __init__ 的自动 load：数据已在手，直接填。
+        graph.records = []
+        for raw in (data.get("records") or []):
+            if not isinstance(raw, dict):
+                continue
+            try:
+                graph.records.append(IntentRecord(
+                    session_id=raw.get("session_id", ""),
+                    question=raw.get("question", ""),
+                    domain=raw.get("domain", ""),
+                    task_type=raw.get("task_type", ""),
+                    skill_nodes=list(raw.get("skill_nodes") or []),
+                    timestamp=float(raw.get("timestamp") or time.time()),
+                ))
+            except (TypeError, ValueError) as e:
+                # 单条损坏不拖垮整图 —— 这是用户长期积累数据的读路径。
+                logger.warning(f"IntentGraph: 跳过损坏记录: {e}")
+        graph.records = graph.records[-graph.max_records:]
+        return graph
+
+    def _load(self):
+        """从磁盘恢复；文件不存在或损坏时保持为空（不抛异常）。"""
+        try:
+            path = self._file_path
+            if not os.path.exists(path):
+                return
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if not isinstance(data, dict):
+                return
+            self.records = []
+            for raw in (data.get("records") or []):
+                if not isinstance(raw, dict):
+                    continue
+                try:
+                    self.records.append(IntentRecord(
+                        session_id=raw.get("session_id", ""),
+                        question=raw.get("question", ""),
+                        domain=raw.get("domain", ""),
+                        task_type=raw.get("task_type", ""),
+                        skill_nodes=list(raw.get("skill_nodes") or []),
+                        timestamp=float(raw.get("timestamp") or time.time()),
+                    ))
+                except (TypeError, ValueError) as e:
+                    logger.warning(f"IntentGraph: 跳过损坏记录: {e}")
+            self.records = self.records[-self.max_records:]
+            logger.debug(f"IntentGraph 恢复 {len(self.records)} 条记录 <- {path}")
+        except Exception as e:
+            logger.warning(f"IntentGraph 加载失败，按空图处理: {e}")
+
+    def save(self) -> bool:
+        """原子写 + 保留 .bak。返回是否成功（失败不抛，避免打断主链路）。"""
+        if not self._persist:
+            return False
+        try:
+            os.makedirs(self.storage_dir, exist_ok=True)
+            path = self._file_path
+            if os.path.exists(path):
+                shutil.copy2(path, path + ".bak")
+            tmp = path + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(self.to_dict(), f, ensure_ascii=False, indent=2)
+            os.replace(tmp, path)
+            return True
+        except Exception as e:
+            logger.warning(f"IntentGraph 持久化失败: {e}")
+            return False
 
     def record(self, session_id: str, question: str, domain: str = "",
                task_type: str = "", skill_nodes: Optional[List[str]] = None):
@@ -44,6 +166,9 @@ class IntentGraph:
         # 保持最大记录数
         if len(self.records) > self.max_records:
             self.records = self.records[-self.max_records:]
+        # 每次记录即落盘：否则进程退出后软节流信号全部丢失，
+        # get_consecutive_domain_run 的跨会话连续计数等于永远为 0。
+        self.save()
 
     def get_consecutive_domain(self, window: int = 3) -> Optional[str]:
         """检测最近 N 次是否连续同领域

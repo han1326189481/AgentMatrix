@@ -152,6 +152,29 @@ def _isolate_personal_brain_profiles(monkeypatch, tmp_path):
 
 
 @pytest.fixture(autouse=True)
+def _isolate_intent_graph_storage(monkeypatch, tmp_path):
+    """意图图谱持久化重定向到 tmp_path。
+
+    2026-10-10 新增：`IntentGraph` 加了 JSON 落盘（此前纯内存，重启即清零）。
+    `WorkflowService.__init__` 里有 `IntentGraph(user_id="default")`，
+    任何跑到工作流链路的测试都会写 `storage/intents/default.json` ——
+    与 `_isolate_personal_brain_profiles` / `_isolate_memory_store` 同款漏网，
+    不封住就会在生产目录里攒测试数据。
+
+    同时把 `get_intents_dir` 打到 tmp_path，双保险：
+    既覆盖显式传 storage_dir 的，也覆盖走平台默认路径的。
+    """
+    try:
+        from shared.platform import get_intents_dir
+    except Exception:
+        return
+
+    d = tmp_path / "intents"
+    d.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr("shared.platform.get_intents_dir", lambda: str(d))
+
+
+@pytest.fixture(autouse=True)
 def _isolate_memory_store(monkeypatch, tmp_path):
     """长期记忆读写重定向到 tmp_path。
 
